@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>跨表单显示</title>
+	<link href="./libs/editor.css" rel="stylesheet">
+	<link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+	<link href="./libs/font-awesome.css" rel="stylesheet">
+	<link href="./libs/select2.css" rel="stylesheet">
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/bootstrap-select.js"></script>
+	<script src="./libs/bootstrap-select-zh_CN.js"></script>
+	<script src="./libs/select2.js"></script>
+	<script src="./libs/editor.js"></script>
+	<script src="./libs/bootbox.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<div class="col-sm-24">
+			<div class="col-sm-12">
+				<select id="elementID" class="form-control" onchange="directElementChange();">
+				</select>
+			</div>
+		<div class="col-sm-2">
+			<button onclick="btnAdd();" class="btn btn-primary">添加</button>
+		</div>
+	</div>
+	<div class="col-sm-24">
+		<div class="col-sm-24" id="directToValueDiv" style="display: none;">
+			<input  name="directToValue" type="radio"/>
+		</div>
+	</div>
+	<table class="table table-bordered">
+        <tr class="active">
+            <td>数据元ID<i class="fa fa-refresh btn" onclick="refreshShowArray();"></i></td>
+            <td>数据值ID</td>
+            <td>操作</td>
+        </tr>
+		<tbody id="tableBody">
+		</tbody>
+	</table>
+</div>
+<div class="hide">
+	<select id="selectSample">
+		<optgroup></optgroup>
+		<option value="0">请选择</option>
+	</select>
+	<table>
+		<tr id="dataTR">
+			<td>
+                <label class="c-element-id"></label><br>
+				<label class="c-element-name"></label>
+            </td>
+			<td>
+				<label class="c-value-id"></label><br>
+				<label class="c-value-name"></label>
+            </td>
+			<td>
+				<button onclick="btnDelete(this);" class="btn btn-danger">删除</button>
+            </td>
+		</tr>
+	</table>
+</div>
+<script type='text/javascript'>
+$(document).ready(function ()
+{
+    parent.$("#parentSaveBtn").addClass("hidden");
+	tempGrid = parent.getGrid();
+
+	refreshShowArray();
+
+	$.post(apiURL+'/CRFSvr/searchElementAlias', {id: parent.template_id}, function (res)
+	{
+		if(res.code == 0)
+		{
+			var elementArr = [];
+			var inputs = res.data;
+			for (var i=0; i<inputs.length; i++) {
+				row = inputs[i];
+				elementArr.push({id: row.ID, text:row.ALIAS+'（'+row.ID+'）'})
+			}
+			$("#elementID").select2({data: elementArr});
+		}
+		else {alert('System Error');}
+	}, 'json').error(function (res) { console.log(res.responseText) });
+});
+
+function directElementChange()
+{
+	var elementID = $('#elementID').val();
+	if (elementID == 0) return false;
+
+	$.post(apiURL+'/VOptionSvr/search', {ealias_id: elementID}, function (res)
+	{
+		if(res.code == 0)
+		{
+			var initNode = $('#directToValueDiv');
+			initNode.siblings().remove();
+			for (var i=res.data.length - 1; i >= 0; i--)
+			{
+				var row = res.data[i];
+				var tempNode = initNode.clone();
+				tempNode.attr('id', c2id());
+				tempNode.find('input').val(row.ID);
+				initNode.after(tempNode);
+				tempNode.show();
+				tempNode.find('input').after(row.ALIAS);
+			}
+		}
+	}, 'json');
+}
+//TODO 对接 接口可能会用到该方法
+function saveGlobalShow()
+{
+	var elementID = $('#elementID').val();
+	if(elementID == 0) return false;
+
+	var btnAction= $('#btnAction').val();
+	if(btnAction == 'remove')
+	{
+		confirm('是否删除所有控制关系吗？', function(){
+			parent.getGrid().children('script').remove();
+			parent.getGrid().removeAttr('data-hide');
+		}, function(){
+			return false;
+		});
+	}
+}
+
+function btnDelete(event){
+	var tr = $(event).parents('tr');
+	var elementID = tr.find('.c-element-id').text();
+	var valueID = tr.find('.c-value-id').text();
+
+	var showArray = eval(tempGrid.attr('data-global-array'));
+	var newShowArray = [];
+	for(var i=0; i<showArray.length; i++)
+	{
+		var showRow = showArray[i];
+		if(showRow[0]==elementID && showRow[1]==valueID)
+		{
+			parent.cookGridHide(tempGrid.attr('id'), -1);
+			continue;
+		}
+		newShowArray.push(showRow);
+	}
+	tempGrid.attr('data-global-array', JSON.stringify(newShowArray));
+	if(newShowArray.length == 0)
+	{
+		tempGrid.removeAttr('data-global-array');
+	}
+	refreshShowArray();
+}
+
+function btnAdd(){
+	var elementID = $('#elementID').val();
+	if(elementID == 0) return false;
+	var values = $("input[name='directToValue']:checked");
+	if(values.length==0) return false;
+	var toValue = values.val();
+
+	var showArray = [];
+    var showStr = tempGrid.attr('data-global-array');
+    if(showStr){
+        showArray = eval(showStr);
+    }
+	showArray.push([elementID, toValue]);
+	tempGrid.attr('data-global-array', JSON.stringify(showArray));
+	parent.cookGridHide(tempGrid.attr('id'), 1);
+	refreshShowArray();
+}
+
+function refreshShowArray(){
+    var globalStr = tempGrid.attr('data-global-array');
+	$('#tableBody').empty();
+	if(globalStr)
+	{
+		var globalArr = eval(globalStr);
+		for(var i=0; i<globalArr.length; i++)
+		{
+			var newTR = $('#dataTR').clone().removeAttr('id');
+			newTR.find('.c-element-id').text(globalArr[i][0]);
+			newTR.find('.c-value-id').text(globalArr[i][1]);
+			$('#tableBody').append(newTR);
+		}
+		refreshhAjax($("#tableBody").find(".c-element-id:first").text(),$("#tableBody").find("tr:first"));
+	}
+}
+
+function refreshhAjax(id,newTR){
+		$.post(apiURL+'/EAliasSvr/model', {id: id}, function (res)
+		{
+			if(res.code == 0)
+			{
+				var resArray = res.data;
+				newTR.find('.c-element-name').text(resArray["ALIAS"]);
+				for(var i=0;i<resArray.data.length;i++){
+					if(resArray.data[i]['ID'] == newTR.find('.c-value-id').text()){
+						newTR.find('.c-value-name').text(resArray.data[i]["ALIAS"]);
+						break;
+					}
+				}
+
+				var nextTR = newTR.next();
+				if(nextTR && nextTR.length>0){
+					refreshhAjax(nextTR.find(".c-element-id").text(),nextTR);
+				}
+			}
+			else {alert('System Error');}
+		}, 'json').error(function (res) { console.log(res.responseText) });
+}
+</script>
+</body>
+</html>

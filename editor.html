@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <title>CDE编辑器3.0</title>
+    <link href="./libs/bootstrap.css" rel="stylesheet">
+    <link href="./libs/select2.css" rel="stylesheet">
+    <link id="bootstrap-style" href="./libs/bootstrap-moderate-blue.css" rel="stylesheet">
+    <link href="./libs/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+    <link href="./libs/plugins/bootstrap-toastr/toastr.min.css" rel=" stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet">
+    <link href="./libs/plugins/animate.css" rel="stylesheet">
+    <link href="./libs/editor.css" rel="stylesheet">
+    <link href="./libs/jquery.range.css" rel="stylesheet">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/My97DatePicker/WdatePicker.js"></script>
+    <script src="./libs/pickcity/pickCity.js"></script>
+    <script src="./libs/plugins/select2/js/select2_optimized.full.js"></script>
+    <script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+    <script src="./libs/plugins/bootstrap-toastr/toastr.min.js"></script>
+    <script src="./libs/editor.js"></script>
+    <script src="./libs/jquery.range.js"></script>
+    <script src="./libs/base64.js"></script>
+    <script src="./libs/pickcity/distpicker.data.js"></script>
+    <script src="./libs/pickcity/distpicker.js"></script>
+    <script src="./libs/pickcity/main.js"></script>
+    <script>
+    window.template_id = edc_zq_get_url_param("id");
+$.post(apiURL + "/CRFSvr/newAllTemplates", { ID: template_id }, function(res) {
+  var data = JSON.parse(res).rows[0];
+  if ($("#bootstrap-style").length > 0)
+    $("#bootstrap-style").attr(
+      "href",
+      "./libs/bootstrap-" + data.STYLE_PADDING + "-" + data.STYLE_COLOR + ".css"
+    );
+});
+</script>
+<body>
+<div class="editWrapper" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="headWrapper">
+        <div class="docSetting">
+           <a class="doc-btn" href="index.html" target="_blank" style="margin: 0px 14px 16px 0px;text-decoration: none;">
+                <span class="doc-icon doc-home"></span>
+                <span class="doc-text">首页</span>
+            </a>
+            <div class="doc-btn" onclick="btnSave();">
+                <span class="doc-icon doc-save"></span>
+                <span class="doc-text">保存</span>
+            </div>
+            <div class="doc-btn" onclick="openModalWin(this, 'editor_setting.html', []);" style="margin: 0px 14px 0px 0px;">
+                <span class="doc-icon doc-setting"></span>
+                <span class="doc-text">配置</span>
+            </div>
+            <div class="doc-btn" onclick="btnPreview();">
+                <span class="doc-icon doc-preview"></span>
+                <span class="doc-text">预览</span>
+            </div>
+        </div>
+        <div class="dataSetting">
+            <btn class="btn-wrapper" onclick="click_btn_checked(this)" title="取消所有选择">
+                <span class="btn-icon" iNum="1"></span>
+                <sapn class="btn-text">取消选择</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="deleteInnerElemnts()" title="只删除数据元">
+                <span class="btn-icon" iNum="2"></span>
+                <sapn class="btn-text">删除</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'grid_layout.html', [11]);" title="总样式">
+                <span class="btn-icon" iNum="3"></span>
+                <sapn class="btn-text">总样式</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="formatBrush();" id="brush" title="格式刷">
+                <span class="btn-icon" iNum="4"></span>
+                <sapn class="btn-text">格式刷</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'element_input.html', [11,12,13,23,24,25]);" title="编辑单一数据元">
+                <span class="btn-icon" iNum="5"></span>
+                <sapn class="btn-text">单一数据</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'element_options.html', [11,12,13,22,26,27])" title="编辑多选项数据元">
+                <span class="btn-icon" iNum="6"></span>
+                <sapn class="btn-text">多选项</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="optionsSplitter();" title="拆分选项为单独的格">
+                <span class="btn-icon" iNum="7"></span>
+                <sapn class="btn-text">拆分选项</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'c_input.html', [11,12,13,22,24,26]);" title="多选项样式设置">
+                <span class="btn-icon" iNum="8"></span>
+                <sapn class="btn-text">多项样式</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'qc_simple.html', [11,12,13,22]);" title="简单质控">
+                <span class="btn-icon" iNum="9"></span>
+                <sapn class="btn-text">简单质控</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'bind_event.html', [11]);" title="数据元事件绑定">
+                <span class="btn-icon" iNum="10"></span>
+                <sapn class="btn-text">事件绑定</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'wysiwyg.html', [11,12,13,21]);" title="自由文本">
+                <span class="btn-icon" iNum="11"></span>
+                <sapn class="btn-text">自由文本</sapn>
+            </btn>
+            <div class="text-center" style="font-size:12px;height:12px;">数据元</div>
+        </div>
+        <div class="gridSetting">
+            <btn class="btn-wrapper" onclick="gridUp();" title="上移">
+                <span class="btn-icon" iNum="12"></span>
+                <sapn class="btn-text">上移</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="gridDown();" title="下移">
+                <span class="btn-icon" iNum="13"></span>
+                <sapn class="btn-text">下移</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="addGrid('before');"  title="向上添加新网格">>
+                <span class="btn-icon" iNum="14"></span>
+                <sapn class="btn-text">向上添加</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="addGrid('after');"  title="向下添加新网格">
+                <span class="btn-icon" iNum="15"></span>
+                <sapn class="btn-text">向下添加</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="deleteGrid();" title="删除网格">
+                <span class="btn-icon" iNum="16"></span>
+                <sapn class="btn-text">删除</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this,'multi_grid.html', [11,12,13,14])" title="添加表格">
+                <span class="btn-icon" iNum="17"></span>
+                <sapn class="btn-text">添加表格</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="goOuter();" title="提高网格等级">
+                <span class="btn-icon" iNum="18"></span>
+                <sapn class="btn-text">提高等级</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="goInner();" title="降低网格等级">
+                <span class="btn-icon" iNum="19"></span>
+                <sapn class="btn-text">降低等级</sapn>
+            </btn>
+            <div class="text-center" style="font-size:12px;height:12px;">网格</div>
+        </div>
+        <div class="formulaSetting">
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'show_hide_option.html', [11,12,13,22,26]);" title="显示隐藏">
+                <span class="btn-icon" iNum="20"></span>
+                <sapn class="btn-text">数据显隐</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'show_hide_formula.html', [11,12]);" title="公式控制显示隐藏">
+                <span class="btn-icon" iNum="21"></span>
+                <sapn class="btn-text">公式显隐</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'show_hide_global.html', [11,12]);" title="跨表单显示">
+                <span class="btn-icon" iNum="22"></span>
+                <sapn class="btn-text">跨表单显隐</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="openModalWin(this, 'formulas.html', []);" title="公式编辑器">
+                <span class="btn-icon" iNum="23"></span>
+                <sapn class="btn-text">公式编辑器</sapn>
+            </btn>
+            <div class="text-center" style="font-size:12px;height:12px;">公式</div>
+        </div>
+        <div class="otherSetting">
+            <btn class="btn-wrapper" onclick="setRequiredFast()" title="必填快捷键">
+                <span class="btn-icon" iNum="24"></span>
+                <sapn class="btn-text">必填</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="setStriped();" title="设置条纹格" id="stripedBtn">
+                <span class="btn-icon" iNum="25"></span>
+                <sapn class="btn-text">条纹格</sapn>
+            </btn>
+            <btn class="btn-wrapper" onclick="mergeCell();" title="设置地址字典">
+                <span class="btn-icon" iNum="26"></span>
+                <sapn class="btn-text">地址字典</sapn>
+            </btn>
+            <div class="text-center" style="font-size:12px;height:12px;">其他</div>
+        </div>
+        <div class="free"></div>
+    </div>
+    <div class="contentWrapper" style="flex:1;display:flex;">
+        <div id="editorBody" class="editorBody" style="flex:1; overflow-y:scroll;padding-top: 1px;">
+        </div>
+        <div id="sidebar" style="flex:0 0 40px; width: 40px; display:flex;">
+            <div class="titleList" style="flex:0 0 40px; width:40px;background:#F5F6F7;">
+                <div class="slider-btn" onclick="controlSideBar();" style="margin-bottom: 0px; padding: 5px 0 0 5px; cursor: pointer; color: #bdbdbd;">
+                    <i class="fa fa-minus"></i>
+                </div>
+                <div class="title-item title-item-active" onclick="refresh_show('epm_element',this);">
+                    <i class="fa fa-database"></i>
+                    <div class="">数据</div>
+                </div>
+                <div class="title-item" onclick="refresh_show('dataset',this);">
+                    <i class="fa fa-file"></i>
+                    <div class="">模板</div>
+                </div>
+                <div class="title-item" onclick="refresh_show('formula_des',this);">
+                    <i class="fa fa-edit"></i>
+                    <div class="">公式</div>
+                </div>
+            </div>
+            <div id="iframeWrapper" style="flex:1;position: relative;display: flex;">
+                <iframe src="epm_element.html" frameborder="0" id="epmIframe" style="height: calc(100vh - 110px);flex:1;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+    <div class="c-grid s-win col-sm-24" id="initGrid" onmouseover="gridMouseOver(this, event);" onclick="selectRed(this, event);">
+        <div class="c-content c-indent"></div>
+    </div>
+    <div id="c-left2right" class="form-horizontal">
+        <div class="c-input"></div>
+    </div>
+    <!-- 地址字典 -->
+    <div  class="form-inline c-tpl-citys distpicker5">
+        <div class="form-group">
+            <select class="form-control c-tpl-picity c-element provinceInfo"></select>
+        </div>
+        <div class="form-group">
+            <select class="form-control c-tpl-picity c-element cityInfo"></select>
+        </div>
+        <div class="form-group">
+            <select class="form-control c-tpl-picity c-element districtInfo"></select>
+        </div>
+        <script>address();</script>
+    </div>
+</div>
+<!-- 模态框（Modal） -->
+<div id="modalWin" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div id="dragWin" class="modal-dialog" style="background: #ffffff;width:80%" >
+            <div id="dragCon" class="modal-header" style="cursor: move">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+            <h5 id="Modal_title" class="modal-title"></h5>
+        </div>
+            <section class="animated siteMod fadeInRight">
+                <iframe id="iWin" name="iWin" frameborder="0" scroll="0" style="border:0px;width:100%;max-height:400px"></iframe>
+            </section>
+            <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-sm btn-outline blue-dark">关闭</button>
+            <button id="parentSaveBtn" type="button" onclick="callChildBtnSave();" class="btn btn-sm blue">保存</button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" id="jsForm">
+$(document).ready(function ()
+{
+    lotsChecked();
+    btnHover();
+    window.initGrid = $('#initGrid').clone();
+    window.noCtrl = true;
+    noMouseMove = true;
+    showTip('读取中...');
+    $(document).keydown(function(event){
+        if(event.keyCode == 17){
+            noCtrl = false;
+        }
+    });
+    $(document).keyup(function(event){
+        noCtrl = true;
+    });
+    if(template_id==null || template_id==0)
+    {
+        swal('system error');
+        return false;
+    }
+    $.post(apiURL+'/CRFSvr/htmlStr', {id:template_id},
+        function(res){
+            if(res.code == 0){
+                if(res.data.trim() == '') return false;
+                zq_showViewStyle();
+                $('#editorBody').html(res.data);
+                $('.star').remove();
+                if($(".c-grid").hasClass('grid_striped')) $('#stripedBtn').css({'background':'#337ab7','color':'#ffffff'});
+            }
+        }, 'json');
+    styleArray = new Array();
+    clearDragEvent();
+});
+
+
+function btnPreview() {
+    window.open('preview.html?id=' + zq_get_url_param("id"));
+}
+
+function gridUp(){
+    var prev = getGrid().prev();
+    if(prev.length==0) return false;
+    prev.before(getGrid());
+}
+
+function gridDown(){
+    var next = getGrid().next();
+    if(next.length==0) return false;
+    next.after(getGrid());
+}
+
+function btnSave(){
+    var userName = localStorage.u_username;
+    var htmlStr = $('#editorBody').html();
+    var previewStr = filterStr($($('#editorBody').prop("outerHTML")));
+    var tplData = {
+        "id":template_id,
+        "userName":""+userName,
+        "htmlStr":""+htmlStr,
+        "previewStr":""+previewStr,
+        "elesInfo":""+JSON.stringify(setEleInfo()[0]),
+        "dataJSON":""+JSON.stringify(setEleInfo()[1])
+    };
+
+    showTip('保存中...');
+    $.post(apiURL+'/CRFSvr/save',
+            {tplData : Base64.encode(""+JSON.stringify(tplData))}, function(res){
+                if(res.code != 0) swal('保存失败，请再次尝试');
+            }, 'json').error(function(res) {console.log(res.responseText)});
+}
+
+function specialSave(){
+    var grids = $('#editorBody').find('.c-grid');
+    grids.each(function(){
+        if($(this).find('.c-grid').length==0 && $(this).find('.c-element').length>0){
+            $(this).attr('data-c-value', $(this).find('.c-title').attr('title'));
+            $(this).attr('data-c-title', $(this).find('.c-title').text());
+            var voptionArray = [];
+            var elements = $(this).find('.c-element');
+            if($.inArray(elements.attr('type'), ['radio','checkbox']) > -1)
+            {
+                elements.each(function(index){
+                    var tempObj = eachPush($(this));
+                    tempObj.id = $(this).attr('name');
+                    tempObj.ealias_id = $(this).attr('name');
+                    tempObj.alias =  $(this).attr('title');
+                    tempObj.sorter = index;
+                    voptionArray.push(tempObj);
+                });
+            }else if(elements.is('select') && tempElements.attr('id')!='province10'){
+                for(var i=1;i<elements.children().length;i++){
+                    var obj = elements.children().eq(i);
+                    var tempObj = eachPush(obj);
+                    tempObj.id = obj.parent().attr('name');
+                    tempObj.ealias_id = obj.parent().attr('name');
+                    tempObj.alias =  obj.text();
+                    tempObj.sorter = i - 1;
+                    voptionArray.push(tempObj);
+                }
+            }
+            showTip('保存中...');
+            $.ajax(
+                    {
+                        url: apiURL+"/EAliasSvr/specialSave",
+                        dataType: 'json',
+                        async: false,
+                        type: "post",
+                        data: {id: elements.attr('name'), alias:$(this).attr('data-c-title'), datatype:elements.attr('data-type'),
+                            voptions: JSON.stringify(voptionArray) },
+                        success: function(res)
+                        {
+                            console.log(res);
+                        }, error: function(res){swal('System Error'); console.log(res)}
+                    });
+        }
+    });
+}
+
+function cloneGrid() {
+    var newGrid = initGrid.clone();
+    newGrid.attr("id", c2id());
+    return newGrid;
+}
+
+function currentInsert(newGrid, data_title, isBind) {
+    var isBind = isBind ? 'Y': '';
+    var tempGrid = getGrid();
+    var elements = tempGrid.find(".c-element");
+    if(elements.length > 0){
+        swal("请删除格中原有数据元，再添加");
+        return false;
+    }
+    tempGrid.attr('data-c-title', newGrid.find('.c-title').html());
+    tempGrid.attr('data-c-value', newGrid.find('.c-title').attr('title'));
+    tempGrid.attr('data-title', data_title);
+    tempGrid.find('.c-content:first').empty();
+    tempGrid.find('.c-content:first').append(newGrid.find('.c-content').html());
+    if(isBind != 'Y') btnSave();
+}
+
+function currentEmbed(newGrid, data_title, isBind) {
+    var isBind = isBind ? 'Y': '';
+    var tempGrid = getGrid();
+    if(tempGrid.find('.c-grid').length==0 && tempGrid.find('.c-element').length>0){
+        swal("删除选中数据元后再进行添加");
+        return false;
+    }
+    newGrid.attr('data-c-title', newGrid.find('.c-title').html());
+    newGrid.attr('data-c-value', newGrid.find('.c-title').attr('title'));
+    newGrid.attr('data-title', data_title);
+    tempGrid.find('.c-content:first').append(newGrid);
+    if(isBind != 'Y') btnSave();
+}
+
+function addGrid(direction) {
+    var newGrid = initGrid.clone();
+    newGrid.attr("id", c2id());
+    if($("#editorBody").find('.c-grid').length == 0){
+        $("#editorBody").append(newGrid);
+        return false;
+    }
+    if( ! isGridEditable([1,2]))  return false;
+
+    if (direction == 'before') {
+        getGrid().before(newGrid);
+    }
+    else if (direction == 'after') {
+        getGrid().after(newGrid);
+    }
+    return newGrid;
+}
+
+function goOuter() {
+    var parentGrid = getGrid().parents('.c-grid:first');
+    if(parentGrid.length == 1)
+    {
+        parentGrid.after(getGrid());
+    }
+}
+
+function goInner() {
+    var preGrid = getGrid().prev();
+    if(preGrid.length == 0){
+        preGrid = getGrid().next();
+    }
+    if(preGrid.length == 1)
+    {
+        preGrid.find('.c-content:first').append(getGrid());
+    }
+}
+
+function deleteGrid(){
+    if( ! isGridEditable([11,27])) return false;
+    swal({
+        title: "确定删除选中的网格吗？",
+        text: "",
+        type: "warning"
+    },function (isConfirm) {
+        if (isConfirm) {
+            var elements = getGrids().find(".c-element");
+            var idsArray = [];
+            for (var i = 0; i < elements.length; i++){
+                var name = "\""+$(elements[i]).attr('name')+"\"";
+                if($.inArray(name, idsArray) == -1){
+                    idsArray.push(name)
+                }
+            }
+            getGrids().remove();
+            if(idsArray.length == 0){
+                return false
+            }
+            showTip('删除中...');
+            deleteAjax(idsArray.toString());
+//            toastr.success('所选模板已被删除!');
+        }
+    });
+}
+
+function deleteInnerElemnts(){
+    if( ! isGridEditable([11,27])) return false;
+    swal({
+        title: "确定删除网格中的数据元吗？",
+        text: "",
+        type: "warning"
+    },function (isConfirm) {
+        if (isConfirm) {
+            var tempGrids = getGrids();
+            var elements = tempGrids.find(".c-element");
+            var idsArray = [];
+            for (var i = 0; i < elements.length; i++){
+                var name = "\""+$(elements[i]).attr('name')+"\"";
+                console.log(name);
+                if($.inArray(name, idsArray) == -1){
+                    idsArray.push(name)
+                }
+            }
+            console.log(idsArray);
+            parent.getGrids().find('.c-content').empty();
+            parent.getGrids().removeAttr('data-c-title');
+            parent.getGrids().removeAttr('data-c-value');
+            parent.getGrids().removeAttr('data-title');
+            if(idsArray.length == 0){
+                console.log(idsArray+长度为0);
+                return false;
+            }
+            deleteAjax(idsArray.toString());
+        }
+    });
+}
+
+function deleteAjax(idsArray){
+    $.post(apiURL+'/EAliasSvr/delete', { ids: idsArray }, function (res)
+    {
+        if (res.code == 0) {
+            btnSave();
+            toastr.success('所选模板已被删除!');
+        }
+        else {
+            if(idsArray.length == 0){}
+            else
+            {
+                console.log(res.responseText);
+                swal('API Error');
+            }
+        }
+    }, 'json').error(function(res){console.log(res.responseText)});
+}
+
+function showSidebar(){
+    if( $('#sidebar').is(':hidden') ){
+        $('#editorBody').addClass('col-sm-18');
+        $('#sidebar').show();
+        $('.fa-chevron-circle-right').css('transform' , 'rotate(0)');
+        $('#headCon').addClass('col-sm-18').css('position', 'fixed');
+    }else{
+        zq_removeClass($('#editorBody'));
+        $('#sidebar').hide();
+        $('.fa-chevron-circle-right').css('transform' , 'rotate(180deg)');
+        $('#headCon').removeClass('col-sm-18').css('position', 'static');
+    }
+}
+
+function getGrids()
+{
+    return $("[data-checked='Y']");
+}
+
+function getGrid()
+{
+    var grids = $("[data-checked='Y']").first();
+    return grid = grids.first();
+}
+
+function refresh_show(event, obj){
+    $('#iframeWrapper .preview').remove();
+    $(".title-item").removeClass('title-item-active');
+    $(obj).addClass('title-item-active');
+    var randomnumber=Math.floor(Math.random()*1000);
+    var iframe = $("#epmIframe");
+    var src = iframe.attr('src');
+    src = src.substring(0, src.indexOf('.html'));
+    iframe.attr('src',event+".html?noCache="+randomnumber);
+    iframe.slideDown();
+}
+
+function gridMouseOver(obj, event){
+    $('.c-grid').removeClass('mouse');
+    $(obj).addClass('mouse');
+    $(obj).on('mouseleave',function(){
+        $('.c-grid').removeClass('mouse');
+    })
+    event.stopPropagation();
+}
+
+function selectRed(obj, event){
+    var clickGrid = $(obj);
+    var isChecked = clickGrid.attr("data-checked");
+    if(isChecked==undefined)
+    {
+        isChecked = 'N';
+    }
+
+    if(noMouseMove){
+        if(noCtrl){
+            $('.c-grid').removeClass('click-red');
+            $('.c-grid').attr("data-checked", 'N');
+            clickGrid.attr("data-checked", isChecked);
+        }
+    }
+
+    if(isChecked == 'Y'){
+        clickGrid.attr("data-checked", 'N');
+        clickGrid.removeClass('click-red');
+    }else{
+        clickGrid.attr("data-checked", 'Y');
+        clickGrid.addClass('click-red');
+        showBrush();
+    }
+
+    if($(".c-grid[data-checked='Y']").length > 0){
+        $('#button_checkbox').addClass('click-red');
+    }else{
+        $('#button_checkbox').removeClass('click-red');
+    }
+
+    event.stopPropagation();
+}
+
+function click_btn_checked(event){
+    $('.c-grid').removeAttr('data-checked');
+    $('.c-grid').removeClass('click-red');
+    $('[data-hide]').show();
+    $('.c-element').removeAttr("disabled");
+    styleArray = [];
+    $("#brush").css("background","");
+    $("#brush").removeClass("brushColor");
+    $('#button_checkbox').removeClass('click-red');
+    clearInputDataChecked();
+}
+
+function formatBrush(){
+    if( ! isGridEditable([11,12])) return false;
+    var checkedFirst = getGrid();
+    if($("#brush").hasClass("brushColor")){
+        $("#brush").css("background","");
+        $("#brush").removeClass("brushColor");
+
+    }else{
+        checkedClass = checkedFirst.attr("class");
+        if(checkedClass == undefined || checkedClass == null || checkedClass == ""){
+            swal("请选择需要格式刷的样式");
+            return false
+        }
+        $("#brush").addClass("brushColor");
+        $("#brush").css("background","#FF9269");
+
+        styleArray[0] = [checkedFirst.attr("class"),"","class"];
+        styleArray[1] = [checkedFirst.attr("style"),"","style"];
+    }
+}
+
+function showBrush(){
+    var checkedAll = getGrids();
+    if($("#brush").hasClass("brushColor")){
+        for(var i=0;i<styleArray.length;i++){
+            if(styleArray[i][0] == undefined || styleArray[i][0] == null || styleArray[i][0] == ""){
+                if(styleArray[i][1] == ""){checkedAll.attr(styleArray[i][2],"");}else{
+                    checkedAll.find(styleArray[i][1]).attr(styleArray[i][2],"");
+                }
+            }else{
+                if(styleArray[i][1] == ""){checkedAll.attr(styleArray[i][2],styleArray[i][0]);}else{
+                    checkedAll.find(styleArray[i][1]).attr(styleArray[i][2],styleArray[i][0]);
+                }
+            }
+        }
+    }
+}
+
+popoverText('#editorBody');
+
+function fetchGridTree()
+{
+    tempGridTree = [];
+    var slaveGrids = $('#editorBody').children('.c-grid');
+    for(var i=0; i<slaveGrids.length; i++)
+    {
+        cookSlaveGrids($(slaveGrids[i]), '');
+    }
+    return tempGridTree;
+}
+
+function cookSlaveGrids(slaveGrid, treePre)
+{
+    var newOption = {};
+    newOption.id = slaveGrid.attr('id');
+    tempGridTree.push(newOption);
+    var slaveGrids = slaveGrid.children('.c-content').children('.c-grid');
+    var gridTitle = slaveGrid.attr('title');
+    var gridTitleStr ='(' + slaveGrid.attr('title') +')';
+    if(slaveGrids.length > 0)
+    {
+        if(gridTitle == undefined || gridTitle == '') gridTitleStr = '';
+        newOption.text = treePre + '▪ ' + gridTitleStr +' ['+slaveGrid.attr('id')+']';
+        treePre = treePre + '#';
+        for(var i=0; i<slaveGrids.length; i++)
+        {
+            cookSlaveGrids($(slaveGrids[i]), treePre);
+        }
+    }
+    else
+    {
+        var title = slaveGrid.find('.c-title');
+        if(gridTitle == undefined || gridTitle == '') gridTitleStr = '';
+        newOption.text = treePre + '▪ ' + title.text() + gridTitleStr+ ' ['+slaveGrid.attr('id')+']';
+    }
+    return newOption;
+}
+
+function cookGridHide(gridID, pointer)
+{
+    var slaveGrid = $('#'+gridID);
+    var hideCounter = parseInt(slaveGrid.attr('data-hide'));
+    if(isNaN(hideCounter)) hideCounter=0;
+    hideCounter = hideCounter + pointer;
+    if(hideCounter==0){
+        slaveGrid.removeAttr('data-hide');
+        slaveGrid.show();
+    }
+    else slaveGrid.attr('data-hide', hideCounter);
+}
+
+function flashGrid(gridID)
+{
+    $('#'+gridID).css('box-shadow', '0px 0px 10px red inset');
+    setTimeout(function()
+    {
+        $('#'+gridID).css('box-shadow', '');
+    }, 300);
+}
+
+function lotsChecked(){
+    var startTime = '';
+    var endTime = '';
+    var startX = '';
+    var startY = '';
+    var endX = '';
+    var endY = '';
+    $("#editorBody").on('mousedown', function(event){
+        startTime = new Date().getTime();
+        var e = event || window.event;
+        if(e.target.selectedIndex >= 0){
+            startX = 0;
+            startY = 0;
+        }else{
+            startX = e.pageX || e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft);
+            startY = e.pageY || e.clientY + (document.documentElement.scrollTop || document.body.scrollTop);
+        }
+        $(this).bind('mousemove', function(e){
+            e.preventDefault();
+        });
+    });
+
+    $("#editorBody").bind('mouseup', function(event){
+        $(this).unbind('mousemove');
+        endTime = new Date().getTime();
+        var e = event || window.event;
+        endX = e.pageX || e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft);
+        endY = e.pageY || e.clientY + (document.documentElement.scrollTop || document.body.scrollTop);
+
+        if(endTime-startTime > 300)
+        {
+            noMouseMove = false;
+            for(var i=0; i<$('.c-grid ').length; i++){
+                var oDiv = $('.c-grid ').eq(i);
+                var objTop = oDiv.offset().top;
+                var objLeft = oDiv.offset().left;
+                var objOfLeft = objLeft + oDiv.outerWidth();
+                var objOfTop = objTop + oDiv.outerHeight();
+                if(objOfTop<Math.min(startY,endY) || objLeft>Math.max(startX,endX) || objTop>Math.max(startY,endY) || objOfLeft<Math.min(startX,endX)){}else{
+                    oDiv.addClass('click-red');
+                    oDiv.attr('data-checked', 'Y');
+                }
+            }
+        }else{
+            noMouseMove = true;
+        }
+    });
+}
+
+function optionsSplitter(){
+    if( ! isGridEditable([11,12,13,22,24,26])) return false;
+
+    confirm('确定要拆分数据元吗？', function(){
+        var tempGrid = getGrid();
+        var elements = tempGrid.find(".c-content:first").find(".c-element");
+        var indexGrid = tempGrid;
+        var titleObj = tempGrid.find('.c-title');
+        var titleStr = titleObj.html();
+        tempGrid.attr("data-split","Y");
+        tempGrid.attr("data-title",titleObj.attr('data-title'));
+        tempGrid.attr("data-element",tempGrid.find('.c-input').html());
+        tempGrid.find('.c-content').html(titleStr);
+
+        for (var i=0; i<elements.length; i++){
+            var element = $(elements[i]);
+            var newGrid = cloneGrid();
+            newGrid.attr('data-c-title', tempGrid.attr('data-c-title'));
+            newGrid.attr('data-c-value', tempGrid.attr('data-c-value'));
+
+            var newForm = $('#c-left2right').clone().removeAttr('id');
+            var newInput = newForm.find('.c-input');
+            newInput.addClass('col-sm-24');
+            newInput.append(element.parent());
+            newGrid.find('.c-content').append(newForm);
+            indexGrid.after(newGrid);
+            indexGrid = newGrid;
+        }
+    }, function(){
+        return false
+    });
+}
+
+// 快速批量设置必填项
+function setRequiredFast(){
+    var elements = getGrids();
+    var splitElementName = '';
+    for(var i = 0, len = elements.length; i < len; i++){
+        var el = elements.eq(i);
+        if(el.find('.c-element') >= 1){
+            swal('请选择单一数据元格');
+        }else if( !($('[data-c-value="'+el.find('.c-element').attr('name')+'"]').attr('data-split') == 'Y') ){
+            el.find('.c-element').attr({
+                required : 'required',
+                'required-error' : '该数据项必须填写',
+                'data-required' : 'left'
+            });
+        }
+    }
+}
+
+//合并三个地址型数据元格,变成省市区select
+function mergeCell(){
+    var grids = getGrids();
+    if(grids.length != 3){
+        swal('请选择三个单一地址型数据元格');
+        return false;
+    }else{
+        for(var i = 0, len = grids.length; i < len; i++){
+            var element = grids.eq(i).find('.c-element');
+            if(element.length != 1){// || element.attr('data-type') != 'ADR'
+                swal('请选择三个单一地址型数据元格');
+                return false;
+            }
+        }
+    }
+
+    var newGrid = addGrid('before');
+    var innerNewGrid = newGrid.children('.c-content');
+    var selectEl = $('<select></select>').attr({
+        'data-type' : 'ADR',
+        class : 'form-control c-tpl-picity c-element'
+    });
+
+    var newNode = cloneGrid();
+    newNode.removeClass('col-sm-24').addClass("col-sm-8 addr-grid");
+    newNode.children().html('<div style="text-align: right; padding-top: 6px;" class="addr-gridtitle">地址</div>');
+    innerNewGrid.append(newNode);
+
+    for(var i = 0, len = grids.length; i < len; i++){
+        var tempGrid = grids.eq(i).clone();
+        tempGrid.attr('class', 'c-grid s-win col-sm-4');
+        tempGrid.find('.c-title').attr({
+            class : 'c-title col-sm-0',
+            style : 'text-align: right; display: none;'
+        });
+        var select = selectEl.clone().attr('name', tempGrid.attr('data-c-value'));
+        tempGrid.find('.c-input').attr('class', 'c-input col-sm-24').html('').append(select);
+        tempGrid.find('.c-tip').attr({
+            class : 'c-tip col-sm-0',
+            style : 'display: none;'
+        });
+        innerNewGrid.append(tempGrid);
+    }
+
+    innerNewGrid.addClass('distpicker5');
+    innerNewGrid.parent().append($('<script>').html('address();'));
+    grids.remove();
+}
+
+function setStriped(){
+    var grids = getGrids();
+    if(grids.length >0){
+        grids.each(function(){
+            $(this).toggleClass("grid_striped");
+        });
+        return false;
+    }
+
+    if($(".c-grid").hasClass('grid_striped')){
+        $(".c-grid").removeClass('grid_striped');
+        $('#stripedBtn').css({'background':'','color':''});
+        return false;
+    }
+
+    $(".c-grid").each(function(index){
+        if($(this).hasClass('col-sm-24') && $(this).find('.table-row').length==0 && $(this).find('.c-grid').length==0) $(this).addClass('pre');
+        if(index == $(".c-grid").length-1){$('.pre:nth-child(odd)').addClass('grid_striped'); $(".c-grid").removeClass("pre");}
+    })
+    $('#stripedBtn').css({'background':'#337ab7','color':'#ffffff'});
+}
+
+function setEleInfo(){
+    var cGrid = $('#editorBody').find('.c-grid').clone();
+    var data = [];
+    var dataJson = [];
+    var nameArray = [];
+    var eleNum = 0;
+    var hideDta = getHideData();
+    var eleArray = hideDta[0];
+    var valueArray = hideDta[1];
+    var gridArray = hideDta[2];
+    for(var i= 0,j=cGrid.length; i<j; i++){
+        var item = cGrid.eq(i);
+        if(item.find('.c-grid').length==0 && item.find('.c-element').length>0){
+            var eleName = item.find('.c-element:first').attr('name');
+            var TINC = 0;
+            if($.inArray(eleName, nameArray) == -1){
+                if($('#'+item.attr('id')).parents().children('.selfCopyGridDIV').length>0 || item.find('.selfCopyGridDIV').length>0) TINC = 1;
+                var hideInfo = getHideEle(item.attr('id'));
+                data.push({ID : eleName, SORTER : eleNum, TINC : TINC, HELE : hideInfo[0], HVAL : hideInfo[1]});
+                if(hideInfo[0] == ''){
+                    dataJson.push({name : item.attr('data-c-title'), id : eleName, child : []});
+                }else{
+                    findHideF(dataJson, hideInfo[0], item);
+                }
+                nameArray.push(eleName);
+                eleNum++;
+            }
+        }
+    }
+
+    function getHideEle(gridId){
+        var parLen = $('#'+gridId).parents('.c-grid').length;
+        var arrIndex = $.inArray(gridId, gridArray);
+        if(arrIndex > -1){
+            return [eleArray[arrIndex], valueArray[arrIndex]];
+        }else{
+            var flag = 0;
+            for(var c= 0; c<parLen; c++){
+                var parGridId = $('#'+gridId).parents('.c-grid').eq(c).attr('id');
+                var arrIndexP = $.inArray(parGridId, gridArray);
+                if(arrIndexP > -1){
+                    flag = 1;
+                    return [eleArray[arrIndexP], valueArray[arrIndexP]];
+                }
+            }
+            if(flag == 0) return ['', ''];
+        }
+    }
+
+    function findHideF(dataCurr, hideF, node){
+        for(var v= 0,n=dataCurr.length; v<n; v++){
+            var dataNode = dataCurr[v];
+            if(dataNode.id == hideF){
+                dataNode.child.push({name : node.attr('data-c-title'), id : node.find('.c-element:first').attr('name'), child : []});
+            }else if(dataNode.child.length>0){
+                findHideF(dataNode.child, hideF, node);
+            }
+        }
+    }
+
+    return [data, dataJson];
+}
+
+function btnHover(){
+    var iconH = 20;
+    for(var i=0; i<$('.btn-wrapper').length; i++){
+        $('.btn-wrapper').eq(i).find('.btn-icon').css('background-position', '0px -'+ iconH*i+'px');
+    }
+    $('.btn-wrapper').hover(function(){
+        $(this).find('.btn-icon').css('background-position', '-20px -'+ iconH* (parseInt($(this).find('.btn-icon').attr('iNum'))-1)+'px');
+    }, function(){
+        $(this).find('.btn-icon').css('background-position', '0px -'+ iconH* (parseInt($(this).find('.btn-icon').attr('iNum'))-1)+'px');
+    });
+}
+
+function controlSideBar(){
+    $("#sidebar").toggleClass("sidebarShow");
+    if($("#sidebar").hasClass('sidebarShow')){
+        $('#sidebar').css({'flex': '0 0 338px', 'width':'40px'});
+    }else{
+        $('#sidebar').css({'flex': '0 0 40px', 'width':'338px'});
+    }
+}
+
+function callChildBtnSave(){
+    iWin.window.btnSave();
+}
+
+function mergeMed(grid,column,gridscale,keyword) {
+    var newGrid = addGrid('before');
+    var innerNewGrid = newGrid.children('.c-content');
+    var select = $('<select></select>').attr({
+        'data-type':"S2",
+        class:'form-control c-tpl-select c-element select2 medname',
+        id:'select2',
+        'name':grid.attr('data-c-value'),
+        'data-keyword':keyword
+    });
+    var input = $('<input></input>').attr({
+        'data-type':"S1",});
+    for(var i=0;i<6;i++) {
+        if (column.indexOf(i.toString()) != -1) {
+            var tempGrid = grid.clone();
+            tempGrid.attr('class', 'c-grid s-win col-sm-6');
+            tempGrid.attr('id', c2id());
+            tempGrid.find('.c-title').attr({
+                class: 'c-title col-sm-0',
+                style: 'text-align: right; display: none;'
+            });
+            switch (i) {
+                case 0:
+                    tempGrid.attr('class','c-grid s-win col-sm-'+parseInt(gridscale[i]));
+                    tempGrid.find('.c-input').attr('class', 'c-input col-sm-24').html('').append(select);
+                    tempGrid.attr("data-c-title", "药品字典用药名称");
+                    tempGrid.attr("data-c-value", grid.attr('data-c-value') );
+                    tempGrid.attr("data-title", "药品字典用药名称");
+                    break;
+                case 1:
+                    tempGrid.attr('class','c-grid s-win col-sm-'+parseInt(gridscale[i]));
+                    name1 = grid.attr('data-c-value').replace('JH10.00.017.96.001', 'JH10.00.017.96.002');
+                    var input1 = input.clone().attr({
+                        'class': 'form-control c-tpl-text c-element medroute',
+                        'name': name1
+                    });
+                    tempGrid.attr("data-c-title", "药品字典用药路径");
+                    tempGrid.attr("data-c-value", name1);
+                    tempGrid.attr("data-title", "药品字典用药路径");
+                    tempGrid.find('.c-input').attr('class', 'c-input col-sm-24').html('').append(input1);
+                    break;
+                case 2:
+                    tempGrid.attr('class','c-grid s-win col-sm-'+parseInt(gridscale[i]));
+                    name2 = grid.attr('data-c-value').replace('JH10.00.017.96.001', 'JH10.00.017.96.003');
+                    var input2 = input.clone().attr({
+                        'class': 'form-control c-tpl-text c-element medstrength',
+                        'name': name2
+                    });
+                    tempGrid.attr("data-c-title", "药品字典用药剂量");
+                    tempGrid.attr("data-c-value", name2);
+                    tempGrid.attr("data-title", "药品字典用药剂量");
+                    tempGrid.find('.c-input').attr('class', 'c-input col-sm-24').html('').append(input2);
+                    break;
+                case 3:
+                    tempGrid.attr('class','c-grid s-win col-sm-'+parseInt(gridscale[i]));
+                    name3 = grid.attr('data-c-value').replace('JH10.00.017.96.001', 'JH10.00.017.96.004');
+                    var input3 = input.clone().attr({
+                        'class': 'form-control c-tpl-text c-element medfrequency',
+                        'name': name3
+                    });
+                    tempGrid.attr('data-c-title', '药品字典用药批次');
+                    tempGrid.attr('data-c-value', name3);
+                    tempGrid.attr('data-title', '药品字典用药批次');
+                    tempGrid.find('.c-input').attr('class', 'c-input col-sm-24').html('').append(input3);
+                    break;
+                case 4:
+                    tempGrid.attr('class','c-grid s-win col-sm-'+parseInt(gridscale[i]));
+                    name4 = grid.attr('data-c-value').replace('JH10.00.017.96.001', 'JH10.00.017.96.005');
+                    var input4 = input.clone().attr({
+                        'class': 'form-control c-tpl-date c-element Wdate',
+                        'type':'text',
+                        'onclick':"WdatePicker({dateFmt:'yyyy-MM-dd',})",
+                        'data-ukexit':'false',
+                        'data-dataformat':'yyyy-MM-dd',
+                        'name': name4,
+                        'data-type':"D"
+                    });
+                    tempGrid.attr('data-c-title','药品字典用药开始日期');
+                    tempGrid.attr('data-c-value',name4);
+                    tempGrid.attr('data-title','药品字典用药开始日期');
+                    tempGrid.find('.c-input').attr('class','c-input col-sm-24').html('').append(input4);
+                    break;
+                case 5:
+                    tempGrid.attr('class','c-grid s-win col-sm-'+parseInt(gridscale[i]));
+                    name5 = grid.attr('data-c-value').replace('JH10.00.017.96.001', 'JH10.00.017.96.006');
+                    var input5 = input.clone().attr({
+                        'class': 'form-control c-tpl-date c-element Wdate',
+                        'type':'text',
+                        'onclick':"WdatePicker({dateFmt:'yyyy-MM-dd',})",
+                        'data-ukexit':'false',
+                        'data-dataformat':'yyyy-MM-dd',
+                        'name': name5,
+                        'data-type':"D"
+                    });
+                    tempGrid.attr('data-c-title','药品字典用药结束日期');
+                    tempGrid.attr('data-c-value',name5);
+                    tempGrid.attr('data-title','药品字典用药结束日期');
+                    tempGrid.find('.c-input').attr('class','c-input col-sm-24').html('').append(input5);
+                    break;
+                default:
+                    break;
+            }
+            tempGrid.find('.c-tip').attr({
+                class: 'c-tip col-sm-0',
+                style: 'display: none;'
+            });
+            innerNewGrid.addClass('pickMed')
+            innerNewGrid.append(tempGrid);
+        }
+    }
+    innerNewGrid.parent().append($('<script>').html('getMedSelect2("'+grid.attr('data-c-value')+'");'));
+    grid.remove();
+    btnSave();
+}
+</script>
+</body>
+</html>

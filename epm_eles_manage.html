@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>数据元管理</title>
+	<link href="./libs/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+	<link href="./libs/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/bootstrap-toastr/toastr.min.css" rel=" stylesheet">
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/select2/css/select2.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/animate.css" rel="stylesheet">
+	<link href="./libs/epm.css" rel="stylesheet">
+	<link href="https://cdn.bootcss.com/pace/1.0.2/themes/silver/pace-theme-loading-bar.css" rel="stylesheet" />
+	<script src="https://cdn.bootcss.com/pace/1.0.2/pace.js"></script>
+	<script src="./libs/plugins/jquery.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+	<script src="./libs/plugins/bootstrap-toastr/toastr.min.js"></script>
+	<script src="./libs/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+	<script src="./libs/plugins/excel/xlsx.full.min.js"></script>
+	<script src="./libs/epm.js"></script>
+	<script src="./libs/plugins/scrollfix/scrollfix.js"></script>
+	<script src='./libs/vue.js' type='text/javascript'></script>
+	<script src='./libs/vue-resource.js' type='text/javascript'></script>
+	<style>
+		.fixed-table-pagination .page-list{
+			display: none;
+		}
+	</style>
+</head>
+<body style="background: #eff3f8;" >
+<div class="header-login">
+	<span class="pull-right"> <a href="#"><i class="icon-user" style="padding-right: 5px;"></i>登录</a> </span>
+</div>
+<div class="cde-header">
+	<div class="cde-logo col-sm-4">
+		<a href="#/">
+			<img src="./libs/image/logo_4.png" alt="logo" class="logo-default">
+		</a>
+	</div>
+	<div class="col-sm-4 text-center cde-icon-content">
+		<div class="head-btn flex-center" style="justify-content:space-around">
+			<a class="flex-center elements" href="#" title="" data-original-title="数据元管理" role="button" data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="数据元管理"><i class="icon-note"></i></a>
+			<a class="flex-center options" href="#" title="" data-original-title="值域管理" role="button" data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="值域管理"><i class="icon-pencil"></i></a>
+			<a class="flex-center dataSet" href="#" title="" data-original-title="数据集管理" role="button" data-toggle="tooltip" data-trigger="hover" data-placement="bottom" title="数据集管理"><i class="icon-tag"></i></a>
+		</div>
+	</div>
+	<div class="col-sm-4 text-right">
+		<div class="head-search">
+			<div class="position-relative">
+				<input type="text" class="form-control" placeholder="搜索数据集、数据元、值域">
+				<a href="#"><i class="fa fa-search"></i></a>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="manageElesM">
+	<div class="manageEles-wrapper">
+		<div class="cde-content">
+			<div class="content-head">
+				<span class="text-center v-top"><i class="icon-note elements"></i></span>
+				<span class="content-head-text">数据元管理</span>
+			</div>
+			<div class="ctrlWarpper">
+				<div class="search-wrapper" style="margin:10px 0px">
+					<div class="col-sm-10">
+						<span class="create_sbj_btn btn_hover inline-block" role="button" onclick="openModalWin(this, 'elements_add.html', []);" title="新增数据元"><i class="glyphicon glyphicon-plus"></i>&nbsp;创建数据元</span>
+						<span class="create_sbj_btn btn_hover inline-block" role="button" onclick="saveData();"><i class="glyphicon glyphicon-save"></i>&nbsp;导出数据元</span>
+						<a href="" download="数据元.xlsx" id="hf"></a>
+					</div>
+					<div class="col-sm-2 position-relative">
+                        <input type="text" id="keySearch" class="form-control form-control-special" placeholder="数据元检索" style="padding-right: 26px;" onkeyup="if(event.keyCode==13){elesTable()}"/>
+                        <span class="search-icon">
+                            <i class="icon-magnifier" style="color:#c3c5c9; font-size:15px;"></i>
+                        </span>
+                    </div>
+					<div class="clearfix"></div>
+				</div>
+				<table id="elesTable" style="background:#fff;"></table>
+			</div>
+		</div>
+		<div class="cde-content">
+			<div class="content-head">
+				<span class="text-center v-top"><i class="icon-note options"></i></span>
+				<span class="content-head-text">值域管理</span>
+			</div>
+			<div class="ctrlWarpper">
+				<div class="search-wrapper" style="margin:10px 0px">
+					<div class="col-sm-10">
+						<span class="create_sbj_btn btn_hover inline-block" role="button" onclick="openModalWin(this, 'epm_options_add.html', []);" title="创建值域"><i class="glyphicon glyphicon-plus"></i>&nbsp;创建值域</span>
+					</div>
+					<div class="col-sm-2 position-relative">
+						<input type="text" id="keySearch2" class="form-control form-control-special" placeholder="值域检索" style="padding-right: 26px;" oninput="if(event.keyCode==13){refreshData();}"/>
+						<span class="position-absolute search-icon">
+							<i class="icon-magnifier" style="color:#c3c5c9; font-size:15px;"></i>
+						</span>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+				<table id="optionsTable" style="background:#fff;"></table>
+			</div>
+		</div>
+		<div class="cde-content">
+			<div class="content-head">
+				<span class="text-center v-top"><i class="icon-note dataSet"></i></span>
+				<span class="content-head-text">数据集管理</span>
+			</div>
+			<div class="ctrlWarpper">
+				<div class="search-wrapper" style="margin:10px 0px">
+					<div class="col-sm-10">
+						<span class="create_sbj_btn btn_hover inline-block" role="button" onclick="openModalWin(this, 'epm_add_sets.html', []);" title="创建数据集"><i class="glyphicon glyphicon-plus"></i>&nbsp;创建数据集</span>
+					</div>
+					<div class="col-sm-2 position-relative">
+						<input type="text" id="keySearch3" class="form-control form-control-special" placeholder="数据集检索" style="padding-right: 26px;" onkeyup="if(event.keyCode==13){setsTable();}"/>
+						<span class="position-absolute search-icon">
+							<i class="icon-magnifier" style="color:#c3c5c9; font-size:15px;"></i>
+						</span>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+				<table id="setTable" style="background:#fff;"></table>
+			</div>
+		</div>
+		<div class="clearfix"></div>
+	</div>
+</div>
+<div class="cde-footer">
+	<div class="container-fluid ng-scope">
+		2017 © <a href="http://www.goodwillcis.com/" title="北京嘉和美康信息技术有限公司 | 科研事业部" target="_blank">北京嘉和美康信息技术有限公司 | 科研事业部</a>
+	</div>
+</div>
+<!-- 模态框（Modal） -->
+<div id="modalWin" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div id="dragWin" class="modal-dialog">
+		<div id="dragCon" class="modal-header" style="cursor: move">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+			<h5 id="Modal_title" class="modal-title"></h5>
+		</div>
+		<section class="animated siteMod fadeInRight">
+			<iframe id="iWin" name="iWin" frameborder="0" scroll="0" style="border:0px;width:100%;max-height:470px;"></iframe>
+		</section>
+		<div class="modal-footer">
+			<button type="button" data-dismiss="modal" class="btn btn-sm btn-outline blue-dark">关闭</button>
+			<button id="parentSaveBtn" type="button" onclick="callChildBtnSave();" class="btn btn-sm blue">保存</button>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function () {
+		manageElesM = new Vue({
+			el : '#manageElesM',
+			data : {
+				dataM: {ID: $('#ID'), NAME:'', STYLE_PADDING:'moderate', STYLE_COLOR:'blue', CREATE_MAN: '', SUBJECT_ID: $('#gridID').val()},
+				subjectM : []
+			}
+		});
+
+		$('.head-btn a').click(function(){
+			$('.manageEles-wrapper').animate({'left':-(100*parseInt($('.head-btn a').index(this)))+'%'},1000);
+		});
+		$('[data-toggle="tooltip"]').tooltip();
+
+		$('#elesTable').bootstrapTable({
+			url: globalURL + '/EPMSvr/allElements',
+			method: 'post',
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			striped: true,
+			cache: true,
+			iconSize: 'xs',
+			pageNumber: 1,
+			pageSize: 10,
+			pageList: [5, 10, 15, 20, 'ALL'],
+			uniqueId: "METADATA_IDENTIFY",
+			pagination: true,
+			queryParamsType: 'limit',
+			sidePagination: "server",
+			queryParams: function (params) {
+				return {
+					p: (params.offset / params.limit) + 1,
+					pagesize: params.limit,
+					keyword: $('#keySearch').val(),
+					isTotal: 'isTotal'
+				}
+			},
+			paginationFirstText : "&laquo;",
+			paginationPreText : "&lsaquo;",
+			paginationNextText : "&rsaquo;",
+			paginationLastText : "&raquo;",
+			formatLoadingMessage: function () {
+				return "数据加载中...";
+			},
+			formatNoMatches: function () {
+				return '无符合条件的记录';
+			},
+			responseHandler: function(res) {
+				return {
+					"total": res.countPage,
+					"rows": res.data
+				};
+			},
+			columns: [
+				{
+					field: 'METADATA_NAME',
+					title: '数据元名称',
+					align: 'center',
+					formatter: function (value, row, index) {
+						var val=row['KEYWORDS'];
+                        var temp=row['METADATA_NAME'];
+                        val.forEach(function(item,index){
+                            temp=temp.replace(item,'<span style="background:#cfc;border-bottom: #000 solid 1px">' + item + '</span>')
+						});
+                        return '<a class="blue-a" href="'+ globalHref +'epm_eles_detail.html?code=' + row['METADATA_IDENTIFY'] +'" target="_blank" data-field="' + row['FIELDCODE_TABLECODE'] + '">'+temp+'</a>';
+					}
+				},
+				{
+					field: 'METADATA_IDENTIFY',
+					title: '数据元标识符',
+					align: 'center'
+				},
+				{
+					field: 'FIELDCODE_TABLECODE',
+					title: '数据元的允许值',
+					align: 'center'
+				},
+				{
+					field: 'CREATE_MAN',
+					title: '创建人员',
+					align: 'center'
+				},
+				{
+					field: 'ID',
+					title: '操作',
+					align: 'center',
+					formatter: function (value, row, index) {
+						var str = '';
+						str += '<a href="'+ globalHref +'epm_eles_detail.html?code=' + row['METADATA_IDENTIFY'] +'" target="_blank"><i class="icon icon_hover icon-magnifier" role="button" data-toggle="tooltip" data-placement="top" title="详情"></i></a>';
+						str += '<a class="edit-eles" onclick="openModalWin(this, \'elements_add.html?code='+ row['METADATA_IDENTIFY'] +'\', []);" title="编辑数据元"><i class="icon icon_hover icon-note" role="button" data-toggle="tooltip" data-placement="top" title="编辑"></i></a>'
+						return str;
+					},
+					events: 'operateEvents'
+				}
+			],
+			onLoadSuccess: function () {
+				$('[data-toggle="tooltip"]').tooltip();
+			}
+		});
+
+		$('#optionsTable').bootstrapTable({
+			url: globalURL + '/EPMSvr/allvoptions',
+			method: 'post',
+			contentType: "application/x-www-form-urlencoded",
+			striped: true,
+			cache: true,
+			iconSize: 'xs',
+			pageNumber: 1,
+			pageSize: 10,
+			pageList: [5, 10, 15, 20, 'ALL'],
+			uniqueId: "ID",
+			pagination: true,
+			queryParamsType: 'limit',
+			sidePagination: "server",
+			queryParams: function (params) {
+				return {
+					p: (params.offset / params.limit) + 1,
+					pagesize: params.limit,
+					keyword: $('#keySearch2').val(),
+				}
+			},
+			paginationFirstText : "&laquo;",
+			paginationPreText : "&lsaquo;",
+			paginationNextText : "&rsaquo;",
+			paginationLastText : "&raquo;",
+			formatLoadingMessage: function () {
+				return "数据加载中...";
+			},
+			formatNoMatches: function () {
+				return '无符合条件的记录';
+			},
+			responseHandler: function(res) {
+				return {
+					"total": res.countPage,
+					"rows": res.data
+				};
+			},
+			columns: [
+				{
+					field: 'METADATAFIELD_NAME',
+					title: '值域名称',
+					align: 'center',
+					formatter: function (value, row, index) {
+						var str = '<a class="blue-a" href="'+ globalHref +'epm_options_detail.html?code=' + row['FIELDCODE_TABLECODE'] +'" target="_blank">'+  row['METADATAFIELD_NAME'] +'</a>';
+						return str;
+					}
+				},
+				{
+					field: 'FIELDCODE_TABLECODE',
+					title: '值域标识符',
+					align: 'center'
+				},
+				{
+					field: 'CREATE_MAN',
+					title: '创建人员',
+					align: 'center'
+				},
+				{
+					field: 'ID',
+					title: '操作',
+					align: 'center',
+					formatter: function (value, row, index) {
+						var str = '';
+						str += '<a href="'+ globalHref +'epm_options_detail.html?code=' + row['FIELDCODE_TABLECODE'] +'" target="_blank"><i class="icon icon_hover icon-magnifier" role="button" data-toggle="tooltip" data-placement="top" title="详情"></i></a>';
+						str += '<a class="edit-eles" onclick="openModalWin(this, \'epm_options_add.html?code='+ row['FIELDCODE_TABLECODE'] +'\', []);" title="编辑数据元"><i class="icon icon_hover icon-note" role="button" data-toggle="tooltip" data-placement="top" title="编辑"></i></a>'
+						return str;
+					},
+					events: 'operateEvents'
+				}
+			],
+			onLoadSuccess: function () {
+				$('[data-toggle="tooltip"]').tooltip();
+			}
+		});
+
+		$('#setTable').bootstrapTable({
+			url: globalURL + '/EPMSvr/allSets',
+			method: 'get',
+			contentType: "application/x-www-form-urlencoded",
+			striped: true,
+			cache: true,
+			iconSize: 'xs',
+			pageNumber: 1,
+			pageSize: 10,
+			pageList: [5, 10, 15, 20, 'ALL'],
+			uniqueId: "ID",
+			pagination: true,
+			queryParamsType: 'limit',
+			sidePagination: "server",
+			queryParams: function (params) {
+				return {
+					p: (params.offset / params.limit) + 1,
+					pagesize: params.limit,
+					keyword: $('#keySearch3').val(),
+					isTotal: 'isTotal'
+				}
+			},
+			paginationFirstText : "&laquo;",
+			paginationPreText : "&lsaquo;",
+			paginationNextText : "&rsaquo;",
+			paginationLastText : "&raquo;",
+			formatLoadingMessage: function () {
+				return "数据加载中...";
+			},
+			formatNoMatches: function () {
+				return '无符合条件的记录';
+			},
+			responseHandler: function(res) {
+				return {
+					"total": res.countPage,
+					"rows": res.data
+				};
+			},
+			columns: [
+				{
+					field: 'DS_NAME',
+					title: '数据集名称',
+					align: 'center',
+					formatter: function (value, row, index) {
+						var str = '<a class="blue-a" href="'+ globalHref +'epm_sets_detail.html?code=' + row['DS_CODE'] +'" target="_blank">'+  row['DS_NAME'] +'</a>';
+						return str;
+					}
+				},
+				{
+					field: 'DS_CODE',
+					title: '数据集标识符',
+					align: 'center'
+				},
+				{
+					field: 'CREATOR',
+					title: '创建人员',
+					align: 'center'
+				},
+				{
+					field: 'ID',
+					title: '操作',
+					align: 'center',
+					formatter: function (value, row, index) {
+						var str = '';
+						str += '<a href="'+ globalHref +'epm_sets_detail.html?code=' + row['DS_CODE'] +'" target="_blank"><i class="icon icon_hover icon-magnifier" role="button" data-toggle="tooltip" data-placement="top" title="详情"></i></a>';
+						str += '<a class="edit-eles" onclick="openModalWin(this, \'epm_add_sets.html?code='+ row['DS_CODE'] +'\', []);" title="编辑数据集"><i class="icon icon_hover icon-note" role="button" data-toggle="tooltip" data-placement="top" title="编辑"></i></a>'
+						return str;
+					},
+					events: 'operateEvents'
+				}
+			],
+			onLoadSuccess: function () {
+				$('[data-toggle="tooltip"]').tooltip();
+			}
+		});
+	});
+	function elesTable() {
+		$('#elesTable').bootstrapTable('refreshOptions', {pageNumber: 1});
+		$('#elesTable').bootstrapTable('refresh');
+	}
+	function setsTable() {
+		$('#setTable').bootstrapTable('refreshOptions', {pageNumber: 1});
+		$('#setTable').bootstrapTable('refresh');
+	}
+	function saveData() {
+		$.post(globalURL + '/EPMSvr/getMyElesJson', function (res) {
+			if (res.code != 0) return false;
+			downloadExl(res.data);
+		}, "json");
+	}
+
+	var tmpDown; //导出的二进制对象
+	function downloadExl(json, type) {
+		var tmpdata = json[0];
+		json.unshift({});
+		var keyMap = []; //获取keys
+		for (var k in tmpdata) {
+			keyMap.push(k);
+			json[0][k] = k;
+		}
+		var tmpdata = [];//用来保存转换好的json
+		json.map((v, i) => keyMap.map((k, j) => Object.assign({}, {
+			v: v[k],
+			position: (j > 25 ? getCharCol(j) : String.fromCharCode(65 + j)) + (i + 1)
+		}))).reduce((prev, next) => prev.concat(next)).forEach((v, i) => tmpdata[v.position] = {
+			v: v.v
+		});
+		var outputPos = Object.keys(tmpdata); //设置区域,比如表格从A1到D10
+		var tmpWB = {
+			SheetNames: ['mySheet'], //保存的表标题
+			Sheets: {
+				'mySheet': Object.assign({},
+						tmpdata, //内容
+						{
+							'!ref': outputPos[0] + ':' + outputPos[outputPos.length - 1] //设置填充区域
+						})
+			}
+		};
+		tmpDown = new Blob([s2ab(XLSX.write(tmpWB,
+				{bookType: (type == undefined ? 'xlsx':type),bookSST: false, type: 'binary'}//这里的数据是用来定义导出的格式类型
+		))], {
+			type: ""
+		}); //创建二进制对象写入转换好的字节流
+		var href = URL.createObjectURL(tmpDown); //创建对象超链接
+		document.getElementById("hf").href = href; //绑定a标签
+		document.getElementById("hf").click(); //模拟点击实现下载
+		setTimeout(function() { //延时释放
+			URL.revokeObjectURL(tmpDown); //用URL.revokeObjectURL()来释放这个object URL
+		}, 100);
+	}
+
+	function s2ab(s) { //字符串转字符流
+		var buf = new ArrayBuffer(s.length);
+		var view = new Uint8Array(buf);
+		for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+		return buf;
+	}
+	// 将指定的自然数转换为26进制表示。映射关系：[0-25] -> [A-Z]。
+	function getCharCol(n) {
+		var temCol = '',
+				s = '',
+				m = 0
+		while (n > 0) {
+			m = n % 26 + 1
+			s = String.fromCharCode(m + 64) + s
+			n = (n - m) / 26
+		}
+		return s
+	}
+</script>
+</body>
+</html>

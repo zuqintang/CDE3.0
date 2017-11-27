@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>公式编辑器</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	<link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+	<link href="./libs/font-awesome.css" rel="stylesheet">
+    <link href="./libs/select2.css" rel="stylesheet">
+	<link href="./libs/editor.css" rel="stylesheet">
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/select2.js"></script>
+	<script src="./libs/editor.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<div class="row">
+		<div class="form-group">
+			<div class="col-sm-24 form-inline">
+				<select id="formulaSelect" class="form-control" onchange="formulaChange(this);">
+                    <option id="fOptionNode" value="0">+添加新公式</option>
+				</select>
+                <input type="text" id="fname" class="form-control" placeholder="元素名称" />
+                <button onclick="saveFormula(this);" class="btn btn-primary">保存</button>
+				<label id="tip" class=""></label>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-24">
+			<table class="table table-bordered">
+				<tr class="text-nowrap">
+					<th>
+                        <button onclick="addSymbol();"><i class="fa fa-plus"></i></button>
+						参数名称
+					</th>
+					<th style="width:100px;">数据元</th>
+                    <th>默认值</th>
+                    <th>操作</th>
+                </tr>
+                <tbody id="symBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-sm-2">公式</label>
+            <div class="col-sm-20">
+                <textarea id="fexp" type="text" class="form-control"></textarea>
+            </div>
+            <div class="col-sm-2">
+                <button onclick="testFormula();" class="btn btn-primary">测试</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">结果</label>
+            <div class="col-sm-20">
+                <input id="rs" type="text" class="form-control"/>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <table class="hide">
+        <tr id="symNode" class="sym-node">
+            <td class="col-sm-4"><input type="text" class="sym-name form-control" style="padding:0px;"/></td>
+            <td class="col-sm-14">
+                <select class="sym-eid form-control" style="width:100%;">
+                </select>
+            </td>
+            <td class="col-sm-4">
+                <input type="text" class="sym-value form-control" style="padding:0px;"/>
+            </td>
+            <td class="col-sm-2">
+                <button onclick="deleteSymbol(this);" title='删除' class="btn btn-default btn-delete">
+                    <span class="fa fa-remove"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<script type='text/javascript'>
+
+$(document).ready(function ()
+{
+    parent.$("#parentSaveBtn").addClass("hidden");
+    selectData = [];
+    bindSelectFormulas(0);
+    bindSelectElements();
+});
+
+function testFormula()
+{
+    $.post(apiURL+'/FormulaSvr/model', {id: $('#formulaSelect').val()}, function (res)
+    {
+        if(res.code == 0)
+        {
+            var rs = doFormula(JSON.stringify(res.data), 'Y');
+            $('#rs').val(rs);
+        }
+    }, 'json');
+}
+
+function saveFormula()
+{
+    var tempSymbolArray = [];
+    $('#symBody').find('tr').each(function(index, data)
+    {
+        data = $(data);
+        console.log(data.find('.sym-eid').val());
+        var sym =
+        {
+            id: data.attr('id'),
+            name: data.find('.sym-name').val(),
+            eid: data.find('.sym-eid').val(),
+            value: data.find('.sym-value').val()
+        };
+        tempSymbolArray.push(sym);
+    });
+
+    $.post(apiURL+'/FormulaSvr/save',
+            { ID: $('#formulaSelect').val(), NAME: $('#fname').val(), EXP: $('#fexp').val(), TID: getTemplateID(),
+                SYMBOLS: JSON.stringify(tempSymbolArray)
+            },
+            function (res)
+            {
+                if (res.code == 0)
+                {
+                    $('#tip').show();
+                    fid = res.data.ID;
+                    $('#tip').text("保存成功！");
+                    $('#tip').removeClass("text-danger");
+                    $('#tip').addClass("text-success");
+                    setTimeout(function () { $('#tip').hide(); }, 3000);
+                    bindSelectFormulas(fid);
+                }
+                else
+                {
+                    $('#tip').show();
+                    $('#tip').text("保存失败！");
+                    $('#tip').removeClass("text-success");
+                    $('#tip').addClass("text-danger");
+                }
+            }, 'json');
+}
+
+    function bindSelectFormulas(fid)
+    {
+        $("#fOptionNode").siblings().remove();
+        $.post(apiURL+'/FormulaSvr/allFormulas', {tid:getTemplateID()}, function (res)
+        {
+            for(var i=0; i<res.data.length; i++)
+            {
+                var row = res.data[i];
+                var newOption = $("#fOptionNode").clone();
+                newOption.removeAttr("id");
+                newOption.val(row.ID);
+                newOption.text(row.NAME);
+                $("#formulaSelect").append(newOption);
+            }
+            $('#formulaSelect').val(fid);
+        },'json');
+    }
+    function bindSelectElements()
+    {
+		var selectNode = $("#symNode").find(".sym-eid");
+		var optionNode = selectNode.find("option");
+		var optgroupNode = selectNode.find("optgroup");
+        $.ajax({type: 'POST', url: apiURL+'/CRFSvr/searchElementAlias',data:{id: parent.parent.template_id}, dataType: 'json', async:false,
+            success: function(res)
+            {
+                if(res.code == 0)
+                {
+                    var formData = [];
+                    var globalData = [];
+                    for (var i = 0; i < res.data.length; i++)
+                    {
+                        var row = res.data[i];
+                        var showStr = row.ALIAS + '（' + row.ID + '）';
+                        var newData = {id:row.ID, text:showStr};
+                        if(row.TEMPLATE_ID == parent.parent.template_id)
+                            formData.push(newData);
+                        else
+                            globalData.push(newData);
+                    }
+                    selectData.push({text:'当前表单', children:formData});
+                    selectData.push({text:'跨表单', children:globalData});
+
+                } else {alert('System Error');}
+            }
+        });
+    }
+
+    function formulaChange()
+    {
+        var fid = $('#formulaSelect').val();
+        if (fid == 0)
+        {
+            showFormula(blankFormula());
+        }
+        else
+        {
+            $.post(apiURL+'/FormulaSvr/model', {id: fid}, function (res)
+            {
+                    var formula = res.data;
+                    showFormula(formula);
+            }, 'json');
+        }
+    }
+
+function showFormula(formula)
+{
+       $("#fname").val(formula.NAME);
+       $("#symBody").empty();
+       for (var i=0; i<formula.SYMBOLS.length; i++)
+       {
+           var symbol = formula.SYMBOLS[i];
+           appendSymbolNode(symbol);
+       }
+       $("#fexp").val(formula.EXP);
+       $("#rs").val("");
+}
+//获取url中的参数
+function getUrlParam(name) {
+			var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+			var r = parent.parent.window.location.search.substr(1).match(reg);  //匹配目标参数
+			if (r != null) return unescape(r[2]); return null; //返回参数值
+}
+
+function addSymbol()
+{
+    var obj = {id:c2id(), name:'V', eid:'', value:0};
+    appendSymbolNode(obj);
+}
+
+function blankFormula()
+{
+    return {ID:0, NAME:'', EXP:'', SYMBOLS:[]};
+}
+
+function appendSymbolNode(obj)
+{
+    var newNode = $("#symNode").clone().removeAttr('id');
+    newNode.attr("id", obj.id);
+    newNode.find(".sym-name").val(obj.name);
+    newNode.find('.sym-eid').select2({data:selectData});
+    newNode.find(".sym-eid").val(obj.eid).trigger("change");
+    newNode.find(".sym-value").val(obj.value);
+    newNode.show();
+    $("#symBody").append(newNode);
+}
+
+//删除
+function deleteSymbol(event)
+{
+    $(event).parents(".sym-node").remove();
+}
+</script>
+</body>
+</html>

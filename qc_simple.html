@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>质量控制</title>
+    <link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet">
+    <link href="./libs/editor.css" rel="stylesheet">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/editor.js"></script>
+    <script src="./libs/My97DatePicker/WdatePicker.js"></script>
+    <script src="./libs/bootbox.js"></script>
+</head>
+<body>
+<div class="container">
+     <div class="row form-horizontal">
+        <div class="col-sm-6">
+            <select id="notBlank" class="form-control">
+                <option value="add">必填</option>
+                <option value="remove">非必填</option>
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <input class="requireInfo form-control" type="text" value="该数据项必须填写" placeholder="该数据项必须填写" class="form-control"/>
+        </div>
+        <div class="col-sm-6">
+            <select id="blankStar" class="form-control">
+                <option value="left">向左添加标记</option>
+                <option value="right">向右添加标记</option>
+            </select>
+        </div>
+    </div>
+    <div class="row form-horizontal">
+        <div class="col-sm-6">
+            <select id="isPhone" class="form-control">
+                <option value="">未设置（手机号）</option>
+                <option value="add">手机号</option>
+                <option value="remove">取消手机号</option>
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <input class="phoneInfo form-control" type="text" placeholder="手机号输入有误" class="form-control"/>
+        </div>
+    </div>
+    <div class="row form-horizontal">
+        <div class="col-sm-6">
+            <select id="isCardID" class="form-control">
+                <option value="">未设置（身份证号）</option>
+                <option value="add">身份证号</option>
+                <option value="remove">取消身份证号</option>
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <input class="idInfo form-control" type="text" placeholder="身份证号输入有误" class="form-control"/>
+        </div>
+    </div>
+    <div class="row form-horizontal">
+        <div class="col-sm-6">
+            <select id="isNumber" class="form-control">
+                <option value="">不限制（整数小数）</option>
+                <option value="all">只是数字</option>
+                <option value="integer">整数</option>
+                <option value="float">小数</option>
+                <option value="remove">取消整数小数</option>
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <input class="numInfo form-control" type="text" placeholder="数字格式错误" class="form-control"/>
+        </div>
+        <div class="col-sm-6">
+            <select id="numberFixed" class="form-control" style="display:none;">
+                <option value="1">保留1位小数</option>
+                <option value="2">保留2位小数</option>
+                <option value="3">保留3位小数</option>
+                <option value="4">保留4位小数</option>
+                <option value="5">保留5位小数</option>
+                <option value="0" selected>无限制</option>
+            </select>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row form-horizontal">
+        <!-- TODO 导入导出型的接口对接 -->
+        <div class="col-sm-6">
+            <select id="setImport" class="form-control">
+                <option value="">未设置（导入型）</option>
+                <option value="add">导入型</option>
+                <option value="remove">取消导入型</option>
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <select id="setExport" class="form-control">
+                <option value="">未设置（不导出）</option>
+                <option value="add">不导出型</option>
+                <option value="remove">取消不导出</option>
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <select id="isReadOnly" class="form-control">
+                <option value="">未设置（是否只读）</option>
+                <option value="add">只读类型</option>
+                <option value="remove">取消只读</option>
+            </select>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row form-horizontal">
+        <div class="col-sm-6">
+            <input id="setMin" type="text" placeholder="最小值（输入d删除）" class="form-control"/>
+        </div>
+        <div class="col-sm-6">
+            <select id="minEqual" class="form-control">
+                <option value="">不限制</option>
+                <option value="equal">大于等于</option>
+                <option value="noEqual">大于</option>
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <input class="minInfo form-control" type="text" placeholder="请输入错误原因" class="form-control"/>
+        </div>
+        <div class="col-sm-6" style="color:red;">
+           注：选择最大最小值必须对上述第四行数字类型做限制。
+        </div>
+    </div>
+    <div class="row form-horizontal">
+        <div class="col-sm-6">
+            <input id="setMax" type="text" placeholder="最大值（输入d删除）" class="form-control"/>
+        </div>
+        <div class="col-sm-6">
+            <select id="maxEqual" class="form-control">
+                <option value="">不限制</option>
+                <option value="equal">小于等于</option>
+                <option value="noEqual">小于</option>
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <input class="maxInfo form-control" type="text" placeholder="请输入错误原因" class="form-control"/>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row form-horizontal">
+        <div class="col-sm-6">
+            <input id="setStep" type="text" placeholder="步伐（输入d删除）" class="form-control"/>
+        </div>
+    </div>
+	<div class="clearfix"></div>
+    <div class="row form-horizontal">
+        <div class="col-sm-6">
+            <input id="strMin" type="text" placeholder="最小字符值" class="form-control"/>
+        </div>
+        <div class="col-sm-6">
+            <input id="strMax" type="text" placeholder="最大字符值" class="form-control"/>
+        </div>
+    </div>
+    <div class="row form-horizontal">
+        <div class="col-sm-6">
+            <select id="setDate" class="form-control">
+                <option value="">不限制（日期）</option>
+                <option value="1">需大于当前日期</option>
+                <option value="2">不超过当前日期</option>
+                <option value="3">自定义限制日期</option>
+            </select>
+        </div>
+        <div class="col-sm-6">
+            <input id="dateMin" type="text" placeholder="最小时间期限" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="form-control Wdate" style="display:none;"/>
+        </div>
+        <div class="col-sm-6">
+            <input id="dateMax" type="text" placeholder="最大时间期限" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" class="form-control Wdate" style="display:none;"/>
+        </div>
+    </div>
+    <div class="row form-horizontal">
+        <div class="col-sm-6">
+            <select class="form-control" name="wordsctrl" id="wordsCtrl">
+                <option value="tctrl-none">不限制大小写</option>
+                <option value="tctrl-uppercase">只可大写</option>
+                <option value="tctrl-lowercase">只可小写</option>
+                <option value="tctrl-capitalize">首字母大写</option>
+            </select>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function()
+{
+    tempGrids = parent.getGrids().find('.c-element');
+    var errText = tempGrids.attr('pattern-error');
+    if(tempGrids.attr('required')){
+        $('#notBlank').val('add');
+        $(".requireInfo").val(tempGrids.attr('required-error'));
+        if(tempGrids.attr('data-required') == 'right'){
+            $('#blankStar').val('right');
+        }else{
+            $('#blankStar').val('left');
+        }
+        $(".requireInfo").show();
+    }else{
+        $('#notBlank').val('remove');
+        $(".requireInfo").hide();
+        $('#blankStar').hide();
+    }
+
+    if(tempGrids.attr('pattern') == '^1\\d{10}$'){
+        $('#isPhone').val('add');
+        $(".phoneInfo").val(errText == '' ? '手机号输入有误' : errText);
+    }else{
+        $('#isPhone').val('');
+        $(".phoneInfo").hide();
+    }
+
+    if(tempGrids.attr('pattern') == '^\\d{17}(\\d|x|X)$'){
+        $('#isCardID').val('add');
+        $(".idInfo").val(errText == '' ? '身份证输入有误' : errText);
+    }else{
+        $('#isCardID').val('');
+        $(".idInfo").hide().val('');
+    }
+    if(tempGrids.attr('pattern') == '^\\-?\\d*$'){
+        $('#isNumber').val('integer');
+        $(".numInfo").val(errText == '' ? '只能为整数' : errText).show();
+    }else if(tempGrids.attr('pattern') == '^\\-?\\d*\\.\\d*$'){
+        $('#isNumber').val('float');
+        $(".numInfo").val(errText == '' ? '小数格式错误' : errText).show();
+        $('#numberFixed').show();
+        $('#numberFixed').val(tempGrids.attr('data-floatlimit'));
+    }else if(tempGrids.attr('pattern') == '^\\-?\\d*\\.{0,1}\\d*$'){
+        $('#isNumber').val('all');
+        $(".numInfo").val(errText == '' ? '必须为数字' : errText).show();
+    }else{
+        $('#isNumber').val('');
+        $(".numInfo").hide().val('');
+    }
+
+    if(tempGrids.attr('min')){
+        $('#setMin').val(tempGrids.attr('min'));
+        if(tempGrids.attr('data-minEqual')){
+            $('#minEqual').val('equal');
+        }else{
+            $('#minEqual').val('noEqual');
+        }
+        if(tempGrids.attr('data-minInfo')){
+            $('.minInfo').val(tempGrids.attr('data-minInfo'));
+        }else{
+            $('.minInfo').val('');
+        }
+    }else{
+        $('#setMin').val('');
+        $('#minEqual').val('');
+    }
+
+    if(tempGrids.attr('max')){
+        $('#setMax').val(tempGrids.attr('max'));
+        if(tempGrids.attr('data-maxEqual')){
+            $('#maxEqual').val('equal');
+        }else{
+            $('#maxEqual').val('noEqual');
+        }
+        if(tempGrids.attr('data-maxInfo')){
+            $('.maxInfo').val(tempGrids.attr('data-maxInfo'));
+        }else{
+            $('.maxInfo').val('');
+        }
+    }else{
+        $('#setMax').val('');
+        $('#maxEqual').val('');
+    }
+
+    if(tempGrids.attr('step')){
+        $('#setStep').val(tempGrids.attr('step'));
+    }else{
+        $('#setStep').val('');
+    }
+    if(tempGrids.attr('minlength')){
+        $('#strMin').val(tempGrids.attr('minlength'));
+    }else{
+        $('#strMin').val('');
+    }
+    if(tempGrids.attr('maxlength')){
+        $('#strMax').val(tempGrids.attr('maxlength'));
+    }else{
+        $('#strMax').val('');
+    }
+    if(tempGrids.first().hasClass('text-primary')){
+        $('#setImport').val('add');
+    }else{
+        $('#setImport').val('');
+    }
+    if(tempGrids.first().hasClass('text-danger')){
+        $('#setExport').val('add');
+    }else{
+        $('#setExport').val('');
+    }
+    if(tempGrids.attr('readonly')){
+        $('#isReadOnly').val('add');
+    }else{
+        $('#isReadOnly').val('');
+    }
+
+    if(tempGrids.hasClass('Wdate')){
+        var date_format = tempGrids.attr('onclick');
+        if(date_format.indexOf('CurentTime')>0 && date_format.indexOf('minDate')>0){
+            $('#setDate').val('1');
+        }else if(date_format.indexOf('CurentTime')>0 && date_format.indexOf('maxDate')>0){
+            $('#setDate').val('2');
+        }else if(date_format.indexOf('CurentTime')==-1 && date_format.indexOf('minDate')>0){
+            $('#setDate').val('3');
+            $('#dateMin, #dateMax').val('').show();
+            var dateMin = date_format.substring(date_format.indexOf('minDate')+9, date_format.indexOf('maxDate')-2);
+            var dateMax = date_format.substring(date_format.indexOf('maxDate')+9, date_format.indexOf('}')-1);
+            $('#dateMin').val(dateMin);
+            $('#dateMax').val(dateMax);
+        }else{
+            $('#setDate').val('');
+        }
+    }
+
+    $('#isNumber').on('change', function(){
+        if( $(this).val() === 'float' ){
+            $('#numberFixed').val(0).show();
+        }else{
+            $('#numberFixed').val(0).hide();
+        }
+    });
+
+    $('#setDate').on('change', function(){
+        if( $(this).val() === '3' ){
+            $('#dateMin, #dateMax').val('').show();
+        }else{
+            $('#dateMin, #dateMax').val('').hide();
+        }
+    });
+
+    $('#notBlank').on('change', function(){
+        if($(this).val() === 'add'){
+            $(".requireInfo").show().val('该数据项必须填写');
+            $('#blankStar').show();
+        }else{
+            $(".requireInfo").hide();
+            $('#blankStar').hide();
+        }
+    });
+
+    $('#isPhone').on('change', function(){
+        if($(this).val() == '' || $(this).val() == 'remove'){
+            $('.phoneInfo').hide();
+        }else{
+            $('.phoneInfo').show().val('手机号输入有误');
+        }
+    });
+
+    $('#isCardID').on('change', function(){
+        if($(this).val() == '' || $(this).val() == 'remove'){
+            $('.idInfo').hide();
+        }else{
+            $('.idInfo').show().val('身份证输入有误');
+        }
+    });
+
+    $('#isNumber').on('change', function(){
+        if($(this).val() == '' || $(this).val() == 'remove'){
+            $('.numInfo').hide();
+        }else{
+            $('.numInfo').show().val('数字格式错误');
+        }
+    });
+
+    if(tempGrids.attr('data-tctrl')){
+        $('#wordsCtrl').val(tempGrids.attr('data-tctrl'));
+    }
+ });
+
+function btnSave()
+{
+    grids = parent.getGrids();
+    window.elements = grids.find('.c-element');
+    star =$('.star').clone();
+
+    var notBlank = $('#notBlank').val();
+    if(notBlank=='add'){
+        elements.attr('required', true);
+        elements.attr('required-error', $(".requireInfo").val());
+        elements.attr('data-required', $('#blankStar').val());
+    }else if(notBlank=='remove')
+    {
+        elements.removeAttr('required');
+        elements.removeAttr('required-error');
+        elements.removeAttr('data-required');
+        if(grids.find('.star').length != 0){
+            grids.find('.star').remove();
+        }
+    }
+
+    var isPhone = $('#isPhone').val();
+    if(isPhone=='add'){
+        elements.attr('pattern', '^1\\d{10}$');
+        elements.attr('pattern-error', $(".phoneInfo").val());
+    } else if(isPhone=='remove'){
+        elements.removeAttr('pattern');
+        elements.removeAttr('pattern-error');
+    }
+
+    var isCardID = $('#isCardID').val();
+    if(isCardID=='add'){
+        elements.attr('pattern', '^\\d{17}(\\d|x|X)$');
+        elements.attr('pattern-error',$(".idInfo").val());
+    }else if(isCardID=='remove') {
+        elements.removeAttr('pattern');
+        elements.removeAttr('pattern-error');
+    }
+
+    var isNumber = $('#isNumber').val();
+    var floatLimit = parseInt($('#numberFixed').val());
+
+    function minOrMax(symbol, symbolId, num){
+        var dataSysEqual = 'data-'+symbol +'Equal';
+        var dataSysInfo = 'data-'+symbol+'Info';
+        var sysEqualId = '#'+symbol+'Equal';
+        function minOrMaxRemove(){
+            elements.removeAttr(symbol);
+            elements.removeAttr(dataSysEqual);
+            elements.removeAttr(dataSysInfo);
+        }
+        if($(symbolId).val()){
+            switch(num){
+                case 0:
+                    elements.attr(symbol, $("#setMin").val() || -Infinity);
+                    break;
+                case 1:
+                    elements.attr('max', $("#setMax").val() ||  Infinity);
+                    break;
+                case 2:
+                    elements.attr('min', parseFloat($("#setMin").val()).toFixed(floatLimit)+'' || -Infinity);
+                    break;
+                case 3:
+                    elements.attr('max', parseFloat($("#setMax").val()).toFixed(floatLimit)+'' ||  Infinity);
+                    break;
+                default:
+                    break;
+            }
+            if($(sysEqualId).val() == 'equal'){
+                elements.attr(dataSysEqual, true);
+            }else if($(sysEqualId).val() == 'noEqual'){
+                elements.removeAttr(dataSysEqual);
+            }else{
+                minOrMaxRemove();
+            }
+            elements.attr(dataSysInfo, $("."+symbol+"Info").val());
+        }else{
+            minOrMaxRemove();
+        }
+    }
+    if(!floatLimit){
+        minOrMax('min', '#setMin', 0);
+        minOrMax('max', '#setMax', 1);
+    }else{
+        minOrMax('min', '#setMin', 2);
+        minOrMax('max', '#setMax', 3);
+    }
+
+    if(isNumber==undefined || isNumber=='') {
+
+    }else if(isNumber == 'remove'){
+       elements.removeAttr('pattern');
+       elements.removeAttr('pattern-error');
+       elements.removeAttr('data-floatlimit');
+    }else if(isNumber == 'integer'){
+       elements.attr('pattern', '^\\-?\\d*$');
+       elements.attr('pattern-error',$(".numInfo").val());
+       elements.removeAttr('data-floatlimit');
+    }else if (isNumber == 'all') {
+        elements.attr('pattern', '^\\-?\\d*\\.{0,1}\\d*$');
+        elements.attr('pattern-error',$(".numInfo").val());
+        elements.removeAttr('data-floatlimit');
+    }else if(isNumber == 'float'){
+       elements.attr('pattern', '^\\-?\\d*\\.\\d*$');
+       elements.attr('pattern-error',$(".numInfo").val());
+       elements.attr('data-floatlimit', parseInt($('#numberFixed').val()));
+    }
+
+
+    if( elements.attr('data-type') === 'RULER' ){
+        var setMin  = $('#setMin').val().length != 0 ? parseFloat($('#setMin').val()) : parseFloat(elements.attr('data-min'));
+        var setMax  = $('#setMax').val().length != 0 ? parseFloat($('#setMax').val()) : parseFloat(elements.attr('data-max'));
+        var setStep = parseFloat($('#setStep').val()) || elements.attr('data-step');
+        if( setMin >= setMax ){
+            parent.alert('最小值 不能大于 最大值');
+        }else{
+            var scaleNode = createRangeScript(elements[0].name, setMin, setMax, setStep);
+            var newElements = elements.clone();
+            newElements.val(setMin).attr({
+                'data-min'  : setMin,
+                'data-max'  : setMax,
+                'data-step' : setStep
+            });
+            elements.parent().empty().append(newElements,scaleNode);
+        }
+    }
+
+    if(elements.hasClass('Wdate')){
+        var setDate = $('#setDate').val();
+        var date_format = elements.attr('onclick');
+        date_format = date_format.substring(date_format.indexOf('d', 2), date_format.indexOf(','));
+        if(setDate == 1){
+            elements.attr("onClick", "WdatePicker({" + date_format + ",minDate:CurentTime()})");
+        }else if(setDate == 2){
+            elements.attr("onClick", "WdatePicker({" + date_format + ",maxDate:CurentTime()})");
+        }else if(setDate == 3){
+            var dateMin = $('#dateMin').val();
+            var dateMax = $('#dateMax').val();
+            elements.attr("onClick", "WdatePicker({" + date_format + ",minDate:'" + dateMin + "',maxDate:'" + dateMax + "'})");
+        }
+    }
+
+    var strMin = $("#strMin").val();
+    if(strMin==undefined || strMin=='') {}
+    else if(isNaN(strMin)) elements.removeAttr('minlength');
+    else elements.attr('minlength', strMin);
+
+    var strMax = $("#strMax").val();
+    if(strMax==undefined || strMax=='') {}
+    else if(isNaN(strMax)) elements.removeAttr('maxlength');
+    else elements.attr('maxlength', strMax);
+
+    var setImport = $('#setImport').val();
+    if(setImport=='add')
+    {
+        saveDBFlag(elements.first(), 1, 'text-primary', apiURL+'/EAliasSvr/setImport');
+    }
+    else if(setImport=='remove')
+    {
+        saveDBFlag(elements.first(), 0, 'text-primary', apiURL+'/EAliasSvr/setImport');
+    }
+
+    var setExport = $('#setExport').val();
+    if(setExport=='add')
+    {
+        saveDBFlag(elements.first(), 1, 'text-danger', apiURL+'/EAliasSvr/forbidExport');
+    }
+    else if(setExport=='remove')
+    {
+        saveDBFlag(elements.first(), 0, 'text-danger', apiURL+'/EAliasSvr/forbidExport');
+    }
+
+    var isReadOnly = $('#isReadOnly').val();
+    if(isReadOnly=='add')
+    {
+        elements.attr('readonly', 'readonly');
+    }
+    else if(isReadOnly=='remove')
+    {
+        elements.removeAttr('readonly');
+    }
+
+    var wordsctrl = $('#wordsCtrl').val();
+    if(tempGrids.length == 1 && wordsctrl == 'tctrl-none'){
+        tempGrids.removeClass('tctrl-uppercase tctrl-lowercase tctrl-capitalize')
+        .removeAttr('data-tctrl');
+    }else{
+        tempGrids.removeClass('tctrl-uppercase tctrl-lowercase tctrl-capitalize')
+        .addClass(wordsctrl)
+        .attr('data-tctrl', wordsctrl);
+    }
+
+    parent.modalWin.modal("hide");
+}
+
+function saveDBFlag(element, flag, className, url)
+{
+    var elementID = element.attr("name");
+    $.post(url, {id:elementID, flag:flag}, function (res)
+			{
+				if (res.code == 0)
+				{
+					if (flag == 0) element.removeClass(className);
+					else element.addClass(className);
+
+                    if(element.next().length > 0)
+                    {
+                        saveDBFlag(element.next(), flag, className, url);
+                    }
+                    else
+                    {
+                        parent.modalWin.modal("hide");
+                    }
+				}else{alert('API Error');console.log(res.responseText);}
+			}, 'json');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>增删改查样例</title>
+    <link href="./libs/bootstrap-3.3.7.css" rel="stylesheet" />
+    <link href="./libs/font-awesome.css" rel="stylesheet"/>
+    <link href="./libs/bootstrap-table.css" rel="stylesheet" >
+    <link href="./libs/editor.css" rel="stylesheet" >
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/bootstrap-table.js"></script>
+    <script src="./libs/bootbox.js"></script>
+    <script src="./libs/editor.js"></script>
+</head>
+<body>
+<div class="panel-heading bg-primary" style="height: 60px;margin-bottom: 15px;">
+    <div class="fa fa-check-square-o col-md-1" style="font-size:40px;"></div>
+    <div class="col-md-23" style="font-size:25px;">药品库编辑</div>
+</div>
+<div class="container">
+    <div class="toolbar" class="col-sm-24" style="margin-bottom:15px;float: left;">
+        <button onclick="addOption(this);" class="btn btn-success" title="添加药品">添加药品</button>
+        <button onclick="updateOptions(this);" class="btn btn-primary"  title="编辑/查看">编辑/查看</button>
+        <button onclick="deleteOptions();" class="btn btn-danger" title="删除药品">删除药品</button>
+    </div>
+    <div class="toolbar" class="col-sm-24" style="margin-bottom:15px;float: left;margin-left: 10px;">
+        <input id="searchText" type="text" placeholder="请输入关键字...." class="form-control" onkeyup="if(event.keyCode==13) {searchRes();}">
+    </div>
+    <table id="medicine">
+        <thead>
+        <tr>
+            <th data-field="STATE" data-radio="true" data-align="center"></th>
+            <th data-field="NAME" data-align="center">药品名称</th>
+            <th data-field="COMPONENT" data-align="center">成分</th>
+            <th data-field="FACTORY" data-align="center">出厂厂商</th>
+            <th data-field="PROJECT" data-align="center">所用科室</th>
+            <th data-field="METHOD" data-align="center">功能主治</th>
+        </tr>
+        </thead>
+    </table>
+    <div id="modalWin" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div id="dragWin" class="modal-dialog" style="width: 80%;height: 90%;">
+            <div class="bg-primary col-sm-24">
+                <h6 id="Modal_title" class="col-sm-20" style="position: absolute;top:-3px;"></h6>
+                <button type="button" class="close btn btn-primary" data-dismiss="modal">
+                    <i class="fa fa-close"></i>
+                </button>
+            </div>
+            <div>
+                <div id="content" class="col-sm-24 form-horizontal" style="min-height:400px;background:#fff;">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">药品名称：</label>
+                        <div class="col-sm-6">
+                            <input id="name" class="requireInfo form-control" type="text"/>
+                        </div>
+                        <label class="col-sm-2 control-label">所用科室：</label>
+                        <div class="col-sm-6">
+                            <input id="project" class="requireInfo form-control" type="text"/>
+                        </div>
+                        <label class="col-sm-2 control-label">治疗用途：</label>
+                        <div class="col-sm-6">
+                            <input id="method" class="requireInfo form-control" type="text"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">成分：</label>
+                        <div class="col-sm-6">
+                            <input id="component" class="requireInfo form-control" type="text"/>
+                        </div>
+                        <label class="col-sm-2 control-label">状态规格：</label>
+                        <div class="col-sm-6">
+                            <input id="price" class="requireInfo form-control" type="text"/>
+                        </div>
+                        <label class="col-sm-2 control-label">用法用量：</label>
+                        <div class="col-sm-6">
+                            <input id="spec" class="requireInfo form-control" type="text"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">单价：</label>
+                        <div class="col-sm-6">
+                            <input id="dosage" class="requireInfo form-control" type="text"/>
+                        </div>
+                        <label class="col-sm-2 control-label">出厂商：</label>
+                        <div class="col-sm-6">
+                            <input id="factory" class="requireInfo form-control" type="text"/>
+                        </div>
+                        <label class="col-sm-2 control-label">批准文号：</label>
+                        <div class="col-sm-6">
+                            <input id="aid" class="requireInfo form-control" type="text"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2">不良反应：</label>
+                        <div class="col-sm-20">
+                            <textarea id="effect" class="form-control" style='height:100px;'></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2">禁忌：</label>
+                        <div class="col-sm-20">
+                            <textarea id="avoid" class="form-control" style='height:100px;'></textarea>
+                        </div>
+                    </div><div class="form-group">
+                    <label class="control-label col-sm-2">注意事项：</label>
+                    <div class="col-sm-20">
+                        <textarea id="warming" class="form-control" style='height:100px;'></textarea>
+                    </div>
+                </div>
+                    <div class="text-center" style="padding-bottom: 10px;">
+                        <input onclick="insertOrUpdate();" type="button" value="确定" class="btn btn-primary"" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function(){
+        $('#medicine').bootstrapTable({url:apiURL+'/LibrarySvr/search', method:'GET', toolbar:'.toolbar', striped:true, cache:false, pagination: true, sidePagination:"server", clickToSelect:true, pageNumber:1, pageSize:10, pageList:[10, 25, 50, 100], showColumns:true, uniqueId:"NAME", searchOnEnterKey:true, queryParamsType:'limit', queryParams:'queryParams'});
+    });
+
+    function queryParams(params){
+        return {
+            limit:params.limit,
+            offset:params.offset,
+            search:$('#searchText').val()
+        }
+    }
+
+    function updateOptions(event){
+        var selections = $('#medicine').bootstrapTable('getSelections');
+        if(selections.length == 0){
+            alert('请选择修改/查看的药品!');
+            return false;
+        }
+        openModal(event);
+        $('#content').find('.form-control').each(function(){
+            var formID = $(this).attr('id').toUpperCase();
+            $(this).val(selections[0][formID]);
+        });
+    }
+
+    function addOption(event){
+        $('[type=radio]:checked').parents('tr:first').removeClass('selected');
+        openModal(event);
+    }
+
+    function openModal(event){
+        $('#dragWin').css({top:0, left:0});
+        $('#modalWin').modal({ show: true });
+        $('#content').find('.form-control').val('');
+        $('#Modal_title').html(event.title);
+    }
+
+    function insertOrUpdate(){
+        if($('.selected').length == 0){
+            var contentData = {ID: ''};
+        }else{
+            var selections = $('#medicine').bootstrapTable('getSelections');
+            var contentData = {ID: selections[0].id};
+        }
+        $('#content').find('.form-control').each(function(){
+            contentData[$(this).attr('id').toUpperCase()] = $(this).val();
+        });
+        $.post(apiURL+'/LibrarySvr/insertOrUpdate', contentData, function(res){
+            if(res.code == 0){
+                $('#modalWin').modal("hide");
+                $('#medicine').bootstrapTable('refresh', {silent: true});
+            }else{
+                alert(res.data);
+            }
+        }, 'json');
+    }
+
+    function deleteOptions(){
+        var selections = $('#medicine').bootstrapTable('getSelections');
+        confirm('确认删除此类药品？', function(){
+            $.post(apiURL+'/LibrarySvr/delete', {ids: selections[0].id}, function(res){
+                if(res.code== 0){
+                    $('#medicine').bootstrapTable('refresh', {silent: true});
+                }else{
+                    alert(res.data);
+                }
+            }, 'json');
+        });
+    }
+
+    function searchRes(){
+        $('#medicine').bootstrapTable('refresh', {silent: true});
+    }
+</script>
+</body>
+</html>

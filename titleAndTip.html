@@ -1,0 +1,32 @@
+ <!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>修改数据元类型</title>
+    <link href="./libs/editor.css" rel="stylesheet">
+    <link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/pickcity/pickCity.js"></script>
+    <script src="./libs/editor.js"></script>
+</head>
+<body>
+    <label class="col-sm-3 control-label">标题</label>
+    <div class="col-sm-19">
+        <input type="text" id="c-title" class="form-control" />
+    </div>
+    <label class="col-sm-3">备注：</label>
+    <div class="col-sm-19">
+        <textarea id="c-tip" class="form-control"></textarea>
+    </div>
+
+<script type="text/javascript">
+$(document).ready(function ()
+{
+    var selectObj = parent.parent.getGrid();
+    $('#c-title').val(selectObj.find('.c-title').html());
+    $("#c-tip").val(selectObj.find('.c-tip').html());
+});
+</script>
+</body>

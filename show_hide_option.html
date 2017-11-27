@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>显示隐藏</title>
+	<link href="./libs/editor.css" rel="stylesheet">
+	<link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+	<link href="./libs/font-awesome.css" rel="stylesheet">
+    <link href="./libs/select2.css" rel="stylesheet">
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/select2.js"></script>
+	<script src="./libs/editor.js"></script>
+	<script src="./libs/bootbox.js"></script>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="col-sm-5">
+			<select id="masterID" class="form-control">
+			</select>
+		</div>
+		<div class="col-sm-16">
+			<select id="gridID" class="form-control" style="width: 100%;">
+			</select>
+		</div>
+		<div class="col-sm-3">
+			<button onclick="btnAdd();" class="btn btn-primary">添加</button>
+            <button onclick="parent.flashGrid($('#gridID').val());" class="btn btn-primary"><i class="fa fa-flash"></i></button>
+		</div>
+	</div>
+</div>
+<div class="container">
+	<table class="table table-bordered row">
+        <tr class="active">
+            <td>选项</td>
+            <td>被控格</td>
+            <td>操作</td>
+        </tr>
+		<tbody id="tableBody">
+		</tbody>
+	</table>
+</div>
+
+<div class="hide">
+	<label class="c-show-hide fa fa-facebook"></label>
+	<i class='c-hide-icon fa fa-h-square'></i>
+	<i class='c-hide-grid fa fa-h-square' style="position: absolute;right: 0;top: 0;"></i>
+	<select id="selectSample">
+		<option value="0">请选择</option>
+	</select>
+	<table>
+		<tr id="dataTR">
+			<td>
+                <label class="c-master"></label><br>
+                <label class="c-master-name"></label>
+            </td>
+			<td>
+                <label class="c-slave"></label><br>
+                <label class="c-slave-name"></label>
+            </td>
+			<td><button onclick="btnDelete(this);" class="btn btn-danger">删除</button>
+                <button onclick="parent.flashGrid($(this).parents('tr:first').find('.c-slave').text());" class="btn btn-primary"><i class="fa fa-flash"></i></button>
+            </td>
+		</tr>
+	</table>
+</div>
+<script type='text/javascript'>
+$(document).ready(function ()
+{
+    parent.$("#parentSaveBtn").addClass("hidden");
+    tempGrid = parent.getGrid();
+    var elements = tempGrid.find('.c-element');
+    if(elements.is('select'))
+    {
+        elements = elements.find('option');
+    }
+    for(var i=0; i<elements.length; i++)
+    {
+        var row = $(elements[i]);
+        var newOption = $('#selectSample').find('option').clone();
+        var txt = row.attr('title');
+        if(txt == undefined)
+        {
+            txt = row.text();
+        }
+        newOption.html(txt);
+        newOption.val(row.val());
+        $("#masterID").append(newOption);
+    }
+
+	//显示所有格
+    $("#gridID").select2({'data':parent.fetchGridTree(), templateResult: formatState, templateSelection: formatState});
+
+    //显示已有关系
+    refreshShowArray();
+});
+
+function refreshShowArray()
+{
+    var showStr = tempGrid.find('.c-input').attr('data-show-array');
+    $('#tableBody').empty();
+    if(showStr)
+    {
+        var showArray = eval(showStr);
+        for(var i=0; i<showArray.length; i++)
+        {
+            var showRow = showArray[i];
+            var newTR = $('#dataTR').clone().removeAttr('id');
+            var masterText = $('#masterID').find("[value='"+showRow[0]+"']").text();
+            newTR.find('.c-master').html(showRow[0]);
+            newTR.find('.c-master-name').html(masterText);
+            newTR.find('.c-slave').text(showRow[1]);
+            newTR.find('.c-slave-name').text(parent.$('#'+showRow[1]).attr('title'));
+            $('#tableBody').append(newTR);
+        }
+    }
+}
+
+function btnDelete(event)
+{
+	confirm('确定删除吗？', function(){
+		var masterValue = $(event).parents('tr').find('.c-master').text();
+	    var gridID = $(event).parents('tr').find('.c-slave').text();
+	    var inputDIV = tempGrid.find('.c-input:first');
+	    var showArray = eval(inputDIV.attr('data-show-array'));
+	    var newShowArray = [];
+	    for(var i=0; i<showArray.length; i++)
+	    {
+	        var showRow = showArray[i];
+	        if(showRow[0]==masterValue && showRow[1]==gridID)
+	        {
+	            parent.cookGridHide(gridID, -1);
+	            continue;
+	        }
+	        newShowArray.push(showRow);
+	    }
+	    inputDIV.attr('data-show-array', JSON.stringify(newShowArray));
+	    if(newShowArray.length == 0)
+	    {
+	        inputDIV.removeAttr('data-show-array');
+	    }
+	    refreshShowArray();
+	}, function(){
+		return false;
+	});
+}
+
+function btnAdd()
+{
+    var masterValue = $('#masterID').val();
+    console.log(masterValue);
+    if(masterValue == '') return false;
+    var gridID = $('#gridID').val();
+    var inputDIV = parent.getGrid().find('.c-input:first');
+    var showArray = [];
+    var showStr = inputDIV.attr('data-show-array');
+    if(showStr)
+    {
+        showArray = eval(showStr);
+    }
+
+    var newShow = [masterValue, gridID];
+    if(inArrayArray(newShow, showArray))
+    {
+        alert('该关系已经存在！');
+    }
+    else
+    {
+        showArray.push(newShow);
+        inputDIV.attr('data-show-array', JSON.stringify(showArray));
+
+        parent.cookGridHide(gridID, 1);
+        refreshShowArray();
+    }
+}
+
+function inArrayArray(oneArray, arrayArray)
+{
+    for(var i=0; i<arrayArray.length; i++)
+    {
+        var rs = true;
+        for(var j=0; j<oneArray.length; j++)
+        {
+            console.log(oneArray[j]);
+            console.log(arrayArray[i]);
+            if(oneArray[j] != arrayArray[i][j]) rs = false;
+        }
+        if(rs == true) return true;
+    }
+    return false;
+}
+</script>
+</body>
+</html>

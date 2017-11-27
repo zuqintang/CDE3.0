@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>添加EPM数据集</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <link href="./libs/bootstrap.css" rel="stylesheet" />
+    <link href="./libs/font-awesome.css" rel="stylesheet" type="text/css" />
+    <link href="./libs/editor.css" rel="stylesheet" type="text/css" />
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/editor.js"></script>
+    <script src="./libs/bootstrap-paginator.js"></script>
+</head>
+<body>
+<form>
+    <input id="rid" name="rid" type="hidden" value="007" />
+    <input id="hMetadata_name" name="rid" type="hidden" value="" />
+    <input id="hMetadata_identify" name="rid" type="hidden" value="" />
+</form>
+<div class="container">
+    <div class="row">
+
+    </div>
+    <div class="row">
+        <div class="col-sm-5">
+            <div class="row">
+                <div class="form-inline">
+                    <div class="input-group">
+                        <input id="keyword" type="text" class="form-control" placeholder="关键字" onkeyup=" if(event.keyCode==13) {search(1);}" />
+						<span onclick="search(1);" class="input-group-addon btn btn-default" title="查询">
+							<li class="fa fa-search"></li>
+						</span>
+                    </div>
+                    <div class="row epmAddBtn">
+                        <button onclick="btnSave();" class="btn btn-primary">添加</button>
+                        <label class="text-success h6" id="tipNum"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <table id="tableList" class="table table-bordered table-hover">
+                </table>
+                <table style="display: none;">
+                    <tr id="c-tr">
+                        <td>
+                            <label>
+                                <input name="dsCode" type="radio"/>
+                            </label>
+                        </td>
+                    </tr>
+                </table>
+                <ul id="pager"></ul>
+            </div>
+        </div>
+        <div class="col-sm-7 form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-10">
+                    <select id="sColNum" class="form-control">
+                        <option value="1">1 列</option>
+                        <option value="2">2 列</option>
+                        <option value="3">3 列</option>
+                        <option value="4">4 列</option>
+                        <option value="6">6 列</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-10">
+                    <label class="radio radio-inline">
+                        <input type="radio" name="cfgDirection" checked="checked" value="form-horizontal" />左右结构
+                    </label>
+                    <label class="radio radio-inline">
+                        <input type="radio" name="cfgDirection" value="上下结构" />上下结构
+                    </label>
+                    <label class="radio radio-inline">
+                        <input type="radio" name="cfgDirection" value="分数型" />分数型
+                    </label>
+                    <label class="radio radio-inline">
+                        <input type="radio" name="cfgDirection" value="左右-上下" />左上 <i class="fa fa-arrows-h"> </i> 右下(待定)
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-10">
+                    <div class="col-sm-3">
+                        <label class="control-label">标题占格</label>
+                        <input id="title_col_span" type="text" class="form-control" value="4"/>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="control-label">控件占格</label>
+                        <input id="input_col_span" type="text" class="form-control" value="8"/>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="control-label">备注占格</label>
+                        <input id="tip_col_span" type="text" class="form-control" value="0"/>
+                    </div>
+                    <div class="col-sm-1">
+                        <label class="control-label text-center">
+                            &nbsp;
+                        </label>
+                        <div class="input-group">
+                            <label class="control-label text-center">=12</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="sampleBox">
+        <div id="c-form-h" class="form-horizontal">
+            <label class="control-label c-title"></label>
+            <div class="c-input"></div>
+            <div class="c-tip"></div>
+        </div>
+        <div id="c-left2right" class="form-horizontal">
+            <label class="c-title control-label"></label>
+            <div class="c-input"></div>
+            <div class="c-tip"></div>
+        </div>
+        <div id="c-form-v" class="form-group">
+            <label class="c-title">名称</label>
+            <div class="c-input"></div>
+            <div class="c-tip"></div>
+        </div>
+        <div id="c-form-inline" class="form-group">
+            <label class="sr-only c-title">名称</label>
+            <div class="c-input"></div>
+            <div class="c-tip"></div>
+        </div>
+        <input id="c-form-text" type="text" class="form-control c-element"/>
+        <label id="c-form-checkbox">
+            <input type="checkbox" class="c-element"/>
+        </label>
+        <label id="c-form-radio">
+            <input type="radio" class="c-element" onclick="radioC(this);" onblur="radioB(this);" data-checked='false'/>
+        </label>
+		<li class="fa fa-hand-pointer-o c-radio-clear" onclick="$(this).parents('.c-grid:first').find('.c-element').attr('checked', false);" style="cursor:pointer; color: blue;">清除</li>
+        <select id="c-form-select" class="form-control c-element">
+                    <option value="0">请选择</option>
+        </select>
+    </div>
+</div>
+<script type="text/javascript">
+
+$(document).ready(function ()
+{
+        $('#sampleBox').hide();
+        $("#keyword").focus();
+
+        search(1);
+});
+
+function search(currentPage)
+{
+    $.post(apiURL+"/EPMSvr/allSets", {keyword: $('#keyword').val(), p:currentPage}, function (res)
+    {
+            if (res.code == 0)
+            {
+                $("#tableList").empty();
+                if(res.data.length == 0)
+                {
+                    $(".epmAddBtn").hide();
+                    var newNode = $("#c-tr").clone();
+                    newNode.html("暂未搜索到相关数据集");
+                    newNode.show();
+                    $('#tableList').append(newNode);
+                }
+                for (var i = 0; i < res.data.length; i++) {
+                    $(".epmAddBtn").show();
+                    var row = res.data[i];
+                    var newNode = $("#c-tr").clone();
+                    newNode.show();
+                    newNode.removeAttr('id');
+                    newNode.find("input").val(row.DS_CODE);
+                    newNode.find("input").after(' '+row.DS_NAME+ "(" + row.META_ROWS + "个元)");
+
+                    $("#tableList").append(newNode);
+                }
+                if(res.countPage<1) res.countPage=1;
+                $('#pager').bootstrapPaginator({
+                                bootstrapMajorVersion:3,
+                                currentPage: currentPage,
+                                totalPages: Math.ceil(res.countPage),
+                                onPageClicked: function(e, originalEvent, type, page)
+                                {
+                                    search(page);
+                                }
+                });
+            } else {alert('API Error');}
+    }, "json");
+}
+
+function btnSave()
+{
+	if (parent.getGrid().length == 0) {
+		return false;
+	}
+    var innerGrid = parent.getGrids().find('.c-grid');
+    var innerElements = parent.getGrids().find('.c-element');
+    if(innerGrid.length > 0 || innerElements.length > 0 ){
+        alert("不能在数据元上添加数据集")
+        return false;
+    }
+	$("#tipNum").text('从库中读取....');
+    var dsCode = $("input[name='dsCode']:checked").val();
+    $.ajax({
+        async: false,
+        dataType: 'json',
+        type: "post",
+        url: apiURL+"/EPMSvr/allElements",
+        data: {sid: dsCode, pagesize:1000},
+        success: function (res)
+                {
+                    if (res.code == 0)
+                    {
+                        window.dsDBArray = res.data;
+                    }
+                    else
+                    {
+                        $("#tipNum").text('读取出错...');
+                        window.dsDBArray = "";
+                    }
+                }
+    });
+	$("#tipNum").text('处理中....');
+	window.gridList = [];
+	recursiveCookGrid(0);
+
+}
+
+function recursiveCookGrid(index)
+{
+	if ($.isEmptyObject(dsDBArray) || dsDBArray.length <= index)
+	{
+        saveAliasAndAppend(0);
+		return false;
+	}
+
+	var element = dsDBArray[index];
+	var formElementName = element.METADATA_IDENTIFY + '_' + parent.template_id;
+	if (parent.$("[name='" + formElementName + "']").length > 0) {
+		$.post(apiURL+'/CRFSvr/nextSorter', {id:parent.template_id}, function (res) {
+			if (res.code == 0) {
+				formElementName += '_' + res.data;
+                continueCookGrid(element, formElementName, index);
+			} else alert('API Error');
+		}, 'json').error(function(res){res.responseText});
+	}
+    else
+    {
+        continueCookGrid(element, formElementName, index);
+    }
+}
+
+function continueCookGrid(element, formElementName, index)
+{
+    //新建Grid
+    var newGrid = parent.cloneGrid();
+    newGrid.attr("id", c2id());
+    zq_removeClass(newGrid);
+    var col_num = $("#sColNum").val();
+    var gridColSpan = 12 / parseInt(col_num);
+    newGrid.addClass("col-sm-" + gridColSpan);
+    //没有判断布局方向
+    var innerNode = $('#c-form-h').clone();
+    innerNode.removeAttr('id');
+
+    innerNode.find('.c-title').addClass('col-sm-' + $('#title_col_span').val());
+    var tempName = element.METAITEM;
+    if(tempName==undefined || tempName=='')
+    {
+        tempName = element.METADATA_NAME;
+    }
+    innerNode.find('.c-title').text(tempName);
+    innerNode.find('.c-title').attr("title", formElementName);
+    innerNode.find('.c-input').addClass('col-sm-' + $('#input_col_span').val());
+    innerNode.find('.c-tip').text(element.METADATA_INTRO);
+
+    //默认是text控件
+    var inputType = element.DATA_META_DATATYPE;
+    if (inputType == "L" && element.data) {
+        for (var j = 0; j < element.data.length; j++) {
+            var inode = $('#c-form-radio').clone();
+            inode.find('input').attr('id', "e2v_" + element.data[j].id);
+            inode.find('input').attr('name', formElementName);
+            inode.css("margin-right", 10);
+            inode.css({ 'height': '14', 'vertical-align': 'top' });
+            inode.find('input').attr('title', element.data[j].FIELDCODE_VALUE_CN_NAME);
+            inode.find('input').val(element.data[j].FIELDCODE_VALUE);
+            inode.find('input').after(element.data[j].FIELDCODE_VALUE_CN_NAME);
+            innerNode.find('.c-input').append(inode);
+        }
+    }
+    else if (inputType == "S2" && element.data) {
+        var inode = $('#c-form-select').clone();
+        inode.attr('id', c2id());
+        inode.attr('name', formElementName);
+
+        for (var j = 0; j < element.data.length; j++) {
+            var newOption = inode.find('option:first').clone();
+            newOption.attr("id", "e2v_" + element.data[j].id);
+            newOption.val(element.data[j].FIELDCODE_VALUE);
+            newOption.text(element.data[j].FIELDCODE_VALUE_CN_NAME);
+            inode.append(newOption);
+        }
+        innerNode.find('.c-input').append(inode);
+
+    }
+    else if ((inputType=="S3" && element.data) || (element.data && element.data.length > 0)) {
+        if (element.data) {
+            for (var j = 0; j < element.data.length; j++) {
+                var inode = $('#c-form-checkbox').clone();
+                inode.find('input').attr('id', "e2v_" + element.data[j].id);
+                inode.find('input').attr('name', formElementName);
+                inode.css("margin-right", 10);
+                inode.css({ 'height': '14', 'vertical-align': 'top' });
+                inode.find('input').val(element.data[j].FIELDCODE_VALUE);
+                inode.find('input').after(element.data[j].FIELDCODE_VALUE_CN_NAME);
+                innerNode.find('.c-input').append(inode);
+            }
+        }
+    }
+    else {
+        var inode = $('#c-form-text').clone();
+        inode.attr('id', c2id());
+        inode.attr('name', formElementName);
+        innerNode.find('.c-input').append(inode);
+    }
+
+    var tip_col_span = parseInt($('#tip_col_span').val());
+    if (tip_col_span > 0) {
+        innerNode.find('.c-tip').addClass('col-sm-' + tip_col_span);
+        innerNode.find('.c-tip').text(element.METADATA_INTRO);
+    }
+    else {
+        innerNode.find('.c-tip').remove();
+    }
+    newGrid.find('.c-content:first').append(innerNode);
+    gridList.push(newGrid);
+    console.log(gridList.length);
+    index++;
+    $("#tipNum").text('构造第:' + index + '/' + dsDBArray.length + '个');
+    recursiveCookGrid(index);
+}
+
+function saveAliasAndAppend(kindex)
+{
+    console.log(kindex);
+    console.log(gridList.length);
+	if ($.isEmptyObject(gridList) || gridList.length <= kindex)
+	{
+        parent.btnSave();
+		return false;
+	}
+	var row = gridList[kindex];
+
+	var voptionArray = [];
+    var firstInput = row.find(".c-element:first");
+	var formElementName = firstInput.attr('name');
+
+    if (firstInput.attr('type')=='checked' || firstInput.attr('type')=='radio')
+    {
+			var checkboxList = row.find(".c-element");
+        console.log(checkboxList);
+			for (var i = 0; i < checkboxList.length; i++)
+			{
+				var node = $(checkboxList[i]);
+				var tempObj = {};
+				tempObj.ealias_id = formElementName;
+				tempObj.voption_id = node.attr('id');
+				tempObj.alias = node.attr("title");
+				if ($.isEmptyObject(tempObj.alias)) {
+					tempObj.alias = "";
+				}
+				tempObj.avalue = node.val();
+				tempObj.sorter = (i + 1);
+				voptionArray.push(tempObj);
+			}
+    }
+    else if(firstInput.is('select'))
+    {
+			var selectList = row.find(".c-element option");
+			for (var i = 1; i < selectList.length; i++) {
+				var node = $(selectList[i]);
+				var tempObj = {};
+				tempObj.ealias_id = formElementName;
+				tempObj.voption_id = node.attr('id');
+				tempObj.alias = node.text();
+				if ($.isEmptyObject(tempObj.alias)) {
+					tempObj.alias = "";
+				}
+				tempObj.avalue = node.val();
+				tempObj.sorter = i;
+				voptionArray.push(tempObj);
+			}
+    }
+
+    var alias = row.find(".c-title").text();
+	$.ajax({
+		url: apiURL+"/EAliasSvr/save",
+		dataType: 'json',
+		async: true,
+		type: "post",
+		data: {id:formElementName, alias:alias, voptions: JSON.stringify(voptionArray) },
+		success: function (res)
+		{
+			if (res.code == 0)
+			{
+                kindex++;
+                if(res.data.voptions!=undefined && res.data.voptions.length>0)
+                for(var k=0;k<res.data.voptions.length;k++)
+                {
+                    var e2v = res.data.voptions[k];
+                    var tempNode = row.find('#e2v_'+e2v.VOPTION_ID);
+                    tempNode.attr('id', 'e2v_'+e2v.ID);
+                    tempNode.attr('data-vid', e2v.VOPTION_ID);
+                    //id关系带验证
+                }
+				parent.currentEmbed(row);
+				$("#tipNum").text('完成:'+kindex +'/'+gridList.length+'个');
+				saveAliasAndAppend(kindex);
+			}
+			else
+			{
+                console.log(res);
+				alert('System Error');
+			}
+		}, error: function(res){console.log(res.responseText)}
+	});
+}
+</script>
+</body>
+</html>

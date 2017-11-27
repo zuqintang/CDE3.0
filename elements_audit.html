@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>数据元审核</title>
+	<link href="./libs/bootstrap-3.3.7.css" rel="stylesheet" />
+	<link href="./libs/font-awesome.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="./libs/editor.css">
+	<link rel="stylesheet" href="./libs/bootstrap-table.css">
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/jquery-ui.js"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/bootstrap-table.js"></script>
+	<script src="./libs/angular.js"></script>
+	<script src="./libs/editor.js"></script>
+	<script src="./libs/bootbox.js"></script>
+</head>
+<body>
+<div class="panel-heading bg-primary" style="height: 60px;margin-bottom: 15px;">
+	<div class="fa fa-check-square-o col-md-1" style="font-size:40px;"></div>
+	<div class="col-md-23" style="font-size:25px;">数据元审核</div>
+</div>
+<div class="container">
+	<div classs="col-sm-24" style="margin-bottom:15px;">
+		<button onclick="audit();" class="btn btn-success" title="审核数据元">审核</button>
+		<button onclick="openEdit(this);" class="btn btn-primary" title="编辑数据元">编辑</button>
+		<button onclick="delElements();" class="btn btn-danger" title="删除数据元">删除</button>
+		<form action="http://127.0.0.1/C2API/ExcelSvr/excelElements" method="post" enctype="multipart/form-data" class="btn nopadding">
+			<button type="submit" class="btn btn-info" title="导出数据元">导出数据元</button>
+		</form>
+		<form action="http://127.0.0.1/C2API/ExcelSvr/excelOptions" method="post" enctype="multipart/form-data" class="btn nopadding">
+			<button type="submit" class="btn btn-info" title="导出值域">导出值域项</button>
+		</form>
+	</div>
+	<div class="col-sm-16">
+		<table data-toggle="table" data-url='http://127.0.0.1/ElementsSvr/auditContent' data-height="540" data-pagination="true" data-search="true" data-show-refresh="true">
+			<thead>
+			<tr>
+				<th data-field="state" data-radio="true" data-align="center"></th>
+				<th data-field="code" data-align="center">编码</th>
+				<th data-field="name" data-align="center">名称</th>
+				<th data-field="unit" data-align="center">单位</th>
+				<th data-field="tableCode" data-align="center">值域编码</th>
+			</tr>
+			</thead>
+		</table>
+	</div>
+	<div class="col-sm-8">
+		<iframe src="epm_options.html?noCache=685" class="modal-content" frameborder="0" style="width:100%;height: 478px;border-radius:8px;margin-top:7px;"></iframe>
+	</div>
+</div>
+<div id="modalWin" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div id="dragWin" class="modal-dialog" style="width: 80%;height: 90%;">
+		<div class="bg-primary col-sm-24">
+			<h6 id="Modal_title" class="col-sm-20" style="position: absolute;top:-3px;"></h6>
+			<button type="button" class="close btn btn-primary" data-dismiss="modal">
+				<i class="fa fa-close"></i>
+			</button>
+		</div>
+		<iframe class="modal-content" id="iWin" frameborder="0" style="width: 100%;height: 100%;padding-top: 20px;"></iframe>
+	</div>
+</div>
+
+<script type='text/javascript'>
+	function audit(){
+		var checked = $("input[name='btSelectItem']:checked");
+		if(checked.length == 0){alert('请选择需要审核的数据元');return false;}
+		confirm('是否审核通过数据元！', function(){
+			var elementCode = checked.parents('tr').find('td').eq(1).html();
+			$.post(apiURL+'/ElementsSvr/audit',{code:elementCode}, function (res)
+			{
+				if (res.code == 0)
+				{
+					alert('审核成功');
+					$("[name='refresh']").click();
+				}else{alert('API Error');}
+			}, 'json').error(function(res){console.log(res.responseText)});
+		}, function(){
+			return false;
+		});
+	}
+
+	function delElements(){
+		var checked = $("input[name='btSelectItem']:checked");
+		if(checked.length == 0){alert('请选择需要删除的数据元');return false;}
+		confirm('是否删除数据元！', function(){
+			var elementCode = checked.parents('tr').find('td').eq(1).html();
+			$.post(apiURL+'/ElementsSvr/deleteElements',{code:elementCode}, function (res)
+			{
+				if (res.code == 0)
+				{
+					alert('删除成功');
+					$("[name='refresh']").click();
+				}else{alert('API Error');}
+			}, 'json').error(function(res){console.log(res.responseText)});
+		}, function(){
+			return false;
+		});
+	}
+
+	function openEdit(event)
+	{
+		var checked = $("input[name='btSelectItem']:checked");
+		if(checked.length == 0){alert('请选择需要编辑的数据元');return false;}
+
+		window.modalWin = $('#modalWin');
+		$('#dragWin').css({top:0, left:0});
+		var randomnumber=Math.floor(Math.random()*1000);
+		window.element_id = checked.parents('tr').find('td').eq(1).html();
+		$('#dragWin').tmsDrag('#dragCon');
+		$("#iWin").attr("src", "elements_add.html?"+randomnumber);
+		modalWin.modal({ show: true });
+		$('#Modal_title').html(event.title);
+	}
+
+	function exportElements(){
+			$.post(apiURL+'/excelSvr/excelElements',{}, function (res)
+			{
+
+			}, 'json').error(function(res){console.log(res.responseText)});
+	}
+</script>
+</body>
+</html>

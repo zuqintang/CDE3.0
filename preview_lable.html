@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>CDE编辑器2.0</title>
+    <link id="bootstrap-style" href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet">
+    <link href="./libs/editor.css" rel="stylesheet">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/editor.js"></script>
+    <script src="./libs/My97DatePicker/WdatePicker.js"></script>
+</head>
+<body style="min-height:100vh; display:flex; flex-direction:column;">
+    <header class="panel-heading bg-primary" style="height:50px; display:flex; align-item:center; color:#fdfdfd;">
+        <a href="javascript:0;" target="_blank" style="background: url(images/logo.jpg) no-repeat 0 0; display: block;width: 150px;height: 30px; font-size:0;">模板编辑器</a>
+        <h1 style="font-size:18px; margin:0; padding:0 30px; line-height:30px; font-weight: bold; ">预览查看</h1>
+    </header>
+    <div id="body" style="overflow:auto; margin:0; background:#fdfdfd; flex:1;"></div>
+    <footer style="background:#337ab7; color:#fdfdfd;">
+        <div class="container" style="padding:10px 0;">
+            <span style="float:right; display:inline-block; height:30px; line-height:30px">Copyright © 嘉和美康信息技术有限公司</span>
+        </div>
+    </footer>
+<script type="text/javascript" id="jsLoad">
+$(document).ready(function ()
+{
+	var template_id = zq_get_url_param('id');
+	zq_showViewStyle();
+	if (template_id == null || template_id == 0)
+	{
+		alert('system error');
+		return false;
+	}
+	$.post(apiURL+'/CRFSvr/atmlStr', { id: template_id },
+        function (res)
+		{
+			if (res.code == 0)
+			{
+				if (res.data.trim() == '')
+				{
+            		return false;
+            	}
+            	var editorBody = $('<div>'+res.data+'</div>');
+            	editorBody.find('.c-toolbar').remove();
+            	editorBody.find('.c-input').empty();
+            	editorBody.find('.c-content').removeClass('c-indent');
+            	editorBody.find('.s-win').removeClass('s-win');
+            	editorBody.removeClass('s-win');
+            	editorBody.find('.dropdown').remove();
+				editorBody.find('.c-grid').removeAttr('onmouseover');
+				editorBody.find('.c-grid').removeAttr('onclick');
+            	$('#body').append(editorBody);
+            	$('#jsLoad').remove();
+            }
+    }, 'json');
+});
+</script>
+</body>
+</html>

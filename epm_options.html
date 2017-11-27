@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>数据元值域检索</title>
+	<link href="./libs/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+	<link href="./libs/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/bootstrap-toastr/toastr.min.css" rel=" stylesheet">
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/select2/css/select2.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/animate.css" rel="stylesheet">
+	<link href="./libs/epm.css" rel="stylesheet">
+	<link href="https://cdn.bootcss.com/pace/1.0.2/themes/silver/pace-theme-loading-bar.css" rel="stylesheet" />
+	<script src="https://cdn.bootcss.com/pace/1.0.2/pace.js"></script>
+	<script src="./libs/plugins/jquery.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+	<script src="./libs/plugins/bootstrap-toastr/toastr.min.js"></script>
+	<script src="./libs/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+	<script src="./libs/epm.js"></script>
+	<script src="./libs/plugins/scrollfix/scrollfix.js"></script>
+	<script src='./libs/vue.js' type='text/javascript'></script>
+	<script src='./libs/vue-resource.js' type='text/javascript'></script>
+	<style>
+		.fixed-table-toolbar {
+			padding:0;
+			margin-top:0;
+			height:0;
+		}
+		.form-control {
+			height: 25px;
+			padding-top:0;
+		}
+		.pagination-detail {
+			display: none;
+		}
+		.search input{
+			padding: 2px 10px;
+			font-size: 10px;
+			border-radius: 18px!important;
+			height: 28px !important;
+		}
+	</style>
+</head>
+<body>
+<table id="mTable">
+	<thead>
+	<tr>
+		<th data-field="groupName" data-align="center" data-width="20%">值域组名称</th>
+		<th data-field="tabCode" data-align="center" data-width="10%">编码</th>
+		<th data-field="name" data-align="center" data-width="55%">名称</th>
+		<th data-field="avalue" data-align="center" data-width="5%">值</th>
+		<th data-field="cvalue" data-align="center" data-width="5%">计算值</th>
+		<th data-field="sort" data-align="center" data-width="5%">排序值</th>
+	</tr>
+	</thead>
+</table>
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $('#mTable').bootstrapTable(
+            {
+                url : globalURL+ '/ElementsSvr/searchOptions', method: 'post',contentType: "application/x-www-form-urlencoded;charset=UTF-8",sidePagination : "server",
+                search:true,striped: true, cache: false, pagination: true, clickToSelect: true, pageSize:5, showColumns: false, uniqueId: 'ID', queryParams: 'searchParams'
+            });
+    });
+    function searchParams(params)
+    {
+        var nps = {};
+        nps.limit = params.limit;
+        nps.offset = params.offset;
+        nps.keyword  = params.search;
+        return nps;
+    }
+    function search()
+    {
+        $('#mTable').bootstrapTable('refresh', {silent : true});
+    }
+</script>
+</body>
+</html>

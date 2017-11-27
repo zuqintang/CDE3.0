@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>设置数据元样式</title>
+    <link href="./libs/bootstrap-3.3.7.css" rel="stylesheet" />
+    <link href="./libs/font-awesome.css" rel="stylesheet" type="text/css" />
+    <link href="./libs/editor.css" rel="stylesheet" type="text/css" />
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/editor.js"></script>
+</head>
+<body>
+<div class="container-full">
+    <div class="panel">
+        <div class="panel-body" style="min-height:400px;">
+            <div class="row">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3 label-paddding">控件布局：</label>
+                        <div class="col-sm-15">
+                            <select id="inputStyle" class="form-control bstyle" value="">
+                                <option value="0" selected="selected">不更改</option>
+                                <option value="1">竖版布局</option>
+                                <option value="2">横版布局</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+function btnSave() {
+    var tempGridsInput = parent.getGrids().find(".c-input");
+    var inputStyle = $("#inputStyle").val();
+    if(inputStyle == 0){ }else if(inputStyle == 1){
+        tempGridsInput.addClass("list-group");
+        tempGridsInput.find("label").addClass("list-group-item");
+    }else{
+        tempGridsInput.removeClass("list-group");
+        tempGridsInput.find("label").removeClass("list-group-item");
+    }
+    parent.modalWin.modal("hide");
+}
+</script>
+</body>
+</html>

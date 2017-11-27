@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>数据集详细信息</title>
+	<link href="./libs/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+	<link href="./libs/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet">
+	<link href="./libs/plugins/bootstrap-modal/css/bootstrap-modal.css" rel=" stylesheet">
+	<link href="./libs/plugins/bootstrap-toastr/toastr.min.css" rel=" stylesheet">
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/select2/css/select2.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/animate.css" rel="stylesheet">
+	<link href="./libs/epm.css" rel="stylesheet">
+	<link href="https://cdn.bootcss.com/pace/1.0.2/themes/silver/pace-theme-loading-bar.css" rel="stylesheet" />
+	<script src="https://cdn.bootcss.com/pace/1.0.2/pace.js"></script>
+	<script src="./libs/plugins/jquery.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+	<script src="./libs/plugins/bootstrap-toastr/toastr.min.js"></script>
+	<script src="./libs/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+	<script src="./libs/epm.js"></script>
+	<script src="./libs/plugins/scrollfix/scrollfix.js"></script>
+	<script src='./libs/vue.js' type='text/javascript'></script>
+	<script src='./libs/vue-resource.js' type='text/javascript'></script>
+</head>
+<body style="background: #eff3f8;" >
+<div class="cde-header">
+	<div class="cde-logo col-sm-4">
+		<a href="#/">
+			<img src="./libs/image/logo_4.png" alt="logo" class="logo-default">
+		</a>
+	</div>
+</div>
+<div class="epm-detail container" id="eSetsM">
+	<div class="epm-detail-title" v-for="(set,index) in dataM.SET" :key="index">
+		{{set.DS_NAME}}
+	</div>
+	<div class="detail-wrapper">
+		<div class="detail-name">元数据属性</div>
+		<div class="detail-attribute">标识信息</div>
+		<div v-for="(set,index) in dataM.SET" :key="index">
+			<div class="detail-info">
+				<div class="col-xs-3 text-right">数据集名称：</div>
+				<div class="col-xs-9 text-left">{{set.DS_NAME}}</div>
+				<div class="clearfix"></div>
+			</div>
+			<div class="detail-info">
+				<div class="col-xs-3 text-right">数据集标识符：</div>
+				<div class="col-xs-9 text-left">{{set.DS_CODE}}</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+		<div class="detail-name">关系</div>
+		<div class="detail-attribute">相关数据元</div>
+		<div v-if="isShow == 'Y'">
+			<div class="detail-info">
+				<div class="col-xs-3 text-right">数据元名称&nbsp;&nbsp;&nbsp;</div>
+				<div class="col-xs-3 text-left">数据元标识符</div>
+				<div class="col-xs-3 text-left">数据类型</div>
+				<div class="col-xs-3 text-left">数据元允许值</div>
+				<div class="clearfix"></div>
+			</div>
+			<div class="max-height-300">
+				<div v-for="(ele,index) in dataM.ELEMENTS" :key="index">
+					<div class="detail-info">
+						<div class="col-xs-3 text-right nowrap"><a :href="globalHref + 'epm_eles_detail.html?code=' + ele.METADATA_IDENTIFY" target="_blank">{{ele.METADATA_NAME}}</a>&nbsp;&nbsp;&nbsp;</div>
+						<div class="col-xs-3 text-left">{{ele.METADATA_IDENTIFY}}</div>
+						<div class="col-xs-3 text-left">{{ele.DATA_META_DATATYPE}}</div>
+						<div class="col-xs-3 text-left"><a :href="globalHref + 'epm_options_detail.html?code=' + ele.FIELDCODE_TABLECODE" target="_blank">{{ele.FIELDCODE_TABLECODE}}</a></div>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+			</div>
+			<div class="detail-info" v-if="isMore == 'Y'">
+				<div class="col-xs-12 text-right">
+					<span class="more-btn" onclick="elesTable();">更多</span>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+
+		<div>
+			<table id="elesTable" style="background:#fff;"></table>
+		</div>
+		<div class="detail-name">来源</div>
+		<div class="detail-attribute">标准</div>
+		<div class="detail-info">
+			<div class="col-xs-3 text-right">数据来源：</div>
+			<div class="col-xs-9 text-left">EPM</div>
+			<div class="clearfix"></div>
+		</div>
+	</div>
+</div>
+<div class="cde-footer">
+	<div class="container-fluid ng-scope">
+		2017 © <a href="http://www.goodwillcis.com/" title="北京嘉和美康信息技术有限公司 | 科研事业部" target="_blank">北京嘉和美康信息技术有限公司 | 科研事业部</a>
+	</div>
+</div>
+<script>
+$(function(){
+	eSetsM = new Vue({
+		el : '#eSetsM',
+		data : {
+			dataM: {},
+			isMore: 'N',
+			isShow: 'Y',
+		}
+	});
+	window.code = get_url_param('code');
+	eSetsM.$http({
+		url :globalURL+'/EPMSvr/setInfos',
+		method : 'post',
+		params : {"code": code},
+		headers : {"X-Requested-With": "XMLHttpRequest"}
+	}).then(function(res){
+		this.dataM = res.data.data;
+		if(this.dataM.ELEMENTS.length > 10) this.isMore = 'Y';
+	}, function(err){ parent.toastr.error(err); });
+});
+function elesTable(){
+	eSetsM.isShow = 'N';
+	$('#elesTable').bootstrapTable({
+		url: globalURL + '/EPMSvr/elesTable',
+		method: 'post',
+		contentType: "application/x-www-form-urlencoded",
+		striped: true,
+		cache: true,
+		iconSize: 'xs',
+		pageNumber: 1,
+		pageSize: 10,
+		pageList: [5, 10, 15, 20, 'ALL'],
+		uniqueId: "ID",
+		pagination: true,
+		queryParamsType: 'limit',
+		sidePagination: "server",
+		queryParams: function (params) {
+			return {
+				p: (params.offset / params.limit) + 1,
+				pagesize: params.limit,
+				code: code
+			}
+		},
+		paginationFirstText : "&laquo;",
+		paginationPreText : "&lsaquo;",
+		paginationNextText : "&rsaquo;",
+		paginationLastText : "&raquo;",
+		formatLoadingMessage: function () {
+			return "数据加载中...";
+		},
+		formatNoMatches: function () {
+			return '无符合条件的记录';
+		},
+		responseHandler: function(res) {
+			return {
+				"total": res.countPage,
+				"rows": res.data
+			};
+		},
+		columns: [
+			{
+				field: 'METADATA_NAME',
+				title: '数据元名称',
+				align: 'center',
+				formatter: function (value, row, index) {
+					var str = '<a class="blue-a" href="'+ globalHref +'epm_eles_detail.html?code=' + row['METADATA_IDENTIFY'] +'" target="_blank">'+  row['METADATA_NAME'] +'</a>';
+					return str;
+				}
+			},
+			{
+				field: 'METADATA_IDENTIFY',
+				title: '数据元标识符',
+				align: 'center'
+			},
+			{
+				field: 'DATA_META_DATATYPE',
+				title: '数据类型',
+				align: 'center'
+			},
+			{
+				field: 'FIELDCODE_TABLECODE',
+				title: '数据元的允许值',
+				align: 'center',
+				formatter: function (value, row, index) {
+					if(row['FIELDCODE_TABLECODE'] != null && row['FIELDCODE_TABLECODE'] != ''){
+						var str = '<a class="blue-a" href="'+ globalHref +'epm_options_detail.html?code=' + row['FIELDCODE_TABLECODE'] +'" target="_blank">'+  row['FIELDCODE_TABLECODE'] +'</a>';
+						return str;
+					}
+				}
+			}
+		]
+	});
+}
+</script>
+</body>
+</html>

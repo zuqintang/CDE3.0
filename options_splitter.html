@@ -1,0 +1,61 @@
+ <!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>拆分选项</title>
+    <link href="./libs/editor.css" rel="stylesheet">
+    <link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/editor.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="col-sm-24" style="padding: 100px;">
+        <button class="btn btn-primary" onclick="btnSplit();">拆分选项为单独的格</button>
+        <button class="btn btn-primary" onclick="btnSplit();">合并选项到同一格内</button>
+    </div>
+</div>
+<div style="display: none;">
+    <div id="c-left2right" class="form-horizontal">
+        <div class="c-input"></div>
+    </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function()
+{
+});
+
+function btnSplit()
+{
+    var tempGrid = parent.getGrid();
+    var elements = tempGrid.find(".c-content:first").find(".c-element");
+    var indexGrid = tempGrid;
+
+    var titleObj = tempGrid.find('.c-title')
+    var titleStr = titleObj.html();
+    tempGrid.attr("data-split","Y");
+    tempGrid.attr("data-title",titleObj.attr('data-title'));
+    tempGrid.attr("data-element",tempGrid.find('.c-input').html());
+    tempGrid.find('.c-content').html(titleStr);
+
+    for (var i=0; i<elements.length; i++)
+    {
+        var element = $(elements[i]);
+        var newGrid = parent.cloneGrid();
+        // newGrid.attr('data-c-title',tempGrid.attr('data-c-title'));
+        // newGrid.attr('data-c-value',tempGrid.attr('data-c-value'));
+
+        var newForm = $('#c-left2right').clone().removeAttr('id');
+        var newInput = newForm.find('.c-input');
+        newInput.addClass('col-sm-24');
+        newInput.append(element.parent());
+        newGrid.find('.c-content').append(newForm);
+        indexGrid.after(newGrid);
+        indexGrid = newGrid;
+    }
+    parent.modalWin.modal("hide");
+}
+</script>
+</body>

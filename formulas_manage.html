@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>公式管理</title>
+	<link href="./libs/bootstrap-3.3.7.css" rel="stylesheet" />
+	<link href="./libs/font-awesome.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="./libs/editor.css">
+	<link rel="stylesheet" href="./libs/bootstrap-table.css">
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/jquery-ui.js"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/bootstrap-table.js"></script>
+	<script src="./libs/angular.js"></script>
+	<script src="./libs/editor.js"></script>
+	<script src="./libs/bootbox.js"></script>
+</head>
+<body>
+<div id="formulas_manage" class="formulas-manage-wrapper" style="height: 100vh; display: flex;flex-direction: column;">
+	<div class="manage-head-wrapper panel-heading bg-primary" style="flex: 0 0 60px; height: 60px; background-color: #82ADE5;">
+		<i class="fa fa-edit" style="position: relative; top: 3px; font-size:40px;"></i>
+		<span style="font-size:25px;">公式管理</span>
+	</div>
+	<div class="manage-search-wrapper" style="flex: 0 0 60px; height: 60px;">
+		<button onclick="addFormula();" class="btn btn-info" title="新建公式">新建公式</button>
+		<button onclick="editFormula();" class="btn btn-success" title="编辑公式">编辑公式</button>
+		<button onclick="delFormula();" class="btn btn-warning" title="删除公式">删除公式</button>
+	</div>
+	<div class="manage-content-wrapper" style="flex: 1;padding: 10px;">
+		<table data-toggle="table" data-url='' data-pagination="true" data-search="true" data-show-refresh="true">
+			<thead>
+			<tr>
+				<th data-field="state" data-radio="true" data-align="center"></th>
+				<th data-field="NAME" data-align="center">名称</th>
+				<th data-field="DESCRIPTION" data-align="center">描述</th>
+				<th data-field="ARGUMENTS" data-align="center">参数</th>
+				<th data-field="CREATE_MAN" data-align="center">创建人</th>
+			</tr>
+			</thead>
+		</table>
+	</div>
+</div>
+<script type='text/javascript'>
+function addFormula(){
+
+}
+function editFormula(){
+
+}
+function delFormula(){
+
+}
+</script>
+</body>
+</html>

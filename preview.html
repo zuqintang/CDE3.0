@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>CDE编辑器2.0</title>
+	<link href="./libs/bootstrap.css" rel="stylesheet">
+    <link href="./libs/select2.css" rel="stylesheet">
+	<link id="bootstrap-style" href="./libs/bootstrap-compact-blue.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet">
+	<link href="./libs/editor.css" rel="stylesheet">
+    <link href="./libs/jquery.range.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="./libs/previewmobile.css">
+    <link href="./libs/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+    <script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/My97DatePicker/WdatePicker.js"></script>
+    <script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+	<!--<script src="./libs/nametopinyin.js"></script>-->
+    <script src="./libs/editor.js"></script>
+    <script src="./libs/pickcity/pickCity.js"></script>
+	<script src="./libs/select2.js"></script>
+	<script src="./libs/bootbox.js"></script>
+    <script src="./libs/jquery.range.js"></script>
+	<script src="./libs/html2json.js"></script>
+	<script src="./libs/htmlparser.js"></script>
+</head>
+<body style="min-height:100vh; display:flex; flex-direction:column;">
+    <header class="panel-heading bg-primary" style="height:50px; display:flex; align-item:center; color:#fdfdfd;">
+        <a href="javascript:0;" target="_blank" style="background: url(images/logo.jpg) no-repeat 0 0; display: block;width: 150px;height: 30px; font-size:0;">模板编辑器</a>
+        <h1 class="head_logo" style="font-size:18px; margin:0; padding:0 30px; line-height:30px; font-weight: bold; ">预览编辑</h1>
+    </header>
+
+    <div id="form" style="margin:0 auto; flex:1;" class="container"></div>
+
+    <footer style="background:#337ab7; color:#fdfdfd;">
+        <div class="container" style="padding:10px 0;">
+            <label class="btn btn-default" style="width:110px;"><input id="cbShowInput" onclick="showHideInput()" type="checkbox" />显示隐藏控件</label>
+            <label class="btn btn-default" style="width:110px;"><input id="cbShowDValue" onclick="setDValue()" type="checkbox" />撤销默认值</label>
+            <button class="btn btn-default" type="button" onclick="submitForm();" style="width:100px;">提交</button>
+            <button id="downloadTemp" class="btn btn-default" type="button" style="width:100px;">下载</button>
+			<button id="downloadJson" class="btn btn-default" type="button" style="width:110px;" onclick="downloadJson();">下载JSON格式</button>
+            <span class="copyright" style="float:right; display:inline-block; height:30px; line-height:30px">Copyright © 嘉和美康信息技术有限公司</span>
+        </div>
+    </footer>
+
+<script type="text/javascript" id="jsLoad">
+$(document).ready(function ()
+{
+	template_id = zq_get_url_param('id');
+	zq_showViewStyle();
+	if (template_id == null || template_id == 0)
+	{
+		alert('system error');
+		return false;
+	}
+
+	$.post(apiURL+'/CRFSvr/atmlStr', { id: template_id },
+        function (res)
+		{
+			if (res.code == 0)
+			{
+				if (res.data.trim() == '')
+				{
+            		return false;
+            	}
+            	var editorBody = $('<div>'+res.data+'</div>');
+				$('#form').prepend(filterStr(editorBody));
+				onloadIng();
+            }
+    }, 'json');
+
+    $('#downloadTemp').on('click', function(){
+		var text = '<html>' +
+				document.getElementsByTagName('head')[0].outerHTML +
+				'<body>' +
+				document.getElementById('form').outerHTML +
+				'<script>onloadIng();<\/script>' +
+				'</body></html>';
+
+        $.post(apiURL+'/CRFSvr/temName', {
+            id: template_id
+        }, function (res){
+			if (res.code == 0){
+				export_raw(res.data + '.html', text);
+			}else{
+				export_raw('模板.html', text);
+			}
+        }, 'json');
+    });
+
+});
+
+//监测控件添加的简单指控
+//这里和简单指控是一一对应的
+$('.table_flag').each(function(){
+	var element = $(this).find('.c-element');
+	var tabName = $(this).attr('tabName');
+	var rowNum =  $(this).attr('rowNum');
+	element.attr('tabname',tabName);
+	element.attr('rownum',rowNum);
+	$(this).removeAttr('tabname');
+	$(this).removeAttr('rownum');
+	$(this).removeClass('table_flag');
+});
+
+function submitForm()
+{
+	var checkOK = checkData('isCDE');
+	if(checkOK)
+	{
+		var timeArray = [];
+		var inputs = $('.c-element');
+		for(var i=0; i<inputs.length; i++)
+		{
+			var input = $(inputs[i]);
+
+			var hasTime = input.parents('[data-timestamp]');
+			if(hasTime.length > 0)
+			{
+				var timestamp = hasTime.attr('data-timestamp');
+				if(timestamp != '')
+				{
+					timeArray.push([input.attr('name'), hasTime.attr('data-timestamp')]);
+				}
+			}
+		}
+		if(timeArray.length > 0)
+		{
+			alert(JSON.stringify(timeArray));
+		}
+	}
+}
+
+function showHideInput()
+{
+	if ($("#cbShowInput:checked").val())
+	{
+		$(".c-grid").each(function (index, grid)
+		{
+			if ($(grid).css("display") == "none")
+			{
+				$(grid).css("display", "block");
+				$(grid).find(".c-element").attr("disabled", "disabled");
+				$(grid).addClass("grid-gray");
+			}
+		});
+	} else
+	{
+		$(".grid-gray").each(function (index, grid)
+		{
+			$(grid).css("display", "none");
+			$(grid).find(".c-element").removeAttr("disabled");
+			$(grid).removeClass("grid-gray");
+		});
+	}
+}
+
+function export_raw(name, data) {
+    var urlObject = window.URL || window.webkitURL || window;
+    var export_blob = new Blob([data]);
+    var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+    save_link.href = urlObject.createObjectURL(export_blob);
+    save_link.download = name;
+    fake_click(save_link);
+}
+
+function fake_click(obj) {
+    var ev = document.createEvent("MouseEvents");
+    ev.initMouseEvent(
+        "click", true, false, window, 0, 0, 0, 0, 0
+        , false, false, false, false, 0, null
+        );
+    obj.dispatchEvent(ev);
+}
+/*
+function downloadJson(){
+	 var html = document.getElementById('form').innerHTML.trim();
+	 var json = html2json(html);
+	 var jsonStr = JSON.stringify(json, ' ', ' ');
+
+	$.post(apiURL+'/CRFSvr/temName', {
+		id: template_id
+	}, function (res){
+		if (res.code == 0){
+			export_raw(res.data + '.json', jsonStr);
+		}else{
+			export_raw('模板.json', jsonStr);
+		}
+	}, 'json');
+}
+ */
+
+function downloadJson(){
+	var cGrid = $('#form').find('.c-grid').clone();
+	cGrid.find('.stars').remove();
+	var data = [];
+	for(var i= 0,j=cGrid.length; i<j; i++){
+		var item = cGrid.eq(i);
+		var options = [];
+		var attr = [];
+		var tempObj = {title : '', type : '', tip : '', attr : attr, options : options};
+		if(item.find('.c-grid').length==0 && item.find('.c-element').length==0){
+			tempObj.title = item.find('.c-content').text();
+			tempObj.type = 'text';
+			data.push(tempObj);
+		}else if(item.find('.c-grid').length==0 && item.find('.c-element').length>0 && item.find('.c-title').length>0){
+			var ele = item.find('.c-element');
+			attr.push({
+				name : ele.attr('name'),
+				id : item.attr('id'),
+				min : ele.attr('min')?ele.attr('min') : '',
+				max : ele.attr('max')?ele.attr('max') : '',
+				require : ele.attr('required')?ele.attr('required') : '',
+				showArry : item.find('.c-input').attr('data-show-array')?item.find('.c-input').attr('data-show-array') : '',
+				formula : ele.attr('data-formula')?ele.attr('data-formula') : ''
+			});
+			if(ele.length>1){
+				for(var s=0; s<ele.length; s++){
+					options.push({text : ele.eq(s).attr('title'), value : ele.eq(s).attr('value')});
+				}
+			}
+			tempObj.title = item.attr('data-c-title');
+			tempObj.type = ele.attr('data-type');
+			tempObj.tip =  item.find('.c-tip').text()?item.find('.c-tip').text() : '';
+			data.push(tempObj);
+		}else if(item.find('.c-grid').length==0 && item.find('.c-element').length>0 && item.find('.c-title').length==0){
+			var ele = item.find('.c-element');
+			attr.push({
+				name : ele.attr('name'),
+				id : '',
+				min : '',
+				max : '',
+				require : ele.attr('required')?ele.attr('required') : '',
+				showArry : item.find('.c-input').attr('data-show-array')?item.find('.c-input').attr('data-show-array') : '',
+				formula : ele.attr('data-formula')?ele.attr('data-formula') : ''
+			});
+			options.push({text : ele.attr('title'), value : ele.attr('value')});
+			tempObj.type = ele.attr('data-type');
+			data.push(tempObj);
+		}
+	}
+
+	$.post(apiURL+'/CRFSvr/temName', {id: template_id
+	}, function (res){
+		if (res.code == 0){
+			export_raw(res.data + '.json', JSON.stringify(data, ' ', ' '));
+		}else{
+			export_raw('模板.json', JSON.stringify(data, ' ', ' '));
+		}
+	}, 'json');
+}
+</script>
+</body>
+</html>

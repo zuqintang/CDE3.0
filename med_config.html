@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>设置药品字典</title>
+    <link href="./libs/bootstrap.css" rel="stylesheet" />
+    <link href="./libs/font-awesome.css" rel="stylesheet" type="text/css" />
+    <link href="./libs/select2.css" rel="stylesheet">
+    <link href="./libs/plugins/icheck/skins/flat/blue.css" rel="stylesheet">
+    <link href="./libs/editor.css" rel="stylesheet" type="text/css" />
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/select2.js"></script>
+    <script src="./libs/plugins/icheck/icheck.js"></script>
+    <script src="./libs/editor.js"></script>
+</head>
+<body>
+<div class="temp-content" style="padding:20px;">
+    <div class="col-sm-6 temp-content-node">
+        <div class="col-sm-3 temp-content-title">布局：</div>
+        <div class="col-sm-9 temp-content-input ">
+            <table class="table tableSpecial" style="background:inherit;">
+                <thead class="text-center">
+                <tr>
+                    <td style="min-width:120px">数据元</td>
+                    <td style="min-width: 80px">是否显示</td>
+                    <td>比例</td>
+                </tr>
+                </thead>
+                <tbody class="text-center">
+                <tr>
+                    <td >用药名称</td>
+                    <td><input type="checkbox" class="icheck" checked disabled name="column" value="0"></td>
+                    <td><input name="gridscale" type="number" value="5" class="form-control text-center"/></td>
+                </tr>
+                <tr >
+                    <td>用药途径</td>
+                    <td><input type="checkbox" class="icheck" name="column" value="1"></td>
+                    <td><input name="gridscale" type="number" value="3" class="form-control text-center"/></td>
+                </tr>
+                <tr>
+                    <td>规格含量</td>
+                    <td><input type="checkbox" class="icheck" name="column" value="2"></td>
+                    <td><input name="gridscale" type="number" value="3" class="form-control text-center"/></td>
+                </tr>
+                <tr>
+                    <td>用药频次</td>
+                    <td><input type="checkbox" class="icheck" name="column" value="3"></td>
+                    <td><input name="gridscale" type="number" value="3" class="form-control text-center"/></td>
+                </tr>
+                <tr>
+                    <td>用药开始日期</td>
+                    <td><input type="checkbox" class="icheck" name="column" value="4"></td>
+                    <td><input name="gridscale" type="number" value="5" class="form-control text-center"/></td>
+                </tr>
+                <tr>
+                    <td>用药开始日期</td>
+                    <td><input type="checkbox" class="icheck" name="column" value="5"></td>
+                    <td><input name="gridscale" type="number" value="5" class="form-control text-center"/></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-sm-6 temp-content-node">
+        <div class="col-sm-3 temp-content-title">关键字：</div>
+        <div class="col-sm-9 temp-content-input">
+            <input id="keyword" type="text" />
+        </div>
+    </div>
+    <div class="col-sm-6 temp-content-node">
+        <div class="col-sm-3 temp-content-title">格式：</div>
+        <div class="col-sm-9 temp-content-input ">
+            <table class="table tableSpecial" style="background:inherit;">
+                <thead>
+                <tr>
+                    <td style="width:80px; line-height:31px;"></td>
+                    <td>标题</td>
+                    <td>控件</td>
+                    <td>备注</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td style="padding:5px;">比例：</td>
+                    <td><input id="Text6" type="number" value="8" class="form-control"/></td>
+                    <td><input id="Text7" type="number" value="12" class="form-control"/></td>
+                    <td><input id="Text8" type="number" value="4" class="form-control"/></td>
+                </tr>
+                <tr>
+                    <td style="padding:5px;">缩进：</td>
+                    <td><input id="title_indent" type="number" class="form-control" value="0"/></td>
+                    <td><input id="input_indent" type="number" class="form-control" value="0"/></td>
+                    <td><input id="tip_indent" type="number" class="form-control" value="0"/></td>
+                </tr>
+                <tr>
+                    <td style="padding:5px;">标题后缀：</td>
+                    <td colspan="3"><input id="postFix" type="text" class="form-control col-xs-12"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div style="display: none;" >
+    <div id="c-left2right" class="form-horizontal">
+        <div class="c-title"></div>
+        <div class="c-input"></div>
+        <div class="c-tip"></div>
+    </div>
+    <input type='text' class="form-control c-tpl-text c-element"/>
+    <label class="c-tpl-radio"><input type='radio' class="c-element" onclick="radioC(this);" data-checked='false'/></label>
+    <div class="preview" style="max-height: 300px; position: absolute;z-index: 30;background-color: #fff;padding: 0; border: solid 1px #cccccc; overflow: auto;box-shadow:4px 4px 8px #ccc;border-radius: 5px 5px 0 0;">
+        <div class="">
+            <h5 class="editor_name popover-title" style="margin:0;background:#fcf8e3!important"></h5>
+        </div>
+        <div >
+            <table class='table table-hover' style="margin-bottom: 0;table-layout:fixed;">
+                <thead>
+                <tr><th style="border-bottom:0px;">值域</th><th class="text-center" style="border-bottom:0px;">计算值</th></tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('.icheck').iCheck({
+            checkboxClass: 'icheckbox_flat-blue',
+            radioClass: 'iradio_flat-blue'
+        });
+        var ModalTitle = parent.$('#Modal_title');
+        ModalTitle.html('药品字典配置');
+    })
+
+
+    function continueSave(formElementName,DATA_META_DATATYPE)
+    {
+        var elementTitle = "药品字典用药名称";
+        var formDiv = $("#c-left2right").clone().removeAttr('id');
+        //缩进
+        var titleOffset = parseInt($('#title_indent').val());
+        if(titleOffset>0) formDiv.find('.c-title').addClass("col-sm-offset-" + titleOffset);
+        var inputOffset = parseInt($('#input_indent').val());
+        if(inputOffset>0) formDiv.find('.c-input').addClass("col-sm-offset-" + inputOffset);
+        var tipOffset = parseInt($('#tip_indent').val());
+        if(tipOffset>0) formDiv.find('.c-tip').addClass("col-sm-offset-" + tipOffset);
+
+        //占格
+        var titleSpan = parseInt($('#Text6').val());
+        formDiv.find('.c-title').addClass("col-sm-"+titleSpan);
+        if(titleSpan==0) formDiv.find('.c-title').hide();
+        formDiv.find('.c-input').addClass("col-sm-"+ parseInt($('#Text7').val()));
+        var tipSpan = parseInt($('#Text8').val());
+        formDiv.find('.c-tip').addClass("col-sm-"+tipSpan);
+        if(tipSpan==0)formDiv.find('.c-tip').hide();
+        //保存到数据库
+        var voptionArray = [];
+        $.ajax(
+            {
+                url: apiURL+"/EAliasSvr/save",
+                dataType: 'json',
+                async: false,
+                type: "post",
+                data: {id: formElementName, alias:elementTitle, datatype:DATA_META_DATATYPE,
+                    voptions: JSON.stringify(voptionArray) },
+                success: function (res)
+                {
+                    if (res.code == 0)
+                    {
+                        var tempNode = $('.c-tpl-text').clone();
+                        tempNode.attr("data-type", '');
+                        formDiv.find('.c-input').append(tempNode);
+                        formDiv.find('.c-element').attr('name', formElementName);
+                        formDiv.find('.c-title').attr('title', formElementName);
+                        var newGrid = parent.cloneGrid();
+                        var data_title = elementTitle;
+                        newGrid.find('.c-content').append(formDiv);
+
+                        var tempGrid = parent.getGrid();
+                        tempGrid.attr('data-c-title', newGrid.find('.c-title').html());
+                        tempGrid.attr('data-c-value', newGrid.find('.c-title').attr('title'));
+                        tempGrid.attr('data-title', data_title);
+                        tempGrid.find('.c-content:first').empty();
+                        tempGrid.find('.c-content:first').append(newGrid.find('.c-content').html());
+                        parent.btnSave();
+
+                    } else {
+                        alert('System Error: save element');
+                    }
+                }, error: function(res){alert('System Error'); console.log(res.responseText)}
+            });
+    }
+    function btnSave(){
+        var elementArr=[];
+        var gridscaleArr=[];
+        $("[name='column']:checked").each(function () {
+            elementArr.push($(this).val());
+        })
+        $("input[name='gridscale']").each(function () {
+            gridscaleArr.push($(this).val());
+        })
+        var formElementName=zq_get_url_param('formElementName').split("?")[0];
+        var DATA_META_DATATYPE=zq_get_url_param('DATA_META_DATATYPE').split("?")[0];
+        for(var i =0; i<6; i++){
+            if (elementArr.indexOf(i.toString()) != -1) {
+                switch (i) {
+                    case 0:
+                        break;
+                    case 1:
+
+                        name1 = formElementName.replace('JH10.00.017.96.001','JH10.00.017.96.002');
+                        $.ajax({
+                            url: apiURL+"/EAliasSvr/save",dataType: 'json',type: "post",
+                            data: {id: name1, alias:'药品字典用药路径', datatype:DATA_META_DATATYPE,voptions: ''}});
+                        break;
+                    case 2:
+                        name2 = formElementName.replace('JH10.00.017.96.001', 'JH10.00.017.96.003');
+                        $.ajax({
+                            url: apiURL+"/EAliasSvr/save",dataType: 'json',type: "post",
+                            data: {id: name2, alias:'药品字典用药剂量', datatype:DATA_META_DATATYPE,voptions: ''}});
+                        break;
+                    case 3:
+                        name3 = formElementName.replace('JH10.00.017.96.001','JH10.00.017.96.004');
+                        $.ajax({
+                            url: apiURL+"/EAliasSvr/save",dataType: 'json',type: "post",
+                            data: {id: name3, alias:'药品字典用药批次', datatype:DATA_META_DATATYPE,voptions: ''}});
+                        break;
+                    case 4:
+                        name4 = formElementName.replace('JH10.00.017.96.001','JH10.00.017.96.005');
+                        $.ajax({
+                            url: apiURL+"/EAliasSvr/save",dataType: 'json',type: "post",
+                            data: {id: name4, alias:'药品字典用药开始日期', datatype:DATA_META_DATATYPE,voptions: ''}});
+                        break;
+                    case 5:
+                        name5 = formElementName.replace('JH10.00.017.96.001','JH10.00.017.96.006');
+                        $.ajax({
+                            url: apiURL+"/EAliasSvr/save",dataType: 'json',type: "post",
+                            data: {id: name5, alias:'药品字典用药结束日期', datatype:DATA_META_DATATYPE,voptions: ''}});
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        continueSave(formElementName,DATA_META_DATATYPE);
+        var grid=parent.$("div[data-c-value='" + formElementName + "']");
+        parent.mergeMed(grid,elementArr,gridscaleArr,$('#keyword').val());
+        parent.modalWin.modal("hide");
+    }
+</script>
+</body>
+</html>
+

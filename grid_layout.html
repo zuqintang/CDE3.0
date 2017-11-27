@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>设置网格布局</title>
+	<link href="./libs/bootstrap.css" rel="stylesheet" />
+	<link href="./libs/font-awesome.css" rel="stylesheet" type="text/css" />
+	<link href="./libs/editor.css" rel="stylesheet" type="text/css" />
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/editor.js"></script>
+</head>
+<body>
+<div class="temp-content" style="padding:20px;">
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">ID</div>
+			<div class="col-sm-8 temp-content-input">
+				<input id="gridID" type="text" class="form-control" disabled="disabled"/>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">格的名字</div>
+			<div class="col-sm-8 temp-content-input">
+				<input id="gridTitle" type="text" class="form-control" placeholder="请添加题目" />
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">格的字号</div>
+			<div class="col-sm-8 temp-content-input">
+				<select id="gridFontSize" class="setFontSize form-control"></select>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">标题位置</div>
+			<div class="col-sm-8 temp-content-input">
+				<select id="cssAlign" class="form-control bstyle" value="">
+						<option value="noChange">不更改</option>
+						<option value="left">左对齐</option>
+						<option value="allleft">全部内容左对齐</option>
+						<option value="center">居中对齐</option>
+						<option value="right">右对齐</option>
+					</select>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">标题字号</div>
+			<div class="col-sm-8 temp-content-input">
+				<select id="titleFontSize" class="setFontSize form-control" value=''></select>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">标题背景</div>
+			<div class="col-sm-8 temp-content-input">
+				<input id="titleBd" type="color" value="#fffffe" class="form-control" onchange="setColor(this);"/>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">标题右边线</div>
+			<div class="col-sm-8 temp-content-input">
+				<select id="titleBorder" class="form-control bstyle" value="">
+					<option value="none" selected="selected">不更改</option>
+					<option value="add">加边线</option>
+					<option value="noAdd">删除边线</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">横跨格</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="grid_num" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">格/24格</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">背景颜色</div>
+			<div class="col-sm-8 temp-content-input">
+				<input id="gridbd" type="color" value="#fffffe" class="form-control" onchange="setColor(this);"/>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">固定高度</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="heightset" type="text" class="form-control" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">边线</div>
+			<div class="col-sm-8 temp-content-input">
+				<select id="formBorder" class="form-control bstyle" value="">
+					<option value="none" selected="selected">不更改</option>
+					<option value="add">加边线</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">标题比例</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="titleSM" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">格/24格</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">控件比例</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="inputSM" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">格/24格</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">备注比例</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="tipSM" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">格/24格</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">自增行</div>
+			<div class="col-sm-8 temp-content-input">
+				<select id="Checkbox1" class="form-control bstyle" value="">
+					<option value="">不更改</option>
+					<option value="add">自增</option>
+					<option value="noAdd">不自增</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">标题缩进</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="titleOffset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">格/24格</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">控件缩进</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="inputOffset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">格/24格</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">备注缩进</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="tipOffset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">格/24格</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">上外边距</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="margin_topset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">左外边距</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="margin_leftset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">上内距</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="padding_topset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">左内距</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="padding_leftset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">下外边距</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="margin_bottomset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">右外边距</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="margin_rightset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">下内距</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="padding_bottomset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">右内距</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="padding_rightset" type="text" class="form-control text-right" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">上边框粗细</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="tborder_px" type="text" class="form-control text-right width" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">边框样式</div>
+			<div class="col-sm-8 temp-content-input">
+				<select id="tborder_style" class="form-control bstyle" value="">
+					<option value="solid">实线</option>
+					<option value="dashed">虚线</option>
+					<option value="dotted">点实线</option>
+					<option value="double">双线</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">边框颜色</div>
+			<div class="col-sm-8 temp-content-input">
+				<input type="color" value="#fffffe" class="form-control tborder bordercolor" onchange="setColor(this);"/>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">下边框粗细</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="bborder_px" type="text" class="form-control text-right width" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">边框样式</div>
+			<div class="col-sm-8 temp-content-input">
+				<select id="bborder_style" class="form-control bstyle">
+					<option value="solid">实线</option>
+					<option value="dashed">虚线</option>
+					<option value="dotted">点实线</option>
+					<option value="double">双线</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">边框颜色</div>
+			<div class="col-sm-8 temp-content-input">
+				<input type="color" value="#fffffe" class="form-control bborder bordercolor" onchange="setColor(this);"/>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">左边框粗细</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="lborder_px" type="text" class="form-control text-right width" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">边框样式</div>
+			<div class="col-sm-8 temp-content-input">
+				<select id="lborder_style" class="form-control bstyle">
+					<option value="solid">实线</option>
+					<option value="dashed">虚线</option>
+					<option value="dotted">点实线</option>
+					<option value="double">双线</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">边框颜色</div>
+			<div class="col-sm-8 temp-content-input">
+				<input type="color" value="#fffffe" class="form-control lborder bordercolor" onchange="setColor(this);"/>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">右边框粗细</div>
+			<div class="col-sm-8 temp-content-input">
+				<div class="input-group">
+					<input id="rborder_px" type="text" class="form-control text-right width" placeholder="" value="" />
+					<span class="input-group-addon">px</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">边框样式</div>
+			<div class="col-sm-8 temp-content-input">
+				<select id="rborder_style" class="form-control bstyle">
+					<option value="solid">实线</option>
+					<option value="dashed">虚线</option>
+					<option value="dotted">点实线</option>
+					<option value="double">双线</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-sm-4 temp-content-node">
+			<div class="col-sm-3 temp-content-title">边框颜色</div>
+			<div class="col-sm-8 temp-content-input">
+				<input type="color" value="#fffffe" class="form-control rborder bordercolor" onchange="setColor(this);"/>
+			</div>
+		</div>
+	</div>
+	</div>
+	<div style="display: none;">
+		<div class="selfCopyGridDIV" style="position: absolute;left: 3px;top: 0px;">
+			<i class="fa fa-minus selfCopy" onclick="jingyu_deleNode(this)" style="cursor:pointer; color: blue;"></i>
+			<i class="fa fa-plus selfCopy addButton" onclick="jingyu_cloneNode(this)" style="cursor:pointer; color: blue;"></i>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+$(document).ready(function ()
+{
+    tempGrids = parent.getGrids();
+
+	var fontSizeArr=['', '10px', '12px', '14px', '16px', '18px', '20px', '22px', '24px', '26px', '28px', '30px', '32px', '34px', '36px', '38px', '40px', '42px', '46px', '46px', '48px', '50px'];
+    for(var i=0; i<fontSizeArr.length; i++){
+        $('.setFontSize').append('<option value="'+fontSizeArr[i]+'">'+fontSizeArr[i]+'</option>');
+    }
+
+	if(tempGrids.length == 1) {
+		if(tempGrids.find('.c-grid').length ==0 && tempGrids.find('.c-element').length >0){
+			var titleSM =tempGrids.find('.c-title').attr('class').match(/sm-\d+/g)[0];
+			$('#titleSM').val(titleSM.substr(titleSM.indexOf("-")+1));
+			echoOffset($('#titleOffset'),'.c-title');
+
+			var inputSM =tempGrids.find('.c-input').attr('class').match(/sm-\d+/g)[0];
+			$('#inputSM').val(inputSM.substr(inputSM.indexOf("-")+1));
+			echoOffset($('#inputOffset'),'.c-input');
+
+			if(tempGrids.find('.c-tip').length != 0)
+			{
+				var tipSM =tempGrids.find('.c-tip').attr('class').match(/sm-\d+/g)[0];
+				$('#tipSM').val(tipSM.substr(tipSM.indexOf("-")+1));
+				echoOffset($('#tipOffset'),'.c-tip');
+			}
+            var textAlignVal;
+            if(tempGrids.find('.c-title').attr('style') == undefined){
+                textAlignVal = 'right';
+            }else if(tempGrids.find('.c-title').attr('style').indexOf('auto') >= 0){
+                textAlignVal = 'allleft';
+            }else{
+                textAlignVal = tempGrids.find('.c-title').css('text-align')
+            }
+			$('#cssAlign').val(textAlignVal);
+			$('#titleFontSize').val(tempGrids.find('.c-title')[0].style.fontSize);
+		}
+		$('#gridID').val(tempGrids.attr('id'));
+		$('#gridTitle').val(tempGrids.attr('title'));
+		$('#grid_num').val(tempGrids.attr('class').match(/\d/g).join(''));
+		$('#gridFontSize').val(tempGrids[0].style.fontSize);
+//		echoBorderWidth($('#heightset'),'height');
+		echoBorderWidth($('#margin_topset'),'margin-top');
+		echoBorderWidth($('#margin_leftset'),'margin-left');
+		echoBorderWidth($('#margin_bottomset'),'margin-bottom');
+		echoBorderWidth($('#margin_rightset'),'margin-right');
+		echoBorderWidth($('#padding_topset'),'padding-top');
+		echoBorderWidth($('#padding_leftset'),'padding-left');
+		echoBorderWidth($('#padding_bottomset'),'padding-bottom');
+		echoBorderWidth($('#padding_rightset'),'padding-right');
+
+		echoBorderStyle($('#tborder_style'),'border-top-style');
+		echoBorderStyle($('#bborder_style'),'border-bottom-style');
+		echoBorderStyle($('#lborder_style'),'border-left-style');
+		echoBorderStyle($('#rborder_style'),'border-right-style');
+
+		echoBorderWidth($("#tborder_px"),"border-top-width");
+		echoBorderWidth($("#bborder_px"),"border-bottom-width");
+		echoBorderWidth($("#lborder_px"),"border-left-width");
+		echoBorderWidth($("#rborder_px"),"border-right-width");
+	} else {
+		$('#gridID').val('共选中'+tempGrids.length+'个格');
+	}
+});
+
+
+
+function echoOffset(element,className){
+	if(!tempGrids.find(className).attr('class').match(/offset-\d+/g)){
+		element.val("");
+	}else{
+		var offset =tempGrids.find(className).attr('class').match(/offset-\d+/g)[0];
+		element.val(offset.substr(offset.indexOf("-")+1));
+	}	
+}
+
+function echoBorderStyle(obj,styleName){
+	tempGrids.removeClass('s-win');
+	obj.val(tempGrids.css(styleName));
+	tempGrids.addClass('s-win');
+}
+
+function echoBorderWidth(obj,styleName){
+	tempGrids.removeClass('s-win');
+	var px = tempGrids.css(styleName).substr(0,tempGrids.css(styleName).indexOf("p"));
+	if(px == 0){
+		obj.val("");
+	}else{
+		obj.val(px);
+	}
+	tempGrids.addClass('s-win');
+}
+
+function checkallborder(event){
+	var checked = $(event).prop('checked');
+	if(checked){
+		$('.checkborder').prop('checked', false);
+	}else{
+		$('.checkborder').prop('checked', true);
+	}
+	$('.checkborder').click();
+}
+
+function checkborder(event){
+	var check_paren = $(event).parent();
+	if($(event).is(':checked')){
+		check_paren.find('.width').val($('#tborder_px').val());
+		check_paren.find('.bstyle').val($('#tborder_style').val());
+		check_paren.find('.bordercolor').val($('.tborder').val());
+		check_paren.find('.bordercolor').css("background-color","#"+$('.tborder').val()+"")
+	}else{
+		check_paren.find('.width').val('');
+		check_paren.find('.bstyle').val('');
+		check_paren.find('.bordercolor').val('');
+		check_paren.find('.bordercolor').css("background-color","")
+	}
+}
+
+function btnSave()
+{
+	if(tempGrids.length == 1)
+	{
+		tempGrids.attr('title', $('#gridTitle').val());
+	}
+
+	var background = $("#gridbd").attr('data-color');
+	var titleBackground = $("#titleBd").attr('data-color');
+	var copy_dive = $('#Checkbox1').val();
+	var formBorder = $('#formBorder').val();
+	var colGrids = parent.getGrids();
+	var cssAlign = $('#cssAlign').val();
+	//设置标题对齐方式
+	if(cssAlign == "left"){
+		tempGrids.find('.c-title').css({
+            'text-align' : 'left',
+            width : ''
+        });
+	}else if(cssAlign == "center"){
+		tempGrids.find('.c-title').css({
+            'text-align' : 'center',
+            width : ''
+        });
+	}else if(cssAlign == "right"){
+		tempGrids.find('.c-title').css({
+            'text-align' : 'right',
+            width : ''
+        });
+	}else if(cssAlign == "no"){
+		tempGrids.find('.c-title').css({
+            'text-align' : '',
+            width : ''
+        });
+	}else if(cssAlign == 'allleft'){
+        tempGrids.find('.c-title').css({
+            width: 'auto'
+        });
+	}else{
+        //不操作
+    }
+
+	// 设置字体
+	tempGrids.css('font-size',$('#gridFontSize').val());
+	tempGrids.find('.c-title').css('font-size',$('#titleFontSize').val());
+
+	if(copy_dive == "add"){
+		addFlag(parent.getGrid());
+		var copyDive = $('.selfCopyGridDIV').clone();
+		parent.getGrid().find('.c-content:first').append(copyDive);
+	}else if(copy_dive == "noAdd"){
+		parent.getGrid().find('.c-content:first').find(".selfCopyGridDIV").remove();
+		removeFlag(parent.getGrid());
+	}else{
+		//不操作自增行
+	}
+
+	//设置表格边线
+	if(formBorder == "add"){
+		colGrids.css({
+			"border-bottom" : "1px solid",
+			"border-left" : "1px solid",
+			"border-right" : "1px solid",
+		});
+		colGrids.first().css({
+			"border-top" : "1px solid",
+		});
+	}else{
+		//不操作
+	}
+
+	//设置横跨格
+	var col_span = parseInt($("#grid_num").val());
+	if(col_span >= 1)
+	{	
+		zq_removeClass(tempGrids);
+		if(tempGrids.parent().hasClass('table-row')){
+			tempGrids.addClass("col-xs-"+col_span);
+		}else{
+			tempGrids.addClass("col-sm-"+col_span);
+		}
+		
+	}else{
+		//不操作横跨格
+	}
+
+	//设置内外边距
+	setMarginPadding("margin-top", $("#margin_topset"));
+	setMarginPadding("margin-bottom", $("#margin_bottomset"));
+	setMarginPadding("margin-left", $("#margin_leftset"));
+	setMarginPadding("margin-right", $("#margin_rightset"));
+	setMarginPadding("padding-top", $("#padding_topset"));
+	setMarginPadding("padding-bottom", $("#padding_bottomset"));
+	setMarginPadding("padding-left", $("#padding_leftset"));
+	setMarginPadding("padding-right", $("#padding_rightset"));
+
+	//设置高度
+	var height = parseInt($("#heightset").val());
+	if(height > 0)
+	{
+		tempGrids.css("height", height);
+	}else if(height == 0)
+	{
+		tempGrids.css("height", "");
+	}else
+	{
+		//不更改高度变化
+	}
+
+	//设置边框
+	setBorder($("#tborder_px"), $("#tborder_style"), $(".tborder"), "border-top", "border-top-style", "border-top-color")
+	setBorder($("#bborder_px"), $("#bborder_style"), $('.bborder'), "border-bottom", "border-bottom-style", "border-bottom-color")
+	setBorder($("#rborder_px"), $("#rborder_style"), $('.rborder'), "border-right", "border-right-style", "border-right-color")
+	setBorder($("#lborder_px"), $("#lborder_style"), $('.lborder'), "border-left", "border-left-style", "border-left-color")
+	
+	//设置颜色
+	if(background){
+		if(background == "#ffffff") {
+			tempGrids.css("background-color", "");
+		}else{
+			tempGrids.css("background-color", background);
+		}
+	}
+
+	//-- col-sm-1/24 -------------------------------------------------------
+	var titleSM = parseInt($("#titleSM").val());
+	if(0<=titleSM && titleSM<=24)
+	{
+		var titles = tempGrids.find(".c-title");
+		titles.removeColClass();
+		titles.addClass('col-sm-' + titleSM);
+		if(titleSM==0) titles.hide();
+		else titles.show();
+	}
+
+	var inputSM = parseInt($("#inputSM").val());
+	if(0<=inputSM && inputSM<=24)
+	{
+		tempGrids.find(".c-input").removeColClass();
+		tempGrids.find(".c-input").addClass('col-sm-' + inputSM);
+	}
+
+	var tipSM = parseInt($("#tipSM").val());
+	if(0<=tipSM && tipSM<=24)
+	{
+		var tips = tempGrids.find(".c-tip");
+		tips.removeColClass();
+		tips.addClass('col-sm-' + tipSM);
+		if(tipSM==0) tips.hide();
+		else tips.show();
+	}
+
+	//-- c-titiel c-input c-tip:  col-sm-offset-1/24 ----------------------------------------------------
+	var titleOffset = parseInt($("#titleOffset").val());
+	if(0<=titleOffset && titleOffset < 24)
+	{
+		classRemoveOFFSET(tempGrids.find(".c-title"));
+		tempGrids.find(".c-title").addClass('col-sm-offset-' + titleOffset);
+	}else{}
+
+	var inputOffset = parseInt($("#inputOffset").val());
+	if(0<=inputOffset && inputOffset < 24)
+	{
+		classRemoveOFFSET(tempGrids.find(".c-input"));
+		tempGrids.find(".c-input").addClass('col-sm-offset-' + inputOffset);
+	}else{}
+
+	var tipOffset = parseInt($("#tipOffset").val());
+	if(0<=tipOffset && tipOffset < 24)
+	{
+		classRemoveOFFSET(tempGrids.find(".c-tip"));
+		tempGrids.find(".c-tip").addClass('col-sm-offset-' + tipOffset);
+	}else{}
+
+	// 标题背景颜色
+	if(titleBackground){
+		if (titleBackground == "#ffffff") {
+			tempGrids.find('.c-title').css("background-color", "");
+		}else{
+			tempGrids.find('.c-title').css("background-color", titleBackground);
+		}
+	}
+
+	// 标题右边线
+	if($('#titleBorder').val() == "add"){
+		tempGrids.find('.c-title').css("border-right","1px solid #000");
+	}else if($('#titleBorder').val() == "noAdd"){
+		tempGrids.find('.c-title').css("border-right","");
+	}
+	//关闭modal
+	parent.modalWin.modal("hide");
+}
+
+function setBorder(obj_borderPx, obj_borderStyle, obj_borderColor, cssName_borderPx, cssName_borderStyle, cssName_borderColor){
+	var tempGrids = parent.getGrids();
+	var border_Px = parseInt(obj_borderPx.val());
+	var aTmp = {};
+	if(border_Px > 0)
+	{
+		aTmp[cssName_borderPx] = border_Px+"px";
+		aTmp[cssName_borderStyle] = obj_borderStyle.val();
+		if(obj_borderColor.attr('data-color')){
+			aTmp[cssName_borderColor] = obj_borderColor.attr('data-color');
+		}else if (obj_borderColor.attr('data-color') == "#ffffff") {
+			aTmp[cssName_borderColor] = "";
+		}
+		tempGrids.css(aTmp);	
+	}else if(border_Px == 0)
+	{			
+		aTmp[cssName_borderPx] = "";
+		aTmp[cssName_borderStyle] = "";
+		aTmp[cssName_borderColor] = "";
+		tempGrids.css(aTmp);
+	}else
+	{
+		//不操作边框
+	}
+}
+
+function setMarginPadding(cssName_marginOrPadding, obj_marginOrPadding){
+	var tempGrids = parent.getGrids();
+	var cssPx_marginOrPadding = parseInt(obj_marginOrPadding.val());
+	var aTmp = {};
+	if(cssPx_marginOrPadding > 0)
+	{
+		aTmp[cssName_marginOrPadding] = cssPx_marginOrPadding+"px";
+		tempGrids.css(aTmp);
+	}else if(cssPx_marginOrPadding == 0)
+	{
+		aTmp[cssName_marginOrPadding] = "";
+		tempGrids.css(aTmp);
+	}else
+	{
+		//不操作边距
+	}
+}
+
+function setColor(element){
+	$(element).attr('data-color',$(element).val())
+}
+</script>
+<!-- <script src="./libs/jscolor.js"></script> -->
+</body>
+</html>
+

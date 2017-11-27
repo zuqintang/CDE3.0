@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>窗口样式</title>
+    <link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet">
+    <link href="./libs/editor.css" rel="stylesheet">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/jquery.hotkeys.js"></script>
+    <script src="./libs/bootstrap-wysiwyg.js"></script>
+    <style>
+        #editor{
+            max-height: 250px;
+            height: 250px;
+            background-color: white;
+            border-collapse: separate;
+            border: 1px solid rgb(204, 204, 204);
+            padding: 4px;
+            box-sizing: content-box;
+            -webkit-box-shadow: rgba(0, 0, 0, 0.0745098) 0 1px 1px 0 inset;
+            box-shadow: rgba(0, 0, 0, 0.0745098) 0 1px 1px 0 inset;
+            border-top-right-radius: 3px; border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px; border-top-left-radius: 3px;
+            overflow: scroll;
+            outline: none;
+        }
+        #editor:focus{
+            border-color:rgba(82, 168, 236, 0.8);
+            outline:0;
+            outline:thin dotted ;
+            -webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
+            -moz-box-shadow:inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
+            box-shadow:inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
+        }
+
+        div[data-role="editor-toolbar"] {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .dropdown-menu a {
+            cursor: pointer;
+        }
+        .btn-toolbar {
+            padding: 10px 0px 10px 0px;
+        }
+
+        [contentEditable=true]:empty:not(:focus):before {
+            content:attr(data-placeholder)
+        }
+
+        .imgUpload
+        {
+            width: 100%;
+            height: 100%;
+            position:absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+<script type='text/javascript'>
+
+</script>
+<div style="width:95%;margin: 0 auto;">
+    <div class="btn-toolbar" data-role="editor-toolbar"
+         data-target="#editor">
+        <div class="btn-group">
+            <!-- TODO 順雨 在选择字体样式及大小时，选中区域经常变化， 选择费劲-->
+            <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="字体样式"><i class="fa fa-font"></i>&nbsp;<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+                <li><a data-edit="fontName Helvetica,Arial"><font face="Arial">默认字体</a></font></li>
+                <li><a data-edit="fontName 宋体"><font face="宋体">宋体</a></font></li>
+                <li><a data-edit="fontName 楷体"><font face="楷体">楷体</font></a></li>
+                <li><a data-edit="fontName 微软雅黑"><font face="微软雅黑">微软雅黑</font></a></li>
+                <li><a data-edit="fontName 黑体"><font face="黑体">黑体</a></font></li>
+            </ul>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="字体大小"><i class="fa fa-text-height"></i>&nbsp;<b class="caret"></b></a>
+            <ul id="setFontSize" class="dropdown-menu" style="max-height: 260px;overflow: auto;"></ul>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-default" data-edit="bold" title="加粗 (Ctrl/Cmd+B)"><i class="fa fa-bold"></i></a>
+            <a class="btn btn-default" data-edit="italic" title="斜体 (Ctrl/Cmd+I)"><i class="fa fa-italic"></i></a>
+            <a class="btn btn-default" data-edit="strikethrough" title="中划线"><i class="fa fa-strikethrough"></i></a>
+            <a class="btn btn-default" data-edit="underline" title="下划线 (Ctrl/Cmd+U)"><i class="fa fa-underline"></i></a>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="分隔线"><i class="fa fa-arrows-h"></i></a>
+            <ul class="dropdown-menu">
+                <li><a class="fs-a1" data-edit="InsertHorizontalRule dLine" >细</a></li>
+                <li><a class="fs-a3" data-edit="InsertHorizontalRule dLine" >中</a></li>
+                <li><a class="fs-a5" data-edit="InsertHorizontalRule dLine" >粗</a></li>
+            </ul>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-default" data-edit="insertunorderedlist" title="普通列表"><i class="fa fa-list-ul"></i></a>
+            <a class="btn btn-default" data-edit="insertorderedlist" title="数字列表"><i class="fa fa-list-ol"></i></a>
+            <a class="btn btn-default" data-edit="outdent" title="减少缩进 (Shift+Tab)"><i class="fa fa-outdent"></i></a>
+            <a class="btn btn-default" data-edit="indent" title="缩进 (Tab)"><i class="fa fa-indent"></i></a>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-default" data-edit="justifyleft" title="靠左 (Ctrl/Cmd+L)"><i class="fa fa-align-left"></i></a>
+            <a class="btn btn-default" data-edit="justifycenter" title="居中 (Ctrl/Cmd+E)"><i class="fa fa-align-center"></i></a>
+            <a class="btn btn-default" data-edit="justifyright" title="靠右 (Ctrl/Cmd+R)"><i class="fa fa-align-right"></i></a>
+            <a class="btn btn-default" data-edit="justifyfull" title="分散 (Ctrl/Cmd+J)"><i class="fa fa-align-justify"></i></a>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="设置超链接"><i class="fa fa-link"></i></a>
+            <div class="dropdown-menu input-append">
+                <input placeholder="URL" type="text" data-edit="createLink" />
+                <button class="btn" type="button">确定</button>
+            </div>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-default" data-edit="unlink" title="清除超链接"><i class="fa fa-unlink"></i></a>
+                    <span class="btn btn-default" title="插入图片 (可拖拽图片)" id="pictureBtn"> <i class="fa fa-picture-o"></i>
+                        <input class="imgUpload" type="file" data-role="magic-overlay" data-target="#pictureBtn" data-edit="insertImage" />
+                    </span>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-default" data-edit="undo" title="撤销 (Ctrl/Cmd+Z)"><i class="fa fa-undo"></i></a>
+            <a class="btn btn-default" data-edit="redo" title="重做 (Ctrl/Cmd+Y)"><i class="fa fa-repeat"></i></a>
+            <a class="btn btn-default" data-edit="html" title="查看代码"><i class='glyphicon glyphicon-pencil'></i></a>
+        </div>
+        <div class="btn-group">
+            <input type="color" class="form-control fontColor" data-edit="ForeColor" style="width: 85px;" onchange="fn_change_forecolor();" />
+        </div>
+    </div>
+    <div id="editor" class="lead" data-placeholder=""></div>
+    <div id="editorPreview"></div>
+    <p style="text-align: center;">
+        <a class="btn btn-primary btn-large btn-default jumbo" onClick="btnOK()">确 定</a>
+    </p>
+</div>
+
+<script type='text/javascript'>
+$(document).ready(function()
+{
+    var arr=['12px','13px','14px','15px','16px','17px','18px','19px','20px','22px','24px','26px','28px','30px','32px','34px','36px','38px','40px','42px','46px','46px','48px','50px'];
+    for(var i=0;i<arr.length;i++){
+        $('#setFontSize').append('<li><a data-edit="fontSize 7" onclick="fn_change_fontsize(\''+arr[i]+'\');"><font style="font-size:'+arr[i]+';">'+arr[i]+'</font></a></li>');
+    }
+    $('.fs-a5').click(function(){
+        $('#editor')[0].onchange=function(){
+            $('#dLine').css({
+                'height':'2px',
+                'border':'none',
+                'border-top':'5px solid #706b6b',
+                'margin':'5px 0px 5px 0px'
+            });
+            $('#dLine').removeAttr('id');
+
+        }
+        $('#editor').focus();
+    });
+     $('.fs-a3').click(function(){
+        $('#editor').focus();
+        $('#editor')[0].onchange=function(){
+            $('#dLine').css({
+                'height':'2px',
+                'border':'none',
+                'border-top':'3px solid #706b6b',
+                'margin':'5px 0px 5px 0px'
+            });
+           $('#dLine').removeAttr('id');
+        }
+    });
+      $('.fs-a1').click(function(){
+        $('#editor').focus();
+        $('#editor')[0].onchange=function(){
+            $('#dLine').css({
+                'height':'2px',
+                'border':'none',
+                'border-top':'1px solid #706b6b',
+                'margin':'5px 0px 5px 0px'
+            });
+           $('#dLine').removeAttr('id');
+        }
+    });
+    $('#editor').wysiwyg();
+
+    $(".dropdown-menu > input").click(function (e) {
+        e.stopPropagation();
+    });
+
+    var vGrid = parent.getGrid().find(".c-content");
+    $('#editor').html(vGrid.html());
+    $('#editor').focus();
+});
+
+function btnOK()
+{
+    var ccc = parent.getGrids().find(".c-content");
+    ccc.html($('#editor').cleanHtml());
+    parent.modalWin.modal("hide");
+}
+
+function fn_change_forecolor() {
+    $('#editor').focus();
+    document.execCommand('ForeColor',false,$('.fontColor').val());
+}
+
+function fn_change_fontsize(fSize) {
+    $('#editor').focus();
+    setTimeout(function(){
+        var fontElements = document.getElementsByTagName("font");
+        for (var i = 0; i <fontElements.length; i++) {
+            if (fontElements[i].size == "7") {
+                fontElements[i].removeAttribute("size");
+                fontElements[i].style.fontSize =fSize;
+            }
+        }
+    });
+}
+</script>
+</body>
+</html>

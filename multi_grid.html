@@ -1,0 +1,114 @@
+ <!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>多行多列</title>
+    <link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet">
+    <link href="./libs/editor.css" rel="stylesheet">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/editor.js"></script>
+    <script src="./libs/bootbox.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="form-horizontal" role="form">
+        <div class="col-sm-20">
+            <div class="form-group col-sm-8">
+                <div class="input-group" style="width: 200px;">
+                    <input id="row_num" type="text" class="form-control" value="1" />
+                    <span class="input-group-addon">行</span>
+                </div>
+            </div>
+            <div class="form-group col-sm-8">
+                <div class=" input-group" style="width: 200px;">
+                    <select id="col_num" class="form-control" title="" style="text-align: center">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                    </select>
+                    <span class="input-group-addon">列</span>
+                </div>
+            </div>
+            <div class="form-group col-sm-6">
+                <label><input id="nowrapCHK" type="checkbox" checked="checked"/>不换行表格</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-3">
+                <div class="input-group" style="width: 100px;">
+                    <input  type="button" value="确定" class="btn btn-primary" onclick="addMultiGrid(this)" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function ()
+{
+    var grid = parent.getGrid(); 
+    if(grid.find('.c-grid').length>0 || grid.find('.c-element').length>0){
+        alert("删除选中数据元后再进行添加");
+        parent.modalWin.modal("hide");
+        return false;
+    }
+});
+
+function addMultiGrid(event)
+{
+        var rowNum = $("#row_num").val();
+        var colNum = $("#col_num").val();
+        var col_span = parseInt(24/colNum);
+        var nowrap = $('#nowrapCHK').is(':checked');
+        if(nowrap == true)
+        {
+            for(var i=1; i<=rowNum; i++)
+            {
+                var row_grid = parent.cloneGrid();
+                row_grid.find('.c-content:first').addClass('table-row');
+                for(var j=0; j<colNum; j++)
+                {
+                    var newNode = parent.cloneGrid();
+                    zq_removeClass(newNode);
+                    newNode.addClass("col-xs-"+col_span);
+                    row_grid.find('.c-content:first').append(newNode);
+                }
+                parent.currentEmbed(row_grid);
+            }
+        } else {
+            for(var i=0; i<rowNum; i++) {
+                for(var j=0; j<colNum; j++) {
+                    var newNode = parent.cloneGrid();
+                    zq_removeClass(newNode);
+                    newNode.addClass("col-sm-"+col_span);
+                    parent.currentEmbed(newNode);
+                }
+            }
+        }
+
+        parent.modalWin.modal("hide");
+}
+</script>
+</body>

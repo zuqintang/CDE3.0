@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>显示隐藏逻辑</title>
+	<link href="./libs/editor.css" rel="stylesheet">
+	<link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+	<link href="./libs/font-awesome.css" rel="stylesheet">
+	<link href="./libs/select2.css" rel="stylesheet">
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/select2.js"></script>
+	<script src="./libs/editor.js"></script>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<iframe id="formulas" name="formulas" frameborder="0" style="width: 100%;min-height: 300px;border:1px solid #E3E3E3;" src="formulas.html"></iframe>
+	</div>
+	<div id="cmpDiv" class="row">
+		<div class="list-group col-sm-2 text-right">
+			<select id="cmp" class="form-control">
+				<option value=">"> &gt;</option>
+				<option value="="> =</option>
+				<option value="<"> &lt;</option>
+			</select>
+		</div>
+		<div  class="col-sm-3">
+			<input id="toValue" type="number" class="form-control"/>
+		</div>
+		<div class="col-sm-16">
+			<select id="gridID" class="form-control" style="width: 100%;">
+			</select>
+		</div>
+		<div class="col-sm-3 form-inline">
+			<button onclick="btnAdd();" class="btn btn-primary">添加</button>
+			<button onclick="parent.flashGrid($('#gridID').val());" class="btn btn-primary"><i class="fa fa-flash"></i></button>
+		</div>
+	</div>
+</div>
+<div class="container">
+	<table class="table table-bordered">
+		<tr class="active">
+			<td>公式<i class="fa fa-refresh btn" onclick="refreshShowArray();"></i></td>
+			<td>比较符号</td>
+			<td>比较值</td>
+			<td>被控格</td>
+			<td>操作</td>
+		</tr>
+		<tbody id="tableBody">
+		</tbody>
+	</table>
+</div>
+<div class="hide">
+	<table>
+		<tr id="dataTR">
+			<td>
+				<label class="c-fid"></label><br>
+				<label class="c-formula-name"></label>
+			</td>
+			<td class="c-cmp">
+			</td>
+			<td class="c-tovalue">
+			</td>
+			<td>
+				<label class="c-slave"></label><br>
+				<label class="c-slave-name"></label>
+			</td>
+			<td><button onclick="btnDelete(this);" class="btn btn-danger">删除</button>
+				<button onclick="parent.flashGrid($(this).parents('tr:first').find('.c-slave').text());" class="btn btn-primary"><i class="fa fa-flash"></i></button>
+			</td>
+		</tr>
+	</table>
+</div>
+<script type='text/javascript'>
+$(document).ready(function ()
+{
+    parent.$("#parentSaveBtn").addClass("hidden");
+	tempGrid = parent.getGrid();
+
+	$("#gridID").select2({'data':parent.fetchGridTree(), templateResult: formatState, templateSelection: formatState});
+	refreshShowArray();
+});
+
+function btnAdd()
+{
+	var fid = $('#formulaSelect', frames['formulas'].document).val();
+	if(fid==0)return false;
+	var cmp = $('#cmp').val();
+	var toValue = $('#toValue').val();
+	if(toValue==undefined || toValue=='') return false;
+	var toGridID = $('#gridID').val();
+	var newRow = [fid, cmp, toValue, toGridID];
+
+	var inputDIV = parent.getGrid().find('.c-input:first');
+	var formulaStr = inputDIV.attr('data-formula-array');
+	var formulaArray = [];
+	if(formulaStr)
+	{
+		formulaArray = eval(formulaStr);
+	}
+
+	formulaArray.push(newRow);
+	inputDIV.attr('data-formula-array', JSON.stringify(formulaArray));
+	parent.cookGridHide(toGridID, 1);
+	refreshShowArray();
+}
+
+function btnDelete(event)
+{
+	var tr = $(event).parents('tr');
+	var fid = tr.find('.c-fid').text();
+	var cmp = tr.find('.c-cmp').text();
+	var toValue = tr.find('.c-tovalue').text();
+	var toGridID = tr.find('.c-slave').text();
+
+	var inputDIV = tempGrid.find('.c-input:first');
+	var showArray = eval(inputDIV.attr('data-formula-array'));
+	var newShowArray = [];
+	for(var i=0; i<showArray.length; i++)
+	{
+		var showRow = showArray[i];
+		if(showRow[0]==fid && showRow[1]==cmp && showRow[2]==toValue  &&  showRow[3]==toGridID)
+		{
+			parent.cookGridHide(toGridID, -1);
+			continue;
+		}
+		newShowArray.push(showRow);
+	}
+	inputDIV.attr('data-formula-array', JSON.stringify(newShowArray));
+	if(newShowArray.length == 0)
+	{
+		inputDIV.removeAttr('data-formula-array');
+	}
+	refreshShowArray();
+}
+
+function refreshShowArray()
+{
+	var showStr = tempGrid.find('.c-input').attr('data-formula-array');
+	$('#tableBody').empty();
+	if(showStr)
+	{
+		var showArray = eval(showStr);
+		for(var i=0; i<showArray.length; i++)
+		{
+			var showRow = showArray[i];
+			var newTR = $('#dataTR').clone().removeAttr('id');
+			var formulaSelect = $('#formulaSelect', frames['formulas'].document);
+			var formulaName = formulaSelect.find("option[value='"+showRow[0]+"']").text();
+			newTR.find('.c-fid').html(showRow[0]);
+			newTR.find('.c-formula-name').html(formulaName);
+			newTR.find('.c-cmp').html(showRow[1]);
+			newTR.find('.c-tovalue').html(showRow[2]);
+			newTR.find('.c-slave').text(showRow[3]);
+			newTR.find('.c-slave-name').text(parent.$('#'+showRow[3]).attr('title'));
+			$('#tableBody').append(newTR);
+		}
+	}
+}
+</script>
+</body>
+</html>

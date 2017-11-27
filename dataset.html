@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-cn" style="height: 100%;">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>引用项目数据集（带格式的通用模板/CRF模板）</title>
+	<link href="./libs/bootstrap.css" rel="stylesheet" />
+	<link href="libs/font-awesome.css" rel="stylesheet" type="text/css" />
+	<link href="./libs/editor.css" rel="stylesheet" type="text/css" />
+	<link href="./libs/slider.css" rel="stylesheet" type="text/css" />
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+	<script src="./libs/plugins/bootstrap-toastr/toastr.min.js"></script>
+	<script src="./libs/editor.js"></script>
+	<script src="./libs/bootbox.js"></script>
+</head>
+<body style="height: 100%;">
+<div class="slidebar-wrapper" style="background-color: #F5F6F7; padding: 10px 5px 0px 5px; height: 100%; border-left:2px solid #EDEDED;">
+	<div class="row" id="xuanMb">
+		<div class="form-inline">
+			<div class="input-group">
+				<input id="keyword" onkeyup=" if(event.keyCode==13) {search(1);}" type="text" class="form-control" placeholder="小模板关键字"/>
+				<span class="input-group-addon searchBtn" onclick="search(1);" style="font-size:15px;"><li class="fa fa-search"></li></span>
+				<span onclick="setSorter();search();" class="input-group-addon sorterBtn" title="时间排序" style="font-size:15px;"><li id="sorterIcon" class="fa fa-sort-numeric-desc"></li></span>
+			</div>
+		</div>
+	</div>
+	<div id="Mb" class="row" style="margin-top: 7px; border: 1px solid #EDEDED; border-radius: 4px; font-size: 12px;color:#91959C;">
+		<button class="epm_addbtn" onclick="btnOK();"><i class="fa fa-caret-square-o-left"></i>嵌套插入</button>
+
+		<table class="table table-bordered table-hover" style="margin:0;">
+			<tbody id="tBody">
+			<tr id="viewNode">
+				<td class="c-name"><label class="radio-inline" onclick="tableClick(this);"><input class="n-radio" name="tid" type="radio" style="display:none;"/></label></td>
+			</tr>
+			</tbody>
+		</table>
+		<div class="col-sm-12 side-pager-con">
+			<ul id="pager"></ul>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+	$(document).ready(function ()
+	{
+		desc='asc';
+		$('#viewNode').hide();
+		search(1);
+	});
+
+	function search(currentPage)
+	{
+		showTip('搜索中...');
+		$.post(apiURL+"/CRFSvr/allTemplates", {keyword: $('#keyword').val(), p:currentPage, sorter:'id', desc:desc}, function (res)
+		{
+			if (res.code == 0)
+			{
+				$('#viewNode').nextAll().remove();
+				if(res.data.length == 0)
+				{
+					var newNode = $('#viewNode').clone();
+					newNode.removeAttr('id');
+					newNode.addClass('viewNode');
+					newNode.css({'line-height':'222px','text-align':'center'});
+					newNode.html("暂未搜索到相关小模板");
+					newNode.show();
+					$('#tBody').append(newNode);
+				}
+				for(var i=0; i<res.data.length; i++)
+				{
+					var obj = res.data[i];
+					var newNode = $('#viewNode').clone();
+					newNode.removeAttr('id');
+					newNode.addClass('viewNode');
+					newNode.find('.n-radio').val(obj.ID);
+					newNode.find('.n-radio').after(obj.ID+':'+obj.NAME);
+					newNode.show();
+					$('#tBody').append(newNode);
+				}
+
+				if(res.countPage<1) res.countPage=1;
+				$('#pager').bootstrapPaginator(
+						{
+							bootstrapMajorVersion:3,
+							currentPage: currentPage,
+							totalPages: Math.ceil(res.countPage),
+							onPageClicked: function(e, originalEvent, type, page) {search(page);}
+						});
+			}
+		}, "json");
+	}
+
+	function btnOK()
+	{
+		var elementRadio = $("input[name='tid']:checked");
+		if (elementRadio.length == 0)
+		{
+			parent.alert('没有选中小模板');
+			return false;
+		}
+		if(!isGridEditable([11,12,13,14], 'Y')) return false;
+
+		showTip('添加中...');
+		$.post(apiURL+'/CRFSvr/atmlStr', { id: $("input[name='tid']:checked").val() }, function (res)
+		{
+			if (res.code != 0) return false;
+			if (res.data.trim() == '') return false;
+
+			var words = '<i>'+res.data+'</i>';
+			var innerNode = $(words);
+			var grids = innerNode.find('.c-grid');
+			for(var i=0;i<grids.length;i++)
+			{
+				var id = grids.eq(i).attr('id');
+				var e = new RegExp(id,"g");
+				var newID = c2id();
+				words = words.replace(e, newID);
+			}
+			innerNode = $(words).children();
+			var inputDIVs = innerNode.parent().find('[data-c-value]');
+			var cvalueArr = [];
+			parent.getGrids().find('.c-content:first').append(innerNode);
+			for(var i=0; i<inputDIVs.length; i++) {
+				var inputDIV = $(inputDIVs[i]);
+				if ($.inArray(inputDIV.attr('data-c-value'), cvalueArr) == -1) {
+					cvalueArr.push(inputDIV.attr('data-c-value'));
+				}
+			}
+			$(cvalueArr).each(function(){
+				var c_value = innerNode.parent().find('[data-c-value="'+this+'"]');
+				var elements =  c_value.find('.c-element');
+				var tempName =  elements.attr('name');
+				newFormElementName = tempName.substr(0, tempName.indexOf('_')) + '_' + parent.template_id;
+				for(var j=1; j<10000; j++)
+				{
+					var newName = newFormElementName + '_' + j;
+					if(parent.$("[name='" + newName + "'").length == 0){
+						break;
+					}
+				}
+				continueSave(newName, elements, c_value);
+			});
+			innerNode.removeClass('editorBody');
+		}, 'json').complete(function(){
+			parent.btnSave();
+		});
+	}
+
+	function continueSave(newFormElementName, elements, inputDIV)
+	{
+		inputDIV.find('.c-title').attr('title', newFormElementName);
+		inputDIV.attr('data-c-value', newFormElementName);
+		elements.attr('name', newFormElementName);
+		var voptionArray = [];
+		if(elements.attr('id')!='province10' && (elements.is(':checkbox') || elements.is(':radio')))
+		{
+			for(var i=0; i<elements.length; i++)
+			{
+				var tr = $(elements[i]);
+				var tempObj = {};
+				tempObj.voption_id = tr.attr('data-vid');
+				tempObj.ealias_id = newFormElementName;
+				tempObj.alias =  tr.attr('title');
+				tempObj.avalue =  tr.attr('data-avalue');
+				tempObj.cvalue = tr.attr('data-cvalue');
+				tempObj.sorter = i;
+				tempObj.status = 0;
+				voptionArray.push(tempObj);
+			}
+		}else if(elements.attr('id')!='province10' && elements.is('select')){
+			for(var i=1;i<elements.children().length;i++)
+			{
+				var tempObj = {};
+				var obj = elements.children().eq(i);
+				tempObj.voption_id = obj.attr('data-vid');
+				tempObj.ealias_id = obj.parent().attr('name');
+				tempObj.alias =  obj.text();
+				tempObj.avalue =  obj.attr('data-avalue');
+				tempObj.cvalue = obj.attr('data-cvalue');
+				tempObj.sorter = i-1;
+				tempObj.status = 0;
+				voptionArray.push(tempObj);
+			}
+		}
+
+		var title = elements.parents('.c-grid:first').attr('data-c-title');
+		$.ajax(
+				{
+					url: apiURL+"/EAliasSvr/save",
+					dataType: 'json',
+					async: false,
+					type: "post",
+					data: { id: newFormElementName, alias: title, datatype:elements.attr('data-type'), voptions: JSON.stringify(voptionArray) },
+					success: function (res)
+					{
+						if (res.code == 0)
+						{
+							if(res.data.voptions == undefined)return false;
+							for (var i = 0; i < res.data.voptions.length; i++)
+							{
+								var row = res.data.voptions[i];
+								var tempNode_in = elements.find('[data-vid='+row.VOPTION_ID+']');
+								tempNode_in.attr('id', 'e2v_' + row.ID);
+								tempNode_in.val(row.ID);
+							}
+						}
+						else {
+							alert('System Error');
+						}
+					},
+					error: function(res){console.log(res.responseText)}
+				});
+	}
+	function setSorter()
+	{
+		var tempIcon = $('#sorterIcon');
+		tempIcon.removeClass('fa-sort-numeric-'+desc);
+		if(desc == 'desc') desc='asc';
+		else desc = 'desc';
+		tempIcon.addClass('fa-sort-numeric-'+desc);
+	}
+</script>
+</body>
+</html>

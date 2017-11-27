@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>创建数据集</title>
+	<link href="./libs/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+	<link href="./libs/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet">
+	<link href="./libs/plugins/bootstrap-modal/css/bootstrap-modal.css" rel=" stylesheet">
+	<link href="./libs/plugins/bootstrap-toastr/toastr.min.css" rel=" stylesheet">
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/select2/css/select2.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/animate.css" rel="stylesheet">
+	<link href="./libs/epm.css" rel="stylesheet">
+	<link href="https://cdn.bootcss.com/pace/1.0.2/themes/silver/pace-theme-loading-bar.css" rel="stylesheet" />
+	<script src="https://cdn.bootcss.com/pace/1.0.2/pace.js"></script>
+	<script src="./libs/plugins/jquery.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+	<script src="./libs/plugins/bootstrap-toastr/toastr.min.js"></script>
+	<script src="./libs/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+	<script src="./libs/epm.js"></script>
+	<script src="./libs/plugins/scrollfix/scrollfix.js"></script>
+	<script src='./libs/vue.js' type='text/javascript'></script>
+	<script src='./libs/vue-resource.js' type='text/javascript'></script>
+</head>
+<body>
+<div class="inpuut-wrapper" id="eSetsM">
+	<div class="col-sm-6 temp-content-node">
+		<div class="row">
+			<div class="col-sm-4 temp-content-title">数据集版本</div>
+			<div class="col-sm-8 temp-content-input">
+				<select class="form-control">
+					<option value="1" selected="selected">企标</option>
+					<option value="2">国标</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-6 temp-content-node">
+		<div class="row">
+			<div class="col-sm-4 temp-content-title">版本号</div>
+			<div class="col-sm-8 temp-content-input">
+				<select class="form-control" v-model="dataM.YEAR_VERSION">
+					<option value="12">12</option>
+					<option value="14" selected="selected">14</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-12 temp-content-node">
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="row">
+					<div class="col-sm-4 temp-content-title">数据集编码</div>
+					<div class="col-sm-8 temp-content-input">
+						<input class="form-control" v-model="dataM.DS_CODE" type="text" readonly/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-6 temp-content-node">
+		<div class="row">
+			<div class="col-sm-4 temp-content-title">数据集大类</div>
+			<div class="col-sm-8 temp-content-input">
+				<select class="form-control" v-model="dataM.DS_GROUP">
+					<option value="1" data-code="17" selected="selected">科研</option>
+					<option value="2" data-code="04">疾病管理</option>
+					<option value="3" data-code="05">医疗服务</option>
+					<option value="4" data-code="00">基本信息</option>
+					<option value="5" data-code="01">儿童保健</option>
+					<option value="6" data-code="02">妇女保健</option>
+					<option value="7" data-code="03">疾病控制</option>
+					<option value="8" data-code="00">卫生管理</option>
+					<option value="9" data-code="00">卫生综合</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-6 temp-content-node">
+		<div class="row">
+			<div class="col-sm-4 temp-content-title">数据集小类</div>
+			<div class="col-sm-8 temp-content-input">
+				<select class="form-control" v-model="dataM.DIS_GROUP">
+					<option value="1" data-code="17" selected="selected">科研</option>
+					<option value="2" data-code="17">科研2</option>
+					<option value="3" data-code="17">科研3</option>
+					<option value="4" data-code="17">科研4</option>
+					<option value="5" data-code="17">科研5</option>
+					<option value="6" data-code="17">科研6</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-6 temp-content-node">
+		<div class="row">
+			<div class="col-sm-4 temp-content-title">数据集名称</div>
+			<div class="col-sm-8 temp-content-input">
+				<input type="text" class="form-control" v-model="dataM.DS_NAME"/>
+			</div>
+		</div>
+	</div>
+	<div class="clearfix"></div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+	eSetsM = new Vue({
+		el : '#eSetsM',
+		data : {
+			dataM: {YEAR_VERSION: 14, DS_CODE: '', DS_NAME: '', DS_GROUP: 1, DIS_GROUP: 1},
+		}
+	});
+	window.code = get_url_param('code');
+	if(code != null && code != ''){
+		eSetsM.$http({
+			url :globalURL+'/EPMSvr/setInfos',
+			method : 'post',
+			params : {"code": code},
+			headers : {"X-Requested-With": "XMLHttpRequest"}
+		}).then(function(res){
+			this.dataM = res.data.data.SET[0];
+		}, function(err){ parent.toastr.error(err); });
+	}
+});
+function btnSave(){
+	eSetsM.$http({
+		url :globalURL+'/EPMSvr/setSave',
+		method : 'post',
+		params : eSetsM.dataM,
+		headers : {"X-Requested-With": "XMLHttpRequest"}
+	}).then(function(res){
+		if (res.data.code == 0) {
+			parent.toastr.success('数据集操作成功');
+		}
+	}, function(err){ parent.toastr.error(err); });
+}
+</script>
+</body>
+</html>

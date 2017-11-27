@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html  lang="zh-cn">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>编辑数据元</title>
+    <link href="./libs/editor.css" rel="stylesheet">
+    <link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet">
+    <link href="./libs/select2.css" rel="stylesheet">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/select2.js"></script>
+    <script src="./libs/editor.js"></script>
+    <script src="./libs/bootbox.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row form-horizontal">
+        <label class="col-sm-3">标题：</label>
+        <div class="col-sm-7">
+            <textarea id="c-title" class="form-control"></textarea>
+        </div>
+        <label class="col-sm-4 col-sm-offset-1 control-label">备注：</label>
+        <div class="col-sm-7">
+            <textarea id="c-tip" class="form-control"></textarea>
+        </div>
+    </div>
+    <div class="row form-horizontal">
+        <label class="col-sm-3">数据元类型：</label>
+        <div class="col-sm-7">
+            <select id="ealiasType" class="form-control bstyle">
+                <option value="L">单选框(展开型)</option>
+                <option value="S2">单选框(下拉型1)</option>
+                <option value="S2" data-select2="true">单选框(下拉型2)</option>
+                <option value="S3">多选框(展开型)</option>
+                <option value="S4">多选框(下拉型1)</option>
+                <option value="S4" data-select2="true">多选框(下拉型2)</option>
+            </select>
+        </div>
+        <label class="col-sm-4 col-sm-offset-1 control-label">别名別值的显示：</label>
+        <div class="col-sm-7">
+            <select id="nameDisplay" class="form-control bstyle" value="">
+                <option value="1">仅显示别名</option>
+                <option value="2">仅显示别值</option>
+                <option value="3">显示别值+别名</option>
+            </select>
+        </div>
+    </div>
+    <div class="row form-horizontal">
+        <div class="col-sm-3">多选版式</div>
+        <div class="col-sm-7">
+            <select id="inputStyle" class="form-control bstyle" value="">
+                <option value="0" selected="selected">不更改</option>
+                <option value="1">竖版布局</option>
+                <option value="2">横版布局</option>
+            </select>
+        </div>
+    </div>
+    <div  id="voptionsTable" class="row" style="display: none;">
+        <table class="table table-bordered">
+            <tr>
+                <th>ID</th>
+                <th>EPM值</th>
+                <th>数据项</th>
+                <th>计算值</th>
+                <th>别值</th>
+                <th>排序值</th>
+                <th>隐藏<i class="fa fa-refresh btn" onclick="refreshDBValues();"></i></th>
+                <th>默认值</th>
+            </tr>
+            <tbody id="voptionsBody">
+            </tbody>
+        </table>
+    </div>
+    <table class="hidden">
+        <tr id="trNode">
+            <td class="col-sm-2">
+                <input type="text" class="c-id form-control" disabled="disabled"/>
+            </td>
+            <td class="col-sm-4">
+                <p class="c-voption_id"></p>
+                <p class="c-voption_name"></p>
+            </td>
+            <td class="col-sm-6">
+                <textarea class="c-alias form-control"></textarea>
+            </td>
+            <td class="col-sm-2">
+                <input type="text" class="c-cvalue form-control"/>
+            </td>
+            <td class="col-sm-2">
+                <input type="text" class="c-avalue form-control" disabled="disabled"/>
+            </td>
+            <td class="col-sm-2">
+                <button onclick="rowUp(this);"><i class="fa fa-arrow-up"></i></button>
+                <button onclick="rowDown(this);"><i class="fa fa-arrow-down"></i></button>
+            </td>
+            <td class="col-sm-4">
+                <select class="c-status form-control">
+                    <option value="0">显示</option>
+                    <option value="1">隐藏</option>
+                    <option value="2">新值</option>
+                    <option value="-1">已删除</option>
+                </select>
+            </td>
+            <td class="col-sm-2">
+            <input class="c-default" onclick="radioC(this);" data-checked="false"  type="radio" /> 
+            </td>
+</tr>
+    </table>
+    <!-- display:none -->
+    <div style="display:none">
+        <select class="form-control c-tpl-select c-element"><option value=''>请选择</option></select>
+        <label class="c-tpl-radio"><input type='radio' class="c-element" onclick="radioC(this);" data-checked='false'/></label>
+        <label class="c-tpl-checkbox"><input type='checkbox' class="c-element"/></label>
+        <div class="c-tip col-sm-offset-0 col-sm-4"></div>
+        <i class="c-hide-icon fa fa-h-square hLogo"></i>
+    </div>
+    <!-- display:none -->
+</div>
+<div id="info" class="alert alert-success alert-dismissable font-bold" style="display:none; position: absolute; left:38%;top:38%;z-index:10;">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+</div>
+<script type="text/javascript">
+$(function() {
+    var tempGrid = parent.getGrid();
+    var inputDIV = tempGrid.find(".c-input");
+    var element = tempGrid.find('.c-element:first');
+    var originalType = element.attr('data-type');
+    elementName = element.attr('name');
+    $("#ealiasType").val(originalType);
+    $("#c-tip").val(tempGrid.find('.c-tip').text());
+    $("#nameDisplay").val(element.attr('data-name-type'));
+
+    $.post(apiURL+'/EAliasSvr/model', {id:elementName}, function (res)
+    {
+        if (res.code == 0)
+        {
+            var dbAlias = res.data;
+            if(tempGrid.attr('data-c-title')){
+                $('#c-title').text(tempGrid.attr('data-c-title'));
+            }else{
+                $('#c-title').text(dbAlias.ALIAS);
+            }
+            if(dbAlias.data && dbAlias.data.length>0)
+            {
+                $('#voptionsTable').show();
+                var e2vAlias = dbAlias.data;
+                var voptionAlias = dbAlias.voptionName;
+                for(var i=0;i<e2vAlias.length;i++)
+                {
+                    var e2v = e2vAlias[i];
+                    var newNode = $('#trNode').clone();
+                    newNode.find('.c-id').val(e2v.ID);
+                    newNode.find('.c-voption_id').text(e2v.VOPTION_ID);
+                    newNode.find('.c-voption_name').text(voptionAlias[i]);
+                    newNode.find('.c-alias').val(e2v.ALIAS);
+                    newNode.find('.c-cvalue').val(e2v.CVALUE);
+                    newNode.find('.c-avalue').val(e2v.AVALUE);
+                    newNode.find('.c-status').val(e2v.STATUS);
+                    newNode.find('.c-default').val(e2v.ID);
+                    newNode.find('.c-default').attr("name", elementName);
+                    $('#voptionsBody').append(newNode);
+                }
+                $(".c-default").prop('checked', false);
+                $(".c-default[value='" + inputDIV.attr("data-dvalue") + "']").prop('checked', 'true');
+            }
+        }else{alert('API Error');}
+    }, 'json').error(function(res){console.log(res.responseText)});
+});
+
+function refreshDBValues(){
+    $.post(apiURL+'/VOptionSvr/refresh',{ealias_id:elementName}, function (res){
+        if (res.code == 0){
+            $('#info').show();
+            $('#info').text(res.data);
+            $('#info').delay (1500).fadeOut();
+        }else{alert('API Error');}
+    }, 'json').error(function(res){console.log(res.responseText)});
+}
+
+function btnSave(){
+    var tempGrid = parent.getGrid();
+    var inputDIV = tempGrid.find(".c-input");
+    var optionTRs = $('#voptionsBody').find('tr');
+    var ealiasType = $("#ealiasType").val();
+    var voptionArray = [];
+    if(optionTRs.length > 0)
+    {
+        if(ealiasType == 'S2')
+        {
+            selectSave(voptionArray, ealiasType);
+            var tempElement = tempGrid.find(".c-element");
+            if($("#ealiasType").find('option:selected').attr('data-select2')) tempElement.after(createSelectScript(tempElement.attr("name")));
+        }else if(ealiasType == 'L')
+        {
+            radioSave(voptionArray, "radio", ealiasType);
+        }else if(ealiasType == 'S3')
+        {
+            radioSave(voptionArray, "checkbox", ealiasType);
+        }else if(ealiasType == 'S4')
+        {
+            selectSave(voptionArray, ealiasType);
+            var tempElement = tempGrid.find(".c-element");
+            tempGrid.find(".c-element").attr('multiple','multiple');
+            if($("#ealiasType").find('option:selected').attr('data-select2')) tempElement.after(createSelectScript(tempElement.attr("name")));
+        }
+    }
+    
+    if ($(".c-default:checked").length > 0) {
+        inputDIV.attr("data-dvalue", $(".c-default:checked").val());
+    }else {
+        inputDIV.removeAttr("data-dvalue");
+    }
+    tempGrid.find('.c-title:first').text($('#c-title').val());
+    tempGrid.attr('data-c-title',$('#c-title').val());
+    setTip(tempGrid ,$("#c-tip").val());
+    var tempGridsInput = tempGrid.find(".c-input");
+    var inputStyle = $("#inputStyle").val();
+    if(inputStyle == 0){ }else if(inputStyle == 1){
+        tempGridsInput.addClass("list-group");
+        tempGridsInput.find("label").addClass("list-group-item");
+    }else{
+        tempGridsInput.removeClass("list-group");
+        tempGridsInput.find("label").removeClass("list-group-item");
+    }
+    $.ajax(
+    {
+        url: apiURL+"/EAliasSvr/save",
+        dataType: 'json',
+        async: false,
+        type: "post",
+        data: { id: elementName, alias: $('#c-title').val(), datatype:ealiasType, voptions: JSON.stringify(voptionArray) },
+        success: function (res)
+        {
+            if (res.code == 0){
+                parent.modalWin.modal("hide");
+            }else {
+                alert('API Error');
+            }
+        }, error: function(res){console.log(res.responseText)}
+     });
+}
+
+function rowUp(event) {
+    var thisTR = $(event).parent().parent();
+    var prev = thisTR.prev();
+    if(prev.length == 0) return false;
+    prev.before(thisTR);
+}
+
+function rowDown(event) {
+    var thisTR = $(event).parent().parent();
+    var next = thisTR.next();
+    if (next.length == 0) return false;
+    next.after(thisTR);
+}
+
+function radioSave(dataArray, type, selectType)
+{
+    var tempGrid = parent.getGrid();
+    var inputDIV = tempGrid.find(".c-input");
+    var firstElement = inputDIV.find(".c-element:first");
+    var elementName = firstElement.attr("name");
+    var dataChange = firstElement.attr("onchange");
+    var initLabel = $('.c-tpl-'+type).clone();
+    inputDIV.empty();
+
+    var optionTRs = $('#voptionsBody').find('tr');
+    for(var i=0; i<optionTRs.length; i++)
+    {
+        var tempTR = $(optionTRs[i]);
+        var tempAlias = tempTR.find('.c-alias').val();
+        if(tempTR.find('.c-status').val() == 0)
+        {
+            var tempRadio = initLabel.clone();
+            var newNode = tempRadio.find('.c-element:first');
+            newNode.val(tempTR.find('.c-id').val());
+            newNode.attr('title', tempAlias);
+            newNode.attr('data-vid',tempTR.find('.c-voption_id').text());
+            newNode.attr('data-avalue',tempTR.find('.c-avalue').val());
+            newNode.attr('data-cvalue',tempTR.find('.c-cvalue').val());
+            newNode.attr('name', elementName);
+            newNode.attr("data-type", selectType);
+            newNode.attr("data-name-type", $("#nameDisplay").val());
+            tempRadio.append(nameDisplay(tempTR.find('.c-avalue').val(), tempAlias));
+            tempRadio.css("margin-right", 10);
+            if(inputDIV.hasClass("list-group"))
+            {
+                tempRadio.addClass('list-group-item');
+            }
+            if(dataChange)
+            {
+                newNode.attr('onchange', dataChange);
+            }
+
+            inputDIV.append(tempRadio);
+        }
+
+        dataInfo(tempTR, tempAlias, i, dataArray);
+    }
+}
+
+function selectSave(dataArray, selectType){
+    var tempGrid = parent.getGrid();
+    var inputDIV = tempGrid.find(".c-input");
+    var firstElement = inputDIV.find(".c-element:first");
+    var elementName = firstElement.attr("name");
+    var dataChange = firstElement.attr("onchange");
+    var tempSelect = $('.c-tpl-select').clone();
+    tempSelect.attr("data-type",selectType);
+    tempSelect.attr("data-name-type",$("#nameDisplay").val());
+    if(dataChange){tempSelect.attr("onchange",dataChange);}
+
+    var optionTRs = $('#voptionsBody').find('tr');
+    for(var i=0;i<optionTRs.length;i++){
+        var tempTR = $(optionTRs[i]);
+        var tempAlias = tempTR.find('.c-alias').val();
+        if(tempTR.find('.c-status').val() == 0)
+        {
+            var optionObj = tempSelect.find("option:first").clone();
+            optionObj.val(tempTR.find('.c-id').val());
+            optionObj.attr('id', "e2v_"+tempTR.find('.c-id').val());
+            optionObj.attr('data-vid',tempTR.find('.c-voption_id').text());
+            optionObj.attr('data-avalue',tempTR.find('.c-avalue').val());
+            optionObj.attr('data-cvalue',tempTR.find('.c-cvalue').val());
+            optionObj.html(nameDisplay(tempTR.find('.c-avalue').val(), tempAlias));
+            tempSelect.append(optionObj);
+        }else
+        {
+            tempSelect.remove();
+        }
+
+        dataInfo(tempTR, tempAlias, i, dataArray);
+    }
+    inputDIV.empty();
+    inputDIV.append(tempSelect);
+    tempGrid.find('.c-tpl-select').attr("id",tempGrid.find(".c-element:first").attr("id"));
+    tempGrid.find('.c-tpl-select').attr("name", elementName);
+}
+
+function dataInfo(tempTR, tempAlias, i, dataArray){
+    var tempObj = {};
+    tempObj.id = tempTR.find('.c-id').val();
+    tempObj.voption_id = tempTR.find('.c-voption_id').text();
+    tempObj.ealias_id = elementName;
+    tempObj.alias = tempAlias;
+    tempObj.avalue =  tempTR.find('.c-avalue').val();
+    tempObj.cvalue =  tempTR.find('.c-cvalue').val();
+    tempObj.sorter = i;
+    tempObj.status =  tempTR.find('.c-status').val();
+    dataArray.push(tempObj);    
+}
+
+function nameDisplay(Avalue, Alias){
+    var nameDisplay = $("#nameDisplay").val();
+    if(nameDisplay == 1){
+        return Alias;
+    }else if(nameDisplay == 2){
+        return Avalue;
+    }else if(nameDisplay == 3){
+        return Avalue + '.' + Alias;
+    }
+}
+</script>
+</body>

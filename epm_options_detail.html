@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>值域详细信息</title>
+	<link href="./libs/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+	<link href="./libs/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet">
+	<link href="./libs/plugins/bootstrap-modal/css/bootstrap-modal.css" rel=" stylesheet">
+	<link href="./libs/plugins/bootstrap-toastr/toastr.min.css" rel=" stylesheet">
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/select2/css/select2.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/animate.css" rel="stylesheet">
+	<link href="./libs/epm.css" rel="stylesheet">
+	<link href="https://cdn.bootcss.com/pace/1.0.2/themes/silver/pace-theme-loading-bar.css" rel="stylesheet" />
+	<script src="https://cdn.bootcss.com/pace/1.0.2/pace.js"></script>
+	<script src="./libs/plugins/jquery.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+	<script src="./libs/plugins/bootstrap-toastr/toastr.min.js"></script>
+	<script src="./libs/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+	<script src="./libs/epm.js"></script>
+	<script src="./libs/plugins/scrollfix/scrollfix.js"></script>
+	<script src='./libs/vue.js' type='text/javascript'></script>
+	<script src='./libs/vue-resource.js' type='text/javascript'></script>
+</head>
+<body style="background: #eff3f8;" >
+<div class="cde-header">
+	<div class="cde-logo col-sm-4">
+		<a href="#/">
+			<img src="./libs/image/logo_4.png" alt="logo" class="logo-default">
+		</a>
+	</div>
+</div>
+<div class="epm-detail container" id="eVoptionsM">
+	<div class="epm-detail-title">
+		{{dataM.METADATAFIELD_NAME}}
+	</div>
+	<div class="detail-wrapper">
+		<div class="detail-name">属性与代码表</div>
+		<div class="detail-attribute">定义</div>
+		<div>
+			<div class="detail-info">
+				<div class="col-xs-3 text-right">值域名称：</div>
+				<div class="col-xs-9 text-left">{{dataM.METADATAFIELD_NAME}}</div>
+				<div class="clearfix"></div>
+			</div>
+			<div class="detail-info">
+				<div class="col-xs-3 text-right">值域标识符：</div>
+				<div class="col-xs-9 text-left">{{dataM.FIELDCODE_TABLECODE}}</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+		<div class="detail-attribute">代码表</div>
+		<div class="detail-info">
+			<div class="col-xs-3 text-right">值&nbsp;&nbsp;&nbsp;</div>
+			<div class="col-xs-9 text-left">值含义</div>
+			<div class="clearfix"></div>
+		</div>
+		<div v-for="(voption,index) in dataM.VOPTIONS" :key="index">
+			<div class="detail-info">
+				<div class="col-xs-3 text-right">{{voption.FIELDCODE_VALUE}}&nbsp;&nbsp;&nbsp;</div>
+				<div class="col-xs-9 text-left">{{voption.FIELDCODE_VALUE_CN_NAME}}</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+		<div class="detail-name">关系</div>
+		<div class="detail-attribute">相关数据元</div>
+		<div class="detail-info">
+			<div class="col-xs-3 text-right">引用该值域的数据元：</div>
+			<div class="col-xs-9 text-left">
+				<div v-if="dataM.ELEMENTS == 0">暂无机构</div>
+				<div v-for="(ele,index) in dataM.ELEMENTS" :key="index">
+					<a :href="globalHref + 'epm_eles_detail.html?code=' + ele.METADATA_IDENTIFY" target="_blank">{{ele.METADATA_NAME}}</a>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+		<div class="detail-name">来源</div>
+		<div class="detail-attribute">标准</div>
+		<div class="detail-info">
+			<div class="col-xs-3 text-right">数据来源：</div>
+			<div class="col-xs-9 text-left">EPM</div>
+			<div class="clearfix"></div>
+		</div>
+	</div>
+</div>
+<div class="cde-footer">
+	<div class="container-fluid ng-scope">
+		2017 © <a href="http://www.goodwillcis.com/" title="北京嘉和美康信息技术有限公司 | 科研事业部" target="_blank">北京嘉和美康信息技术有限公司 | 科研事业部</a>
+	</div>
+</div>
+<script>
+$(function(){
+	eVoptionsM = new Vue({
+		el : '#eVoptionsM',
+		data : {
+			dataM: {},
+		}
+	});
+	window.code = get_url_param('code');
+	eVoptionsM.$http({
+		url :globalURL+'/EPMSvr/vopInfos',
+		method : 'post',
+		params : {"code": code},
+		headers : {"X-Requested-With": "XMLHttpRequest"}
+	}).then(function(res){
+		this.dataM = res.data.data;
+	}, function(err){ parent.toastr.error(err); });
+});
+</script>
+</body>
+</html>

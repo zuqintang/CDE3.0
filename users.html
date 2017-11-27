@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+    <link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="./libs/editor.css">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-paginator.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/angular.js"></script>
+    <script src="./libs/editor.js"></script>
+    <script src="./libs/bootbox.js"></script>
+<script>
+var app = angular.module('app', [], function($controllerProvider,$provide){
+
+	$controllerProvider.register('search', function($scope,$http){
+		// 查找
+		search(1,$scope,$http);
+		$scope.searchUsers = function(){
+			search(1,$scope,$http);
+		}
+		// 弹出框
+		$scope.addHide =function(id,username,password,realname){
+			id =id || '';
+			username =username || '';
+			password =password || '';
+			realname =realname || '';
+			$scope.id =id;
+			$scope.username =username;
+			$scope.password =password;
+			$scope.realname =realname;
+			$('#modalWin').modal({ show: true });
+		}
+		// 删除
+		$scope.remove=function(index){
+            confirm('确认要删除吗？', function(){
+                $http.post(apiURL+'/UserSvr/deleteUsers',{
+					id:index
+				},{
+					headers :{ 'Content-Type': 'application/x-www-form-urlencoded' },
+					transformRequest :function (data) {
+   						return $.param(data);
+					}
+				}).success(function(res){
+					search(1,$scope,$http);
+				}).error(function(res){
+					alert('删除失败！');
+				});
+            })
+		}
+		// 添加/修改
+		$scope.revise=function(){
+            confirm('确认要修改(添加)吗？', function(){
+                $http.post(apiURL+'/UserSvr/insertOrUpdate',{
+					id:$scope.id,
+					username:$scope.username,
+					password:$scope.password,
+					realname:$scope.realname
+				},{
+					headers :{ 'Content-Type': 'application/x-www-form-urlencoded' },
+					transformRequest :function (data) {
+   						return $.param(data);
+					}
+				}).success(function(res){
+					console.log(res)
+					search(1,$scope,$http);
+					$('#modalWin').modal("hide");
+				}).error(function(res){
+					alert('修改(添加)失败！');
+				});
+            });
+		}
+	});
+});
+
+function search(currentPage,$scope,$http){
+	$http.post(apiURL+'/UserSvr/allUsers',{
+		keyword :$scope.keyword,
+		p :currentPage
+	},{
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		transformRequest: function (data) {
+       		return $.param(data);
+    	}
+	}).success(function(res){
+		$scope.data = res.data;
+		if(res.data.length ==0){
+			alert('搜索不到此用户！');
+			return false;
+		}
+		$('#pager').bootstrapPaginator({
+			bootstrapMajorVersion:3,
+			currentPage: currentPage,
+			totalPages: res.countPage,
+			numberOfPages: 10,
+			onPageClicked: function(e, originalEvent, type, page)
+			{
+                currentPage = page;
+                search(page,$scope,$http);
+			}
+		});
+	}).error(function(){
+		alert('获取用户信息失败！');
+	});
+}
+</script>
+</head>
+<body>
+<div class="panel-heading bg-primary" style="height: 60px;margin-bottom: 15px;">
+	<div class="fa fa-users col-md-1" style="font-size:40px;"></div>
+	<div class="col-md-23" style="font-size:25px;">用户管理系统</div>
+</div>
+<div class="container" ng-controller="search">
+	<div class="row">
+		<div class="form-inline" style="margin:8px 0;">
+			<input type="text" class="form-control" placeholder="请输入用户名或真实姓名" style="width:221px;" ng-model="keyword"/>
+			<button class="btn btn-default" title="检索" ng-click="searchUsers()"><li class="fa fa-search"></li></button>
+			<button class="btn btn-default" title="新建" ng-click="addHide()"><li class="fa fa-plus"></li></button>
+		</div>
+		<table class="table table-bordered table-hover table-condensed">
+			<thead>
+				<tr class="active">
+					<th nowrap>序号</th>
+					<th nowrap>用户名</th>
+					<th nowrap>密码</th>
+		            <th nowrap>真实姓名</th>
+					<th style="width:130px;" nowrap>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="iterm in data">
+					<td nowrap>
+						{{iterm.id}}
+					</td>
+					<td nowrap>{{iterm.username}}</td>
+					<td nowrap><input type="password" disabled="disabled" ng-model="iterm.password" style="border:none;background: none;"></td>
+					<td nowrap>{{iterm.realname}}</td>
+					<td nowrap>
+						<a href="javascript:;" class="btn btn-primary" title="修改" ng-click="addHide(iterm.id,iterm.username,iterm.password,iterm.realname)">修改</a>
+						<a href="javascript:;" class="btn btn-danger" title="删除" ng-click="remove(iterm.id)">删除</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<ul id="pager"></ul>
+	</div>
+	<div id="modalWin" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	    <div id="dragWin" class="modal-dialog" style="width: 80%;height: 90%;">
+			<div class="bg-primary col-sm-24" style="z-index: 10;">
+			    <button type="button" class="close btn btn-primary" data-dismiss="modal">
+			        <i class="fa fa-close"></i>
+			    </button>
+			</div>
+			<div class="modal-content" style="width: 100%;height: 100%">
+				<div class="col-sm-24 form-horizontal" style="min-height:400px;">
+			        <h2>用户管理</h2>
+			        <div class="col-sm-6">
+			            <input class="requireInfo form-control" type="text" placeholder="序号（不可改）" disabled="disabled" class="form-control" ng-model="id"/>
+			        </div>
+			        <div class="col-sm-6">
+			            <input class="requireInfo form-control" type="text" placeholder="请输入用户名" class="form-control" ng-model="username"/>
+			        </div>
+			        <div class="col-sm-6">
+			            <input class="requireInfo form-control" type="password" placeholder="请输入密码" class="form-control" ng-model="password"/>
+			        </div>
+			        <div class="col-sm-6">
+			             <input class="requireInfo form-control" type="text" placeholder="请输入真实姓名" class="form-control" ng-model="realname"/>
+			        </div>
+			    </div>
+			    <div class="panel-footer text-center" style="border:0px;border-top:1px solid #ddd;background:#fff;">
+		            <input id="tempGridsaveInput" type="button" value="确定" class="btn btn-primary" ng-click="revise()" />
+		        </div>
+			</div>
+	    </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

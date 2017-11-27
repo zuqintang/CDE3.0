@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>数据元管理</title>
+	<link href="./libs/editor.css" rel="stylesheet" type="text/css" />
+	<link href="./libs/bootstrap.css" rel="stylesheet" />
+	<link href="./libs/font-awesome.css" rel="stylesheet" type="text/css" />
+	<link href="./libs/select2.css" rel="stylesheet">
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/editor.js"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/select2.js"></script>
+</head>
+<body>
+<div class="container-full">
+	<form method="post" action=apiURL+'/CRFSvr/atmlStr' enctype="multipart/form-data">
+		<h3>导入Excel表：</h3><input  type="file" name="file_stu" />
+		<input type='submit'  class='btn btn-primary' value="导入" style='padding: 3px 10px;margin-top:30px;'/>
+	</form>
+</div>
+</body>
+</html>

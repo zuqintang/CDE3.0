@@ -1,0 +1,262 @@
+ <!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>修改数据元类型</title>
+    <link href="./libs/bootstrap.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet">
+    <link href="./libs/editor.css" rel="stylesheet">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/editor.js"></script>
+    <script src="./libs/pickcity/pickCity.js"></script>
+</head>
+<body>
+<div class="temp-content" style="padding:20px;">
+    <div class="col-sm-12">
+        <div class="col-sm-6 temp-content-node">
+            <div class="col-sm-2 temp-content-title">标题</div>
+            <div class="col-sm-9 temp-content-input">
+                <input id="c_c-title" class="form-control" />
+                <!--<div class="validtips">-->
+                    <!--<span class="validtip2">标题不能为空</span>-->
+                <!--</div>-->
+            </div>
+        </div>
+        <div class="col-sm-6 temp-content-node">
+            <div class="col-sm-2 temp-content-title">数据元类型</div>
+            <div class="col-sm-9 temp-content-input">
+                <select id="selectType" onchange="typeChange();" class="form-control">
+                    <optgroup label="输入类">
+                        <!-- TODO 顺雨 输入框、单选多选设置默认值功能-->
+                        <option value="S1">输入框</option>
+                        <option value="S">输入框(S)</option>
+                        <option value="BY">输入框(BY)</option>
+                        <option value="N">数值框</option>
+                    </optgroup>
+                    <optgroup label="时间类">
+                        <option value="D">日期</option>
+                        <option value="T">时间</option>
+                        <option value="DT">日期时间</option>
+                    </optgroup>
+                    <optgroup label="非EPM类">
+                        <option value="TA">多行文本框</option>
+                        <option value="RULER">刻度尺</option>
+                        <option value="FILE">附件</option>
+                        <option value="FILEP">附件图片</option>
+                        <!-- TODO 低 地址字典的接口对接 -->
+                        <!--<option value="ADR">地址字典</option>-->
+                        <option value="LINK">路径引导型</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-6 temp-content-node">
+        <div class="col-sm-2 temp-content-title">备注</div>
+        <div class="col-sm-9 temp-content-input">
+            <textarea id="c_c-tip" class="form-control"></textarea>
+        </div>
+    </div>
+        <div class="col-sm-6">
+            <div class="col-sm-12 temp-content-node c-cfg" id="c_dateBox">
+                <div class="col-sm-2 temp-content-title">控件格式</div>
+                <div class="col-sm-9 temp-content-input">
+                    <select id="c_sDateType" class="form-control bstyle">
+                        <option value="yyyy-MM-dd">年-月-日</option>
+                        <option value="yyyy-MM-dd HH:mm:ss">年-月-日 时:分:秒</option>
+                        <option value="yyyy-MM">年-月</option>
+                        <option value="yyyy年MM月dd日">年月日</option>
+                        <option value="yyyy年MM月dd日 HH时mm分ss秒">年月日时分秒</option>
+                        <option value="yyyy年MM月">年月</option>
+                        <option value="yyyy年">年</option>
+                        <option value="yyyy年MM月dd日 HH时mm分">年月日时分</option>
+                        <option value="MM月dd日">月日</option>
+                        <option value="HH时mm分ss秒">时分秒</option>
+                        <option value="HH时mm分">时分</option>
+                    </select>
+                    <div class="isadduk_con"  style="display:none">
+                        <input type="checkbox" name="isAddUK" id="isAddUK">
+                        <label for="isAddUK" class="temp-content-title">添加UK选项</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display:none">
+    <input type='text' class="form-control c-tpl-text c-element"/>
+    <input type='number' class="form-control c-tpl-number c-element"/>
+    <input class="form-control c-tpl-date c-element" type="text" />
+    <textarea class="form-control c-tpl-textarea c-element" ></textarea>
+    <input type="file" class="c-tpl-file c-element" />
+    <div class="con4 c-tpl-filep c-element">
+        <div class="picture">请插入图片</div>
+        <span class="btn1 upload"><input type="file" class="upload_pic" onchange="zh_readFile(this)" />插入图片</span>
+        <span class="btn2 upload"><input type="button" class="upload_pic" onclick="zh_removePic(this)" />x</span>
+    </div>
+    <input type='text' class="form-control c-tpl-citys c-element"/>
+
+    <!-- 刻度尺2 -->
+    <div class="c-tpl-range">
+      <input type="hidden" class="single-slider c-element" value="0" data-min="0" data-max="100" data-step="1"/>
+    </div>
+
+    <div class="c-tip col-sm-offset-0 col-sm-4"></div>
+</div>
+
+<div id="info" class="alert alert-success alert-dismissable fb" style="display:none; position: absolute; left:38%;top:38%;z-index:10;">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+</div>
+
+<script type="text/javascript">
+$(function() {
+    $(".c-cfg").hide();
+    var tempGrid = parent.getGrid();
+    var element = tempGrid.find('.c-element:first');
+    elementName = tempGrid.find('[data-type]').attr('name');
+    originalType = tempGrid.find('[data-type]').attr('data-type');
+
+    dateInput = tempGrid.find('.Wdate');
+    if(dateInput.length > 0 ){
+        if(dateInput.attr('data-ukexist') == 'true'){
+            $('#isAddUK').attr('checked',true);
+            $('.isadduk_con').css('display', 'block');            
+        }else{
+            $('#isAddUK').attr('checked',false);
+            $('.isadduk_con').css('display', 'none');
+        }
+        $('#c_sDateType').val(dateInput.attr('data-dateformat'));
+    }
+    
+    $("#selectType").val(originalType).change();
+    if(tempGrid.attr('data-c-title')){
+        $('#c_c-title').val(tempGrid.attr('data-c-title'));
+    }else{
+        $('#c_c-title').val(tempGrid.find('.c-title').html());
+    }
+    $("#c_c-tip").val(tempGrid.find('.c-tip').html());
+});
+
+function typeChange() {
+    $(".c-cfg").hide();
+    var inputType = $("#selectType").val();
+    if(inputType=='DT' || inputType=='D' || inputType=='T') $("#c_dateBox").show();
+}
+
+function btnSave() {
+    var selectType = $("#selectType").val();
+    var tempGrid = parent.getGrid();
+    var id = tempGrid.find(".c-element:first").attr("id");
+    var name = tempGrid.find(".c-element:first").attr("name");
+
+    var newNode;
+    if(selectType=='DT' || selectType=='D' || selectType=='T'){
+        var date_format = $('#c_sDateType').val();
+        newNode = $('.c-tpl-date').clone();
+        newNode.addClass("Wdate");
+        if(date_format == 'multiple') {
+            isMultipleData = true;
+        }else{
+            newNode.attr("onClick", "WdatePicker({dateFmt:'" + date_format + "',})");
+        }
+
+        var ukCon = $('#_my97DP iframe', window.parent.document).contents().find('.UK_con');
+        ukCon.find('.uk_btn input').attr('checked', false);
+        if( $('#isAddUK').is(':checked')){
+            if(date_format == 'yyyy-MM-dd' || date_format == 'yyyy年MM月dd日'){
+                ukCon.find('#ukDate').css('visibility', 'visible');
+                ukCon.css('display', 'block');
+                newNode.attr('data-ukexist', true);
+            }else if(date_format == 'yyyy-MM' || date_format == 'yyyy年MM月'){
+                ukCon.find('#ukDate').css('visibility', 'hidden');
+                ukCon.css('display', 'block');
+                newNode.attr('data-ukexist', true);
+            }else{
+                ukCon.css('display', 'none');
+                newNode.attr('data-ukexist', false);
+            }
+        }else{
+            ukCon.css('display', 'none');
+            newNode.attr('data-ukexist', false);
+        }
+        newNode.attr('data-dateformat', date_format);
+        
+    }else if(selectType=='N')
+    {
+        newNode = $('.c-tpl-number').clone();
+    }else if(selectType=='S1' || selectType=='S' || selectType=='BY')
+    {
+        newNode = $('.c-tpl-text').clone();
+    }else if(selectType=='TA')
+    {
+        newNode = $('.c-tpl-textarea').clone();
+    }else if(selectType=='FILE')
+    {
+        newNode = $('.c-tpl-file').clone();
+    }else if(selectType=='FILEP')
+    {
+        newNode = $('.c-tpl-filep').clone();
+    }
+    // else if(selectType=='ADR')
+    // {
+    //     newNode = $('.c-tpl-citys').clone();
+    // }
+    else if(selectType=='LINK')
+    {
+        newNode = $('.c-tpl-text').clone();
+        newNode.attr("data-show-type", "link");
+    }else if(selectType=='RULER')
+    {
+        newNode = $('.c-tpl-range').clone();
+        var script = createRangeScript(name, 0, 100, 1);
+        newNode.append(script);
+    }
+    //附上特有值，append到页面
+    if(selectType=='RULER'){
+        newNode.find(".c-element").attr("id",id);
+        newNode.find(".c-element").attr("name",name);
+        newNode.find(".c-element").attr("data-type",selectType);
+    }else{
+        newNode.attr("id",id);
+        newNode.attr("name",name);
+        newNode.attr("data-type",selectType);
+    }
+    tempGrid.find(".c-input").empty();
+    tempGrid.find(".c-input").append(newNode);
+
+    //添加备注
+    tempGrid.find('.c-title:first').text($('#c_c-title').val());
+    tempGrid.attr('data-c-title',$('#c_c-title').val());
+    setTip(tempGrid ,$("#c_c-tip").val());
+    //存数据
+    $.ajax(
+    {
+        url: apiURL+"/EAliasSvr/save",
+        dataType: 'json',
+        async: false,
+        type: "post",
+        data: { id: elementName, alias: $('#c_c-title').val(), datatype:selectType, voptions: JSON.stringify([]) },
+        success: function (res)
+        {
+            if (res.code == 0)
+            {
+                parent.modalWin.modal("hide");
+            } else {
+                console.log(res.code)
+                alert('API Error');
+            }
+        }, error: function(res){console.log(res.responseText)}
+    });
+}
+
+$('#c_sDateType').on('change', function(){
+    var dataVal = $(this).val();
+    if(dataVal == 'yyyy-MM-dd' || dataVal == 'yyyy-MM' || dataVal == 'yyyy年MM月dd日' || dataVal == 'yyyy年MM月'){
+        $('.isadduk_con').css('display', 'block');
+    }else{
+        $('.isadduk_con').css('display', 'none');
+        $('#isAddUK').attr('checked',false);
+    }
+});
+</script>
+</body>

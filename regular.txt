@@ -1,0 +1,30 @@
+1.共享变量
+
+2. CSS
+   网格DIV        .c-grid
+                        .c-content-input
+       标题LABEL  .c-title
+       控件DIV        .c-input
+            数据元           .c-element
+       备注DIV        .c-tip
+
+c-grid  [c-input][input/select name]
+
+<div class="c-grid">
+    <label class="c-title"></label>
+    <div class="c-input">
+        <input class="c-element" name="METADATA_IDENTIFY_templateid">
+        <select class="c-element" name="同上">
+    <div class="c-tip">
+<div id="GUID" class=".c-input"
+<input id="GUID" name="ID_ID" type="text|radio|checkbox">
+<select name="GUID1>
+<textarea name="GUID1>
+
+
+3. ID
+  网格/控件  GUID
+
+4. 代码
+    JS和控件:  先自己写，再 抽取全局JS
+    控件里存变量的位置:  同一个网格里面用用hidden带自定义class区分

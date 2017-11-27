@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>SQl</title>
+    <link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+    <link href="./libs/font-awesome.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="./libs/editor.css">
+    <script src="./libs/jquery-1.12.4.js"></script>
+    <script src="./libs/bootstrap-paginator.js"></script>
+    <script src="./libs/bootstrap-3.3.7.js"></script>
+    <script src="./libs/angular.js"></script>
+    <script src="./libs/editor.js"></script>
+</head>
+<script type="text/javascript">
+var res_sql = angular.module('app', [], function($controllerProvider,$provide){
+	$controllerProvider.register('search', function($scope,$http){
+		$scope.execute=function(){
+			$http.post(apiURL+'/UserSvr/usersCount',{
+				sql:$scope.sql
+			},{
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				transformRequest: function (data) {
+		       		return $.param(data);
+		    	}
+			}).success(function(res){
+				var titleArr = [];
+				for(var name in res.data[0]){
+					titleArr.push(name);
+				}
+				$scope.title = titleArr;
+				$scope.data = res.data;
+			});
+		}
+		
+	});
+});
+</script>
+<body>
+<div class="panel-heading bg-primary" style="height: 60px;margin-bottom: 15px;">
+	<div class="fa fa-shopping-bag col-md-1" style="font-size:40px;"></div>
+	<div class="col-md-23" style="font-size:25px;">SQL</div>
+</div>
+<div ng-controller="search" class="container">
+	<div style="margin-bottom:15px;">
+		<div class="col-sm-20" style="padding-left:0px;">
+				<input type="text" class="form-control col-sm-10" ng-model='sql' placeholder="请输入SQL语句">
+		</div>
+		<div class="col-sm-4" style="padding-left:0px;">
+			<a class="btn btn-primary " ng-click="execute();">执行</a>
+		</div>
+		<div class="clearfix"></div>
+	</div>
+	<div style="margin-bottom: 5px;height: 510px;border:1px solid #ddd;width:90%;overflow:auto;">
+			<table class="table table-bordered table-hover table-condensed">
+				<thead>
+				<tr>
+					<th ng-repeat="iterm in title">{{iterm}}</th>
+				</tr>
+				</thead>
+				<tbody >
+					<tr ng-repeat="itermData in data">
+						<td nowrap  ng-repeat="iterm in title">{{itermData[iterm]}}</td>
+					</tr>
+				</tbody>
+			</table>
+	</div>
+</div>
+</body>
+</html>

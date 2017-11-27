@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>CDE编辑器2.0</title>
+	<link href="./libs/editor.css" rel="stylesheet">
+	<link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+	<link href="./libs/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+	<link href="./libs/font-awesome.css" rel="stylesheet">
+	<link href="./libs/select2.css" rel="stylesheet">
+	<link href="./libs/zTreeStyle/zTreeStyle.css" rel="stylesheet">
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+	<script src="./libs/editor.js"></script>
+	<script src="./libs/select2.js"></script>
+	<script src="./libs/jquery.ztree.all-3.5.js"></script>
+</head>
+<body>
+<div class="container">
+	<div class="col-sm-24 form-horizontal">
+		<div class="form-group">
+			<label class="control-label col-sm-2">名称：</label>
+			<div class="col-sm-5">
+				<input id="name" type="text" class="form-control" />
+			</div>
+			<label class="control-label col-sm-2">样式：</label>
+			<div class="col-sm-4">
+				<select id="style_padding" class="form-control">
+					<option value="moderate">适中布局</option>
+					<option value="moderate-bold">适中布局标题加粗</option>
+					<option value="compact">紧凑布局</option>
+					<option value="compact-bold">紧凑布局标题加粗</option>
+				</select>
+			</div>
+			<label class="control-label col-sm-2">色调：</label>
+			<div class="col-sm-3">
+				<select id="style_color" class="form-control">
+					<option value="blue" selected="selected">蓝色调</option>
+				</select>
+			</div>
+			<label class="control-label col-sm-2 label-paddding">排序：</label>
+			<div class="col-sm-2">
+				<input id="sorter" type="text" class="form-control" />
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-2">类型：</label>
+			<div class="col-sm-7">
+				<select id="gridID" class="form-control createTree" style="width: 100%;" onchange = 'changeHid();'>
+					<option value="0">全部</option>
+				</select>
+			</div>
+			<div class="col-sm-7">
+				<select id="hid" class="form-control createTree" style="width: 100%;" onchange = 'changePid();'></select>
+			</div>
+			<div class="col-sm-6">
+				<select id="pid" class="form-control createTree" style="width: 100%;" ></select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-2">备注：</label>
+			<div class="col-sm-20">
+				<textarea id="tip" class="form-control" style='height:245px;'></textarea>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function () 
+{
+	treeData = createTree();
+	showSetting();
+});
+
+function changeHid(){
+	$('#hid').html('');
+	if($('#gridID').val() == '0'){
+		createSelect2($('#hid'), '', '');
+	}else{
+		createSelect2($('#hid'), treeData, $('#gridID').val());
+	}
+}
+
+function changePid(){
+	$('#pid').html('');
+	if($('#hid').val() == null){
+		createSelect2($('#pid'), '', '');
+	}else{
+		createSelect2($('#pid'), treeData, $('#hid').val());
+	}
+}
+
+function showSetting() 
+{
+	if(parent.template_id == 0)
+	{
+		createSelect2($('#gridID'), treeData, '0');
+		return false;
+	}
+	$.post(apiURL+'/CRFSvr/model', { id: parent.template_id }, function (res)
+	{
+		if (res.code == 0) 
+		{
+            var tpl = res.data;
+			window.template = tpl;
+			$('#name').val(tpl.NAME);
+
+			createSelect2($('#gridID'), treeData, '0', tpl.ZID);
+			createSelect2($('#hid'), treeData, '', tpl.HID);
+			createSelect2($('#pid'), treeData, '', tpl.PID);
+            $('#tip').val(tpl.TIP);
+            $('#sorter').val(tpl.SORTER);
+            if(tpl.STYLE_PADDING && tpl.STYLE_COLOR)
+            {
+                $('#style_padding').val(tpl.STYLE_PADDING);
+                $('#style_color').val(tpl.STYLE_COLOR);
+                $("#bootstrap-style").attr("href", "./libs/bootstrap-" + res.data.STYLE_PADDING + "-" + res.data.STYLE_COLOR + ".css");
+            }
+		}
+	}, 'json');
+}
+
+function removeOther(value){
+	var reg = /#*▪ /;
+	var str = value.replace(reg,'');
+	return str;
+}
+
+function btnSave() 
+{
+	var name = $('#name').val();
+	var hid = $('#hid').val();
+    var hname = $('#hid').find("option:selected").text();
+	hname = removeOther(hname);
+	var pid = $('#pid').val();
+    var pname = $('#pid').find("option:selected").text();
+	pname = removeOther(pname);
+	var style_padding = $('#style_padding').val();
+	var style_color = $('#style_color').val();
+	var tip = $('#tip').val();
+	var username = localStorage.r_username;
+	var sorter = parseInt($('#sorter').val());
+    if(sorter){}else{ sorter=0; }
+
+	if ($.isEmptyObject(username)) {
+		location = "login.html";
+	}
+
+	var	zID = $('#gridID').val();
+	showTip('更改中...');
+	$.post(apiURL+'/CRFSvr/insertOrUpdate', { ID: parent.template_id, NAME: name, ZID:zID, HID: hid,
+		PID: pid, HNAME:hname, PNAME:pname, STYLE_PADDING: style_padding, STYLE_COLOR: style_color, TIP: tip, CREATE_MAN:username, SORTER:sorter},
+	function (res) 
+	{
+		if (res.code == 0) 
+		{
+			var style = parent.$("#bootstrap-style");
+            if(style.length > 0)
+            {
+                style.attr("href", "./libs/bootstrap-" + style_padding + "-" + style_color + ".css");
+            }
+            if(parent.search)
+            {
+                parent.search();
+            }
+			parent.modalWin.modal("hide");
+		}
+		else 
+		{
+            swal(res.data);
+		}
+	}, 'json');
+}
+</script>
+</body>
+</html>

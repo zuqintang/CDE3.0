@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-cn" style="height: 100%;">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>公式字典</title>
+	<link href="./libs/bootstrap.css" rel="stylesheet" />
+	<link href="./libs/font-awesome.css" rel="stylesheet">
+	<link href="./libs/zTreeStyle/zTreeStyle.css" rel="stylesheet">
+	<link href="./libs/select2.css" rel="stylesheet">
+	<link href="./libs/editor.css" rel="stylesheet" type="text/css" />
+	<link href="./libs/slider.css" rel="stylesheet" type="text/css" />
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/editor.js"></script>
+	<script src="./libs/select2.js"></script>
+	<script src="./libs/bootbox.js"></script>
+	<script src='./libs/vue.js' type='text/javascript'></script>
+</head>
+<body style="height: 100%;">
+<div id="formulas_manage" class="formula-des-wrapper" style="background-color: #F5F6F7; padding: 10px 5px 0px 5px; height: 100%; border-left:2px solid #EDEDED;">
+	<div class="input-group">
+		<select id="keyword" class="form-control" onchange="search();"></select>
+		<span class="input-group-addon searchBtn" onclick="search(1);" style="font-size:15px;"><li class="fa fa-search"></li></span>
+		<span onclick="setSorter();search();" class="input-group-addon sorterBtn" title="时间排序" style="font-size:15px;"><li id="sorterIcon" class="fa fa-sort-numeric-desc"></li></span>
+	</div>
+	<div class="row" style="margin-top: 7px; border: 1px solid #EDEDED; border-radius: 4px; font-size: 12px;color:#91959C;">
+		<table id="tableBody" class="table table-bordered table-hover" style="margin:0;">
+			<tbody id="tBody">
+				<tr class="viewNode" v-for="(option,index) in dataM" style="position: relative;" :key="index">
+					<td class="c-name" :data-info="JSON.stringify(option)">
+						<label>{{option.DESCRIPTION}}</label>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="col-sm-12 side-pager-con">
+			<ul id="pager"></ul>
+		</div>
+	</div>
+	<div style="display: none;" >
+		<div class="preview" style="max-height: 300px; position: absolute;z-index: 30;background-color: #fff;padding: 0; border: solid 1px #cccccc; overflow: auto;box-shadow:4px 4px 8px #ccc;border-radius: 5px 5px 0 0;">
+			<div class="">
+				<h5 class="editor_name popover-title" style="margin:0;background:#fcf8e3!important"></h5>
+			</div>
+			<div >
+				<table class='table table-hover' style="margin-bottom: 0;table-layout:fixed;">
+					<thead>
+					<tr><th style="border-bottom:0px;">参数</th><th class="text-center" style="border-bottom:0px;">说明</th></tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function () {
+	formulasM = new Vue({
+		el : '#formulas_manage',
+		data : {
+			dataM : [],
+		}
+	});
+	getFormulaSelect2();
+	desc='asc';
+	search(1);
+	pre_info();
+});
+
+function getFormulaSelect2(){
+	$.post(apiURL+'/FormulaSvr/allFormulasDes', function(res) {
+		if (res.code == 0) {
+			var selectData = [];
+			for (var i = 0; i < res.data.length; i++){
+				var row = res.data[i];
+				selectData.push({id:row.ID, text:row.DESCRIPTION});
+			}
+			$('#keyword').select2({data :selectData, templateResult : formatState, templateSelection : formatState , placeholder: "请选择"});
+		}
+	}, "json");
+}
+
+function search(currentPage){
+	showTip('搜索中...');
+	$.post(apiURL+"/FormulaSvr/allFormulasDes", {ID: $('#keyword').val(), p:currentPage, desc:desc}, function (res)
+    {
+        if (res.code == 0){
+			formulasM.dataM = res.data;
+			if(res.countPage<1) res.countPage=1;
+			$('#pager').bootstrapPaginator({
+				bootstrapMajorVersion:3,
+				currentPage: currentPage,
+				totalPages: Math.ceil(res.countPage),
+				onPageClicked: function(e, originalEvent, type, page) {search(page);}
+			});
+		}
+	}, "json");
+}
+
+function setSorter() {
+	var tempIcon = $('#sorterIcon');
+	tempIcon.removeClass('fa-sort-numeric-'+desc);
+	if(desc == 'desc') desc='asc';
+	else desc = 'desc';
+	tempIcon.addClass('fa-sort-numeric-'+desc);
+}
+
+function pre_info() {
+	var pre_timer = null;
+	var previewParent = parent.$('#iframeWrapper');
+	$('#tableBody').on('mouseenter','.c-name',function(){
+		clearTimeout(pre_timer);
+		previewParent.find('.preview').remove();
+		var pre_data = JSON.parse($(this).attr('data-info'));
+		var previewDiv = $('.preview').clone();
+		previewDiv.css({'top':$(this).offset().top-$(window).scrollTop(),'width':$(this).width(),'left':-$(this).width()});
+		previewDiv.find('.editor_name').append(pre_data.NAME+' -- '+pre_data.CREATE_MAN+'<br/>'+pre_data.DESCRIPTION);
+
+		$.each(eval(pre_data.ARGUMENTS),function(){
+			var list = "<tr><td class='first_td word-break'>"+this.name+"</td><td class='word-break text-center'>"+this.des+"</td></tr>" ;
+			previewDiv.find('tbody').append(list);
+		});
+		previewDiv.on('mouseenter',function(){clearTimeout(pre_timer);}).on('mouseleave',function(){$(this).delay(1000).hide(0);})
+		previewParent.prepend(previewDiv);
+	})
+	$('#tableBody').on('mouseleave','.c-name',function(){
+		pre_timer = setTimeout(function(){previewParent.find('.preview').hide(0);}, 500);
+	})
+	$(window).scroll(function(){ previewParent.find('.preview').remove();})
+}
+</script>
+<style>
+.viewNode label{
+	cursor: pointer;
+}
+.word-break{
+	word-break: break-all;
+}
+</style>
+</body>
+</html>

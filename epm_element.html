@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-cn" style="height: 100%;">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>设置EPM数据元</title>
+	<link href="./libs/bootstrap.css" rel="stylesheet" />
+	<link href="./libs/font-awesome.css" rel="stylesheet" type="text/css" />
+	<link href="./libs/select2.css" rel="stylesheet">
+	<link href="./libs/editor.css" rel="stylesheet" type="text/css" />
+	<link href="./libs/slider.css" rel="stylesheet" type="text/css" />
+	<link href="./libs/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+	<script src="./libs/plugins/bootstrap-toastr/toastr.min.js"></script>
+	<script src="./libs/editor.js"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/select2.js"></script>
+</head>
+<body style="height: 100%;">
+<div class="slidebar-wrapper" style="background-color: #F5F6F7; padding: 10px 5px 0px 5px; border-left:2px solid #EDEDED;">
+	<div class="col-sm-5">
+		<div class="row form-inline">
+			<select id="dsCode" class="js-data-example-ajax" style="width: 100%;">
+				<option value="" selected="selected">全部数据集</option>
+			</select>
+			<div class="input-group" style="margin-top: 7px;">
+				<input id="keyword" onkeyup=" if(event.keyCode==13) {search(1);}" type="text" class="form-control" value="" placeholder="数据元关键字"/>
+				<span onclick="search(1);" class="input-group-addon searchBtn" title="查询" style="font-size:15px;"><li class="fa fa-search"></li></span>
+				<span onclick="setSorter();search();" class="input-group-addon sorterBtn" title="时间排序" style="font-size:15px;"><li id="sorterIcon" class="fa fa-sort-numeric-desc"></li></span>
+				<!--<span onclick="openModalWin(this, 'elements_add.html', [], 'Y');" class="input-group-addon btn btn-default" title="添加"><li class="fa fa-plus-square"></li></span>-->
+			</div>
+		</div>
+		<div class="row form-inline" style="margin-top: 7px; border: 1px solid #EDEDED; border-radius: 4px; font-size: 12px;color:#91959C;">
+			<div class="row" style="border: 1px solid #EDEDED;">
+				<div class="col-xs-6" style="border-right:1px solid #EDEDED;"><button title="正常插入" onclick="btnSave('none');" class="epm_addbtn" style="border-right:none;"><i class="fa fa-chevron-left" style="position: relative; top: 1px;"></i>正常插入</button></div>
+				<div class="col-xs-6"><button title="嵌套插入" onclick="btnSave('embed');" class="epm_addbtn"><i class="fa fa-caret-square-o-left" style="position: relative; top: 1px;"></i>嵌套插入</button></div>
+			</div>
+			<div id="epm_loading" style="text-align:center; height:222px; font-weight: bold; line-height:222px;">searching....</div>
+			<table class="table table-hover" style="min-height: 222px;">
+				<tbody id="tableBody">
+				<tr id="viewNode">
+					<td class="c-name">
+						<label class="radio-inline">
+							<input name="elementRadio" class="c-radio" type="radio" onclick="tableClick(this)" style="display:none;"/>
+						</label>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			<div class="col-sm-12 side-pager-con">
+				<ul id="pager"></ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="style-wrapper" style="margin: 20px 0px 5px 0px; font-size:13px; color: #91959C; line-height: 16px;">
+		<div class="style-wrapper-title" style="">
+			<span style="display: inline-block; width: 60px; height: 16px; ">格式设置</span>
+			<span style="display: inline-block; position: relative; top: -5px; width: 205px; border-top: 1px solid #dddddd;"></span>
+		</div>
+		<table class="table tableSpecial" style="background:inherit;">
+			<thead>
+			<tr>
+				<td style="width:80px; line-height:31px;"></td>
+				<td>标题</td>
+				<td>控件</td>
+				<td>备注</td>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td style="padding:5px;">比例：</td>
+				<td><input id="Text6" type="number" value="8" class="form-control"/></td>
+				<td><input id="Text7" type="number" value="12" class="form-control"/></td>
+				<td><input id="Text8" type="number" value="4" class="form-control"/></td>
+			</tr>
+			<tr>
+				<td style="padding:5px;">缩进：</td>
+				<td><input id="title_indent" type="number" class="form-control" value="0"/></td>
+				<td><input id="input_indent" type="number" class="form-control" value="0"/></td>
+				<td><input id="tip_indent" type="number" class="form-control" value="0"/></td>
+			</tr>
+			<tr>
+				<td style="padding:5px;">标题后缀：</td>
+				<td colspan="3"><input id="postFix" type="text" class="form-control col-xs-12"></td>
+			</tr>
+			</tbody>
+		</table>
+		<div class="panel-body" style="padding:5px;">
+			<span class="star" style="color: #f80000; font-size: 19px; font-weight:blod; margin-top:-5px;">*</span>
+			<span>注：比例之和为 24</span>
+		</div>
+	</div>
+</div>
+
+<div style="display: none;" >
+	<div id="c-left2right" class="form-horizontal">
+		<div class="c-title"></div>
+		<div class="c-input"></div>
+		<div class="c-tip"></div>
+	</div>
+	<input type='text' class="form-control c-tpl-text c-element"/>
+	<label class="c-tpl-radio"><input type='radio' class="c-element" onclick="radioC(this);" data-checked='false'/></label>
+	<div class="preview" style="max-height: 300px; position: absolute;z-index: 30;background-color: #fff;padding: 0; border: solid 1px #cccccc; overflow: auto;box-shadow:4px 4px 8px #ccc;border-radius: 5px 5px 0 0;">
+		<div class>
+			<div class="editor_name popover-title" style="margin:0;background:#fcf8e3!important"></div>
+		</div>
+		<div >
+			<table class='table table-hover' style="margin-bottom: 0;table-layout:fixed;">
+				<thead>
+				<tr style="background: #f0f0f0;"><th class="text-center">值域</th><th class="text-center">计算值</th></tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+  desc = "desc";
+  $("#viewNode").hide();
+  $("#dsCode").select2({
+    minimumInputLength: 1,
+    ajax: {
+      dataType: "json",
+      data: function(params) {
+        return { keyword: params.term, p: params.page, pagesize: 20 };
+      },
+      url: apiURL + "/EPMSvr/allSets",
+      processResults: function(res, params) {
+        params.page = params.page || 1;
+        var items = [];
+        for (var i = 0; i < res.data.length; i++) {
+          var row = res.data[i];
+          items.push({ id: row.DS_CODE, text: row.DS_NAME, locked: true });
+        }
+
+        return {
+          results: items,
+          pagination: { more: params.page < res.countPage }
+        };
+      }
+    }
+  });
+  $("#dsCode").change(function() {
+    search(1);
+  });
+  search(1);
+  pre_info();
+});
+
+function getGrids() {
+  return parent.$("[data-checked='Y']");
+}
+
+function btnSave(embedOrNot) {
+  //创建元的新ID：元ID_模板ID[_顺序号]
+  var elementRadio = $("input[name='elementRadio']:checked");
+  if (elementRadio.length == 0) {
+    parent.toastr.warning("没有选中数据元");
+    return false;
+  }
+  if (!isGridEditable([11, 12, 13, 14])) return false;
+
+  var elementData = elementRadio.data("element");
+  var formElementName =
+    elementData.METADATA_IDENTIFY + "_" + parent.template_id;
+
+  for (var i = 1; i < 10000; i++) {
+    var newName = formElementName + "_" + i;
+    if (parent.$("[name='" + newName + "'").length == 0) break;
+  }
+  continueSave(newName, embedOrNot, elementData);
+}
+
+function continueSave(formElementName, embedOrNot, elementData) {
+  var elementTitle = cookTitle(elementData);
+  var formDiv = $("#c-left2right")
+    .clone()
+    .removeAttr("id");
+
+  //缩进
+  var titleOffset = parseInt($("#title_indent").val());
+  if (titleOffset > 0)
+    formDiv.find(".c-title").addClass("col-sm-offset-" + titleOffset);
+  var inputOffset = parseInt($("#input_indent").val());
+  if (inputOffset > 0)
+    formDiv.find(".c-input").addClass("col-sm-offset-" + inputOffset);
+  var tipOffset = parseInt($("#tip_indent").val());
+  if (tipOffset > 0)
+    formDiv.find(".c-tip").addClass("col-sm-offset-" + tipOffset);
+
+  //占格
+  var titleSpan = parseInt($("#Text6").val());
+  formDiv.find(".c-title").addClass("col-sm-" + titleSpan);
+  if (titleSpan == 0) formDiv.find(".c-title").hide();
+  formDiv.find(".c-input").addClass("col-sm-" + parseInt($("#Text7").val()));
+  var tipSpan = parseInt($("#Text8").val());
+  formDiv.find(".c-tip").addClass("col-sm-" + tipSpan);
+  if (tipSpan == 0) formDiv.find(".c-tip").hide();
+
+  //保存到数据库
+  var voptionArray = [];
+  if (elementData.data) {
+    for (var i = 0; i < elementData.data.length; i++) {
+      var row = elementData.data[i];
+      var tempObj = {};
+      tempObj.voption_id = row.ID;
+      tempObj.ealias_id = formElementName;
+      tempObj.alias = row.FIELDCODE_VALUE_CN_NAME;
+      tempObj.avalue = row.FIELDCODE_VALUE;
+      tempObj.cvalue = row.FIELD_COMPUTE;
+      tempObj.sorter = i;
+      tempObj.status = 0;
+      voptionArray.push(tempObj);
+    }
+  }
+
+  $.ajax({
+    url: apiURL + "/EAliasSvr/save",
+    dataType: "json",
+    async: false,
+    type: "post",
+    data: {
+      id: formElementName,
+      alias: elementTitle,
+      datatype: elementData.DATA_META_DATATYPE,
+      voptions: JSON.stringify(voptionArray)
+    },
+    success: function(res) {
+      if (res.code == 0) {
+        if (res.data.voptions && res.data.voptions.length > 0) {
+          for (var i = 0; i < res.data.voptions.length; i++) {
+            var row = res.data.voptions[i];
+            if (row.STATUS == 0) {
+              console.log(row);
+              //id是别值表的ID
+              var tempNode = $(".c-tpl-radio").clone();
+              var tempNode_in = tempNode.find(".c-element");
+              tempNode_in.attr("id", "e2v_" + row.ID);
+              tempNode_in.val(row.ID); //别元别值的重点关系
+              tempNode_in.attr("data-vid", row.VOPTION_ID);
+              tempNode_in.attr("data-cvalue", row.CVALUE);
+              tempNode_in.attr("data-avalue", row.AVALUE);
+              tempNode_in.attr("title", row.ALIAS);
+              tempNode.append(row.ALIAS);
+              tempNode_in.attr("data-type", elementData.DATA_META_DATATYPE);
+              tempNode_in.attr("data-name-type", "1");
+              formDiv.find(".c-input").append(tempNode);
+            }
+          }
+        } else {
+          var tempNode = $(".c-tpl-text").clone();
+          tempNode.attr("data-type", elementData.DATA_META_DATATYPE);
+          formDiv.find(".c-input").append(tempNode);
+        }
+        formDiv.find(".c-element").attr("name", formElementName);
+
+        formDiv.find(".c-title").html(elementTitle + $("#postFix").val());
+        formDiv.find(".c-title").attr("title", formElementName);
+        var data_title = $("input[name='elementRadio']:checked").data("element")
+          .METADATA_NAME;
+        if (!$.isEmptyObject(elementData.DATA_UNIT)) {
+          formDiv.find(".c-tip").text(elementData.DATA_UNIT);
+        }
+        var newGrid = parent.cloneGrid();
+        if (formElementName.indexOf("JH10.00.017.96.001") != -1) {
+          parent.openModalWin(
+            this,
+            "med_config.html?formElementName=" +
+              formElementName +
+              "&DATA_META_DATATYPE=" +
+              (elementData.DATA_META_DATATYPE || "")
+          );
+          return false;
+        } else {
+          newGrid.find(".c-content").append(formDiv);
+        }
+
+        if (embedOrNot == "embed") {
+          parent.currentEmbed(newGrid, data_title);
+        } else if (embedOrNot == "none") {
+          parent.currentInsert(newGrid, data_title);
+        }
+
+        //系统字段默认复制（系统当前日期）
+        if (formElementName.indexOf("JH10.00.017.96.007") != -1) {
+          var grid = parent.$("div[data-c-value='" + formElementName + "']");
+          grid.append($('<script>').html('getSystemTime("'+formElementName+'");'));
+        }
+      } else {
+        alert("System Error: save element");
+      }
+    },
+    error: function(res) {
+      alert("System Error");
+      console.log(res.responseText);
+    }
+  });
+}
+
+function search(currentPage) {
+  showTip("搜索中...");
+  $.ajax({
+    url: apiURL + "/EPMSvr/allElements",
+    data: {
+      sid: $("#dsCode").val(),
+      keyword: $("#keyword").val(),
+      p: currentPage,
+      desc: desc
+    },
+    type: "POST",
+    dataType: "json",
+    beforeSend: function() {
+      $("#viewNode")
+        .nextAll()
+        .remove();
+      $("#epm_loading").show();
+    },
+    complete: function() {
+      $("#epm_loading").hide();
+    },
+    success: function(res) {
+      if (res.code != 0) return false;
+      $("#viewNode")
+        .nextAll()
+        .remove();
+      if (res.data.length == 0) {
+        var newNode = $("#viewNode").clone();
+        newNode.removeAttr("id");
+        newNode.addClass("viewNode");
+        newNode.css({ "line-height": "222px", "text-align": "center" });
+        newNode.html("暂未搜索到该数据元");
+        newNode.show();
+        $("#tableBody").append(newNode);
+      }
+      for (var i = 0; i < res.data.length; i++) {
+        var row = res.data[i];
+        var newNode = $("#viewNode").clone();
+        newNode.removeAttr("id");
+        newNode.addClass("viewNode");
+        newNode.find(".c-radio").val(row.METADATA_IDENTIFY);
+        newNode.find(".c-radio").attr("title", row.METADATA_IDENTIFY);
+        newNode.find(".c-radio").after(" " + row.METADATA_NAME);
+        newNode.show();
+        newNode.find(".c-radio").data("element", row);
+        $("#tableBody").append(newNode);
+      }
+
+      if (res.countPage < 1) res.countPage = 1;
+      $("#pager").bootstrapPaginator({
+        bootstrapMajorVersion: 3,
+        currentPage: currentPage,
+        totalPages: Math.ceil(res.countPage),
+        shouldShowPage: true,
+        itemTexts: function(type, page, current) {
+          switch (type) {
+            case "first":
+              return "&laquo;";
+            case "prev":
+              return "&lsaquo;";
+            case "next":
+              return "&rsaquo;";
+            case "last":
+              return "&raquo;";
+            case "page":
+              return page;
+          }
+        },
+        onPageClicked: function(e, originalEvent, type, page) {
+          search(page);
+        }
+      });
+    },
+    error: function(res) {
+      console.log(res.responseText);
+    }
+  });
+}
+
+function pre_info() {
+  var pre_timer = null;
+  var previewParent = parent.$("#iframeWrapper");
+  $("#tableBody").on("mouseenter", ".c-name", function() {
+    clearTimeout(pre_timer);
+    var scroll_top = $(window).scrollTop();
+    var preview_height = $(this).offset().top - scroll_top;
+    previewParent.find(".preview").remove();
+    var pre_data = $(this)
+      .find("input")
+      .data("element");
+    var previewDiv = $(".preview").clone();
+    previewDiv.css({
+      top: preview_height,
+      width: $(this).width(),
+      left: -$(this).width()
+    });
+    var elementTitle = pre_data.METAITEM;
+    if (elementTitle == undefined || elementTitle.trim() == "") {
+      elementTitle = pre_data.METADATA_NAME;
+    }
+    var identify_title =
+      '<div style="border-bottom: 1.5px #000 solid">' +
+      elementTitle +
+      '</div><small style="font-weight: 100;text-align:right"> CODE: ' +
+      pre_data.METADATA_IDENTIFY +
+      " By " +
+      pre_data.CREATE_MAN +
+      "</small>";
+    previewDiv.find(".editor_name").append(identify_title);
+    console.log(pre_data.data);
+    $.each(pre_data.data, function() {
+      var list =
+        "<tr style='background: #f0f0f0'><td class='first_td' style='word-break:break-all;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;padding-left:14px'>" +
+        this.FIELDCODE_VALUE_CN_NAME +
+        "</td><td class='text-center' style='word-break:break-all;'><span class='badge badge-success'>" +
+        this.FIELD_COMPUTE +
+        "</span></td></tr>";
+      previewDiv.find("tbody").append(list);
+    });
+    if (pre_data.data == undefined) {
+      previewDiv.find(".table").remove();
+    }
+    previewDiv
+      .on("mouseenter", function() {
+        clearTimeout(pre_timer);
+      })
+      .on("mouseleave", function() {
+        $(this)
+          .delay(1000)
+          .hide(0);
+      });
+    previewParent.prepend(previewDiv);
+  });
+  $("#tableBody").on("mouseleave", ".c-name", function() {
+    pre_timer = setTimeout(function() {
+      previewParent.find("").hide(0);
+    }, 1000);
+  });
+  $(window).scroll(function() {
+    previewParent.find(".preview").remove();
+  });
+}
+
+function setSorter() {
+  var tempIcon = $("#sorterIcon");
+  tempIcon.removeClass("fa-sort-numeric-" + desc);
+  if (desc == "desc") desc = "asc";
+  else desc = "desc";
+  tempIcon.addClass("fa-sort-numeric-" + desc);
+}
+
+function cookTitle(element) {
+  var elementTitle = element.METAITEM;
+  if (elementTitle == undefined || elementTitle.trim() == "") {
+    elementTitle = element.METADATA_NAME;
+  }
+  return elementTitle;
+}
+</script>
+</body>
+</html>

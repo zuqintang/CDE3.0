@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-cn" style="height:100%;">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>公式编辑器</title>
+	<link href="./libs/bootstrap-3.3.7.css" rel="stylesheet">
+	<link href="./libs/font-awesome.css" rel="stylesheet">
+	<link href="./libs/editor.css" rel="stylesheet">
+	<script src="./libs/jquery-1.12.4.js"></script>
+	<script src="./libs/bootstrap-3.3.7.js"></script>
+	<script src="./libs/editor.js"></script>
+</head>
+<body style="height:100%;">
+<div class="container" style="height:90%;">
+	<div class="row">
+		<div class="col-sm-24">
+			<label>
+				<input id="eventChange" type="checkbox" value="Y"/>1. 隐藏关系（是否绑定值改变事件）
+			</label>
+		</div>
+	</div>
+	<div class="row" style="height:80%;">
+		<div class="col-sm-24">
+			<label>
+				<input id="eventFocus" type="checkbox" value="Y"/>2. 公式计算关系（是否绑定值输入事件）
+			</label>
+			<label>
+				<input id="autoCount" type="checkbox" name="count">自动计算
+			</label>
+			<label>
+				<input id="focusCount" type="checkbox" name="count">获焦计算
+			</label>
+			<label>
+				<input id="blurCount" type="checkbox" name="count">失焦计算
+			</label>
+			<label>
+				<input id="clickCount" type="checkbox" name="count">点击计算
+			</label>
+
+		</div>
+		<div class="col-sm-2 text-right"><i class="fa fa-refresh" onclick="loadFocus();" style="cursor:pointer;"></i></div>
+		<div class="col-sm-22" style="height:90%">
+			<iframe  id="formulas" name="formulas" frameborder="0" style="width:100%; height:100%; border:1px solid #E3E3E3;"></iframe>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-24">
+			<label>
+				<input id="eventScript" type="checkbox" value="Y"/>3. 隐藏关系（跨表单事件）
+			</label>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-24">
+			<label>
+				<input id="eventTimestamp" type="checkbox" value="Y"/>4. 时间戳（设置父亲格的全部数据元发生时间，同时选中1才生效）
+			</label>
+		</div>
+	</div>
+</div>
+<div class="hide">
+	<span class="c-calculator" onclick="var inp=$(this).prev();zq_bindFormula(inp[0], inp.attr('data-formula'))"><i class="fa fa-calculator"></i></span>
+</div>
+<script type='text/javascript'>
+$(function (){
+	var randomnumber=Math.floor(Math.random()*1000);
+	$('#formulas').attr('src', 'formulas.html?noCache='+randomnumber);
+
+	tempGrid = parent.getGrid();
+	inputDIV = tempGrid.find('.c-input:first');
+	elements = tempGrid.find('.c-element');
+	var onchangeStr = elements.attr('onchange');
+	if(onchangeStr) $('#eventChange').attr('checked', true);
+
+	loadFocus();
+	if(tempGrid.children('script').length > 0) $('#eventScript').attr('checked', true);
+	if(elements.attr('data-timer') == 'Y') $('#eventTimestamp').attr('checked', true);
+});
+
+function loadFocus(){
+	var onfocusStr = elements.attr('data-formula');
+	if(onfocusStr){
+       $('#eventFocus').attr('checked', true);
+		if(elements.attr('data-auto')){
+			$('#autoCount').attr('checked', true);
+		}else{
+			$('#autoCount').attr('checked',false);
+		}
+		if(elements.attr('onfocus')){
+			$('#focusCount').attr('checked', true);
+		}else{
+			$('#focusCount').attr('checked', false);
+		}
+		if(elements.attr('onblur')){
+			$('#blurCount').attr('checked', true);
+		}else{
+			$('#blurCount').attr('checked', false);
+		}
+		if(inputDIV.find('.c-calculator').length > 0){
+			$("#clickCount").attr('checked', true);
+		}else{
+			$("#clickCount").attr('checked', false);
+		}
+
+		var fid = JSON.parse(elements.attr('data-formula')).ID;
+		var formulaSelect = $('#formulaSelect', frames['formulas'].document);
+		var option = formulaSelect.find("option[value='"+fid+"']");
+		option.attr('selected', true);
+		formulaSelect.change();
+	}
+}
+
+function btnSave() {
+	if($('#eventChange').is(':checked')){
+		elements.attr("onchange", "elementChange(this);");
+	}else{
+		elements.removeAttr('onchange');
+	}
+
+	inputDIV.find('.c-calculator').remove();
+	if($('#eventFocus').is(':checked')){
+		var fid = $('#formulaSelect', frames['formulas'].document).val();
+		$.post(apiURL+'/FormulaSvr/model', {id: fid}, function (res){
+			if(res.code == 0)
+			{
+				var formula = res.data;
+				var eleFirst = elements.eq(0);
+				if($('#autoCount').is(':checked')){
+					eleFirst.attr('data-auto','true');
+				}else {
+					eleFirst.removeAttr('data-auto');
+				}
+				if($('#focusCount').is(':checked')){
+					elements.attr("onfocus", "zq_bindFormula(this, $(this).attr('data-formula'))");
+				}else{
+					elements.removeAttr('onfocus');
+				}
+				if($('#blurCount').is(':checked')){
+					elements.attr("onblur", "zq_bindFormula(this, $(this).attr('data-formula'))");
+				}else{
+					elements.removeAttr('onblur');
+				}
+				if($('#clickCount').is(':checked')){
+					inputDIV.append($('.c-calculator').clone().removeAttr('id'));
+				}else{
+					inputDIV.find('.c-calculator').remove();
+				}
+				elements.attr("data-formula", JSON.stringify(formula));
+			}
+		}, 'json');
+	}else{
+		elements.removeAttr('onfocus');
+		elements.removeAttr('data-formula');
+		elements.removeAttr('data-auto');
+	}
+
+	tempGrid.children('script').remove();
+	if($('#eventScript').is(':checked')){
+		var script = "directGlobalHide('"+tempGrid.attr('id')+"');";
+		tempGrid.append('<script>' + script + '<\/script>');
+	}
+
+	if($('#eventTimestamp').is(':checked')){
+		var parentGrid = tempGrid.parents('.c-grid:first');
+		parentGrid.attr('data-timestamp', '');
+		elements.attr('data-timer', 'Y');
+	}else{
+		var parentGrid = tempGrid.parents('.c-grid:first');
+		parentGrid.removeAttr('data-timestamp');
+		elements.removeAttr('data-timer');
+	}
+	parent.modalWin.modal("hide");
+}
+</script>
+</body>
+</html>

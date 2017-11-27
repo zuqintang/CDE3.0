@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>添加数据元</title>
+	<link href="./libs/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+	<link href="./libs/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/sweetalert/sweetalert.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/bootstrap-toastr/toastr.min.css" rel=" stylesheet">
+	<link href="./libs/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+	<link href="./libs/plugins/select2/css/select2.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet"/>
+	<link href="./libs/plugins/animate.css" rel="stylesheet">
+	<link href="./libs/epm.css" rel="stylesheet">
+	<link href="https://cdn.bootcss.com/pace/1.0.2/themes/silver/pace-theme-loading-bar.css" rel="stylesheet" />
+	<script src="https://cdn.bootcss.com/pace/1.0.2/pace.js"></script>
+	<script src="./libs/plugins/jquery.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="./libs/bootstrap-paginator.js"></script>
+	<script src="./libs/plugins/sweetalert/sweetalert.min.js"></script>
+	<script src="./libs/plugins/bootstrap-toastr/toastr.min.js"></script>
+	<script src="./libs/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+	<script src="./libs/plugins/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+	<script src="./libs/plugins/excel/xlsx.full.min.js"></script>
+	<script src="./libs/epm.js"></script>
+	<script src="./libs/plugins/scrollfix/scrollfix.js"></script>
+	<script src='./libs/vue.js' type='text/javascript'></script>
+	<script src='./libs/vue-resource.js' type='text/javascript'></script>
+	<style>
+		.fixed-table-pagination .page-list{
+			display: none;
+		}
+	</style>
+</head>
+<body>
+<div class="container-full">
+	<div class="panel-body" id="eElementsM">
+		<div class="form-horizontal col-sm-4">
+			<div class="form-group">
+				<label class="control-label col-sm-4 label-paddding">名称：</label>
+				<div class="col-sm-8">
+					<input id="elementName" type="text" class="form-control" v-model="dataM.METADATA_NAME"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-4 label-paddding">类型：</label>
+				<div class="col-sm-8">
+					<select id="selectType" class="form-control" v-model="dataM.DATA_META_DATATYPE">
+						<optgroup label="输入类">
+							<option value="S">输入框</option>
+							<option value="N">数值框</option>
+						</optgroup>
+						<optgroup label="时间类">
+							<option value="D">日期</option>
+							<option value="T">时间</option>
+							<option value="DT">日期时间</option>
+						</optgroup>
+						<optgroup label="选择类">
+							<option value="L">单选框(展开型)</option>
+							<option value="S3">多选框(展开型)</option>
+						</optgroup>
+						<optgroup label="非EPM类">
+							<option value="BY">其他类型</option>
+						</optgroup>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-4 label-paddding">单位：</label>
+				<div class="col-sm-8">
+					<input id="dataUnit" type="text" class="form-control" v-model="dataM.DATA_UNIT"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-4 label-paddding">值域编码：</label>
+				<div class="col-sm-8">
+					<input id="optionCode" type="text" class="form-control" v-model="dataM.FIELDCODE_TABLECODE"/>
+				</div>
+			</div>
+		</div>
+		<div class="form-horizontal col-sm-8">
+			<ul class="nav nav-tabs" id="myTab" role="tablist">
+				<li class="nav-item active">
+					<a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-expanded="true">新增值域</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile">值域搜索</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" id="check-tab" data-toggle="tab" href="#check" role="tab" aria-controls="check">检查重复</a>
+				</li>
+
+			</ul>
+			<div class="tab-content" id="myTabContent">
+				<div class="tab-pane fade active in" id="home" role="tabpanel" aria-labelledby="home-tab">
+					<div class="form-group">
+						<div class="col-sm-12">
+							<button onclick="oldOptions();" class="btn btn-primary" title="添加已有值域">添加值域</button>
+							<button onclick="newOptions();" class="btn btn-success" title="添加新值域">新建值域</button>
+							<button onclick="clearOptions();" class="btn btn-info" title="清空值域">清空值域</button>
+						</div>
+					</div>
+					<div class="form-group" id="new_options" style=" display:none;max-height: 300px; overflow-y: scroll;">
+						<div class="col-sm-12">
+							<input id="fieldName" type="text" class="form-control" placeholder="请输入值域对名称"/>
+							<table class="table table-bordered">
+								<thead>
+								<tr class="text-nowrap">
+									<th>
+										<button onclick="addOption();"><i class="icon-plus"></i></button>
+										值域
+									</th>
+									<th style="width:100px;">值</th>
+									<th>计算值</th>
+									<th>排序值</th>
+									<th>操作</th>
+								</tr>
+								</thead>
+								<tbody id="tabBody">
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="form-group" id="old_options" style=" display:none;max-height: 300px; overflow-y: scroll;">
+						<div class="col-sm-12">
+							<table class="table table-bordered">
+								<thead>
+								<tr class="text-nowrap">
+									<th>
+										值域
+									</th>
+									<th style="width:100px;">值</th>
+									<th>计算值</th>
+									<th>排序值</th>
+								</tr>
+								</thead>
+								<tbody id="oldTab">
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+					<iframe src="epm_options.html" class="" frameborder="0" style="width: 100%;height: 380px"></iframe>
+				</div>
+				<div class="tab-pane fade" id="check" role="tabpanel" aria-labelledby="profile-tab">
+					<div class="search-wrapper" style="margin:10px 0px">						
+						<div class="col-sm-6 position-relative">
+							<input type="text" id="keySearch" class="form-control form-control-special" placeholder="输入数据元" style="padding-right: 26px;" onkeyup="if(event.keyCode==13){elesTable()}"/>
+							<span class="search-icon">
+                            <i class="icon-magnifier" style="color:#c3c5c9; font-size:15px;"></i>
+                        </span>
+						</div>
+						<div class="clearfix"></div>
+					</div>
+					<table id="elesTable" style="background:#fff;"></table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="infoBox">
+	<div class="alert alert-warning alert-dismissible" role="alert" style="display:none;">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<span id="warning"></span>
+	</div>
+	<div class="alert alert-success alert-dismissible" role="alert" style="display:none;">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<span id="success"></span>
+	</div>
+</div>
+<div>
+	<table class="hide">
+		<tr id="tabNode">
+			<td class="col-sm-3">
+				<input type="text" class="c-alias form-control" style="padding:0px;"/>
+			</td>
+			<td class="col-sm-3">
+				<input type="text" class="c-avalue form-control" style="padding:0px;"/>
+			</td>
+			<td class="col-sm-3">
+				<input type="text" class="c-cvalue form-control" style="padding:0px;"/>
+			</td>
+			<td class="col-sm-3">
+				<input type="text" class="c-sort form-control" style="padding:0px;"/>
+			</td>
+			<td class="col-sm-3">
+				<button onclick="deleteOption(this);" title='删除' class="btn btn-default btn-delete">
+					<span class="icon-close"></span>
+				</button>
+			</td>
+		</tr>
+	</table>
+</div>
+
+<script type='text/javascript'>
+	$(function(){
+        eElementsM = new Vue({
+            el : '#eElementsM',
+            data : {
+                dataM: {METADATA_NAME: '', DATA_META_DATATYPE: '', DATA_UNIT: '', FIELDCODE_TABLECODE: ''},
+            }
+        });
+        window.code = get_url_param('code');
+        if(code != null && code != ''){
+            eElementsM.$http({
+                url :globalURL+'/EPMSvr/eleInfos',
+                method : 'post',
+                params : {"code": code},
+                headers : {"X-Requested-With": "XMLHttpRequest"}
+            }).then(function(res){
+                this.dataM = res.data.data.ELEMENT[0];
+                console.log(this.dataM);
+            }, function(err){ parent.toastr.error(err); });
+        }
+		if(parent.element_id && parent.element_id.length>0){
+			showElements();
+		}
+        $('#elesTable').bootstrapTable({
+            url: globalURL + '/EPMSvr/allElements',
+            method: 'post',
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            striped: true,
+            cache: true,
+            iconSize: 'xs',
+            pageNumber: 1,
+            pageSize: 5,
+            pageList: [5, 10, 15, 20, 'ALL'],
+            uniqueId: "METADATA_IDENTIFY",
+            pagination: true,
+            queryParamsType: 'limit',
+            sidePagination: "server",
+            queryParams: function (params) {
+                return {
+                    p: (params.offset / params.limit) + 1,
+                    pagesize: params.limit,
+                    keyword: $('#keySearch').val(),
+                    isTotal: 'isTotal'
+                }
+            },
+            paginationFirstText : "&laquo;",
+            paginationPreText : "&lsaquo;",
+            paginationNextText : "&rsaquo;",
+            paginationLastText : "&raquo;",
+            formatLoadingMessage: function () {
+                return "数据加载中...";
+            },
+            formatNoMatches: function () {
+                return '无符合条件的记录';
+            },
+            responseHandler: function(res) {
+                return {
+                    "total": res.countPage,
+                    "rows": res.data
+                };
+            },
+            columns: [
+                {
+                    field: 'METADATA_NAME',
+                    title: '数据元名称',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var val=row['KEYWORDS'];
+                        var temp=row['METADATA_NAME'];
+                        val.forEach(function(item,index){
+                            temp=temp.replace(item,'<span style="background:#cfc;border-bottom: #000 solid 1px">' + item + '</span>')
+                        });
+                        return '<div class="blue-a" data-field="' + row['FIELDCODE_TABLECODE'] + '">'+temp+'</div>';
+                    }
+                },
+                {
+                    field: 'METADATA_IDENTIFY',
+                    title: '数据元标识符',
+                    align: 'center'
+                },
+                {
+                    field: 'FIELDCODE_TABLECODE',
+                    title: '数据元的允许值',
+                    align: 'center'
+                }
+            ],
+            onLoadSuccess: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            }
+        });
+	});
+    function elesTable() {
+        $('#elesTable').bootstrapTable('refreshOptions', {pageNumber: 1});
+        $('#elesTable').bootstrapTable('refresh');
+    }
+
+	function showElements(){
+		$.post(globalURL+'/ElementsSvr/model', {id: parent.element_id}, function (res)
+		{
+			if (res.code == 0)
+			{
+				var ele = res.data;
+				$('#elementName').val(ele.METADATA_NAME);
+				$('#dataUnit').val(ele.DATA_UNIT);
+				$('#selectType').val(ele.DATA_META_DATATYPE);
+				if(ele.voptions)
+				{
+					var options = ele.voptions;
+					if(ele.FIELD_FROM == 'EPM'){
+						for(var i= 0; i<options.length; i++){
+							var row = options[i];
+							var newNode = $('#tabNode').clone();
+							newNode.removeAttr('id');
+							newNode.find('.btn-delete').parent().remove();
+							showInfo(newNode, row);
+							$('#oldTab').append(newNode);
+							$('#oldTab').find('input').attr('disabled','disabled');
+						}
+						$('#old_options').show();
+					}else{
+						$('#fieldName').val(ele.METADATAFIELD_NAME);
+						for(var i=0; i<options.length; i++){
+							var row = options[i];
+							var newNode = $('#tabNode').clone();
+							newNode.removeAttr('id');
+							newNode.attr('data-id', row.ID);
+							showInfo(newNode, row);
+							$('#tabBody').append(newNode);
+							$('#tabBody').attr('data-option', ele.FIELDCODE_TABLECODE);
+						}
+						$("#new_options").show();
+					}
+				}
+			}
+		}, 'json');
+	}
+
+	function addOption(){
+		var newNode = $('#tabNode').clone();
+		newNode.removeAttr('id');
+		$('#tabBody').append(newNode);
+	}
+
+	function deleteOption(obj){
+		var code = $(obj).parents('tr').attr('data-id');
+		if(code){
+			deleteOptionAjax(code);
+		}
+		$(obj).parents('tr:first').remove();
+	}
+
+	function deleteOptionAjax(code){
+		$.post(globalURL+'/ElementsSvr/deleteOption',{code:code}, function (res)
+		{
+			if (res.code == 0){}else if(res.code == 20001){alert(res.data);return false;}else{warnInfo('API Error');}
+		}, 'json').error(function(res){console.log(res.responseText)});
+	}
+
+	function newOptions(){
+		$('#old_options').hide();
+		$('#fieldName').val('');
+		$('#tabBody').removeAttr('data-option');
+		$('#tabBody').empty();
+		$("#new_options").show();
+	}
+
+	function oldOptions(){
+		var optionCode = $('#optionCode').val();
+		$("#new_options").hide();
+		if(optionCode == ''){$('#old_options').hide(); return false;}
+
+		$('#oldTab').empty();
+		$.ajax({
+			type: "POST",
+			url: globalURL+'/ElementsSvr/getOptions',
+			data: {code:optionCode},
+			dataType: "json",
+			success: function(result){
+				var options = result.data;
+				for(var i= 0; i<options.length; i++){
+					var row = options[i];
+					var newNode = $('#tabNode').clone();
+					newNode.removeAttr('id');
+					showInfo(newNode, row);
+					newNode.find('.btn-delete').parent().remove();
+					$('#oldTab').append(newNode);
+					$('#oldTab').find('input').attr('disabled','disabled');
+				}
+			},
+			error : function(){alert('System Error');}
+		});
+		$('#old_options').show();
+	}
+
+	function clearOptions(){
+		$('#old_options').hide();
+		$("#new_options").hide();
+		$('#optionCode').val('');
+	}
+
+	function btnSave(){
+		var dataType = $('#selectType').val();
+		var elementName = $('#elementName').val();
+		var dataUnit = $('#dataUnit').val();
+		var username = localStorage.r_username;
+		var dataArray = [];
+		var optionCode = '';
+		var fieldName = '';
+
+		if($("#new_options").is(':visible')){
+			var optionTRs = $('#tabBody').find('tr');
+			fieldName = $('#fieldName').val();
+			dataInfo(optionTRs, dataArray);
+		}else if($("#old_options").is(':visible')){
+			optionCode = $('#optionCode').val();
+		}
+
+		if(parent.element_id && parent.element_id.length>0){
+			var optionID = '';
+			if($('#tabBody').attr('data-option') && $("#old_options").is(':hidden')){optionID = $('#tabBody').attr('data-option');}
+			$.post(globalURL+'/ElementsSvr/update',{ID:parent.element_id, dataType:dataType, elementName:elementName, useName:username, dataUnit:dataUnit, fieldName:fieldName, voptions:JSON.stringify(dataArray), optionCode:optionCode, optionID:optionID}, function (res)
+			{
+				if (res.code == 0)
+				{
+					parent.$("[name='refresh']").click();
+					parent.modalWin.modal("hide");
+				}else if(res.code == 20001){warnInfo(res.data);
+				}else{warnInfo('API Error');}
+			}, 'json').error(function(res){console.log(res.responseText)});
+		}else{
+			$.post(globalURL+'/ElementsSvr/save',{dataType:dataType, elementName:elementName, useName:username, dataUnit:dataUnit, fieldName:fieldName, voptions:JSON.stringify(dataArray), optionCode:optionCode}, function (res)
+			{
+
+				if (res.code == 0)
+				{
+                    parent.toastr.success('数据元操作成功');
+					window.location.href = window.location.href;
+				}else if(res.code == 20001){warnInfo(res.data);
+				}else{warnInfo('API Error');}
+			}, 'json').error(function(res){console.log(res.responseText)});
+		}
+		parent.elesTable();
+	}
+
+	function dataInfo(optionTRs, dataArray){
+		for(var i=0; i<optionTRs.length; i++){
+			var row = optionTRs.eq(i);
+			var tempObj = {};
+			if(row.attr('data-id')){
+				tempObj.id = row.attr('data-id');
+			}
+			tempObj.alias = row.find('.c-alias').val();
+			tempObj.avalue = row.find('.c-avalue').val();
+			tempObj.cvalue = row.find('.c-cvalue').val();
+			tempObj.sorter = row.find('.c-sort').val();
+			tempObj.fname = $('#fieldName').val();
+			dataArray.push(tempObj);
+		}
+	}
+
+	function showInfo(newNode, row){
+		newNode.find('.c-alias').val(row.FIELDCODE_VALUE_CN_NAME);
+		newNode.find('.c-avalue').val(row.FIELDCODE_VALUE);
+		newNode.find('.c-cvalue').val(row.FIELD_COMPUTE);
+		newNode.find('.c-sort').val(row.FIELDORDER);
+	}
+</script>
+</body>
+</html>
